@@ -184,25 +184,10 @@ Include progress tracking section:
 - Remaining: [count]
 ```
 
-### 6. Final Steps
+### 6. Document Generation Only
+Generate the tasks document content ONLY. Do not include any review or approval instructions in the actual document file.
 
-After generating tasks, add a review notice at the end of tasks.md:
-```markdown
----
-## Review Checklist
-
-Please review the generated tasks:
-- [ ] Are tasks properly sized (2-4 hours each)?
-- [ ] Are all requirements covered?
-- [ ] Is the dependency order correct?
-- [ ] Do technology choices match the design?
-
-If everything looks good, you can start implementation.
-If changes are needed, please edit this file directly.
----
-```
-
-### 7. Update Metadata and Final Review
+### 7. Update Metadata
 
 Update spec.json with:
 ```json
@@ -231,11 +216,17 @@ Update spec.json with:
 }
 ```
 
-### 8. Human Review Required
-Add review notice at the end of tasks.md:
-```markdown
+### 8. Metadata Update
+Update the tracking metadata to reflect task generation completion.
+
 ---
-## Review and Approval Required
+
+## REVIEW AND APPROVAL PROCESS (Not included in document)
+
+The following is for Claude Code conversation only - NOT for the generated document:
+
+### Human Review Required
+After generating tasks.md, inform the user:
 
 **NEXT STEP**: Human review required before starting implementation.
 
@@ -270,8 +261,6 @@ After reviewing, update `.kiro/specs/$ARGUMENTS/spec.json`:
 ```
 
 **Only after approval can you start implementation.**
----
-```
 
 ## Instructions
 

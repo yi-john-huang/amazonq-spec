@@ -4,16 +4,18 @@ This project implements Kiro-style Spec-Driven Development for Claude Code using
 
 ## Project Context
 
-### Active Specifications
-- Current spec: Check `.kiro/specs/` for active specifications
-- **pdf-drawing-explanation-app** - Phase: initialized
-- Use `/spec-status [feature-name]` to check progress
-
 ### Project Steering
 - Product overview: `.kiro/steering/product.md`
 - Technology stack: `.kiro/steering/tech.md`
 - Project structure: `.kiro/steering/structure.md`
 - Custom steering docs for specialized contexts
+
+### Active Specifications
+- Current spec: Check `.kiro/specs/` for active specifications
+- **pdf-diagram-explanation-app** - Phase: initialized
+- Use `/spec-status [feature-name]` to check progress
+
+
 
 ## Spec-Driven Development Workflow
 

@@ -174,11 +174,17 @@ Update spec.json with:
 }
 ```
 
-### 6. Human Review Required
-Add review notice at the end of design.md:
-```markdown
+### 6. Document Generation Only
+Generate the design document content ONLY. Do not include any review or approval instructions in the actual document file.
+
 ---
-## Review and Approval Required
+
+## REVIEW AND APPROVAL PROCESS (Not included in document)
+
+The following is for Claude Code conversation only - NOT for the generated document:
+
+### Human Review Required
+After generating design.md, inform the user:
 
 **NEXT STEP**: Human review required before proceeding to tasks phase.
 
@@ -208,8 +214,6 @@ After reviewing, update `.kiro/specs/$ARGUMENTS/spec.json`:
 ```
 
 **Only after approval can you proceed to `/spec-tasks $ARGUMENTS`**
----
-```
 
 ## Instructions
 
