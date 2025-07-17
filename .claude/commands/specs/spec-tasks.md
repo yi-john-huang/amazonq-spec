@@ -1,6 +1,6 @@
 ---
 description: Generate implementation tasks for a specification
-allowed-tools: Bash, Read, Write, Edit
+allowed-tools: Bash, Read, Write, Edit, Update, MultiEdit
 ---
 
 # Implementation Tasks
@@ -12,41 +12,73 @@ Generate detailed implementation tasks for feature: **$ARGUMENTS**
 **CRITICAL**: Tasks can only be generated after both requirements and design are approved.
 
 ### Approval Status Check
-- Spec metadata: @.claude/specs/$ARGUMENTS/spec.json
+- Spec metadata: @.kiro/specs/$ARGUMENTS/spec.json
 
 **STOP HERE** if spec.json shows:
 ```json
 "approvals": {
-  "requirements": false,  // Must be true
-  "design": false        // Must be true
+  "requirements": {
+    "approved": false  // Must be true
+  },
+  "design": {
+    "approved": false  // Must be true
+  }
 }
 ```
 
-**Required Actions**:
-- If requirements not approved: Review and edit requirements.md directly
-- If design not approved: Review and edit design.md directly
+**Required Actions for Full Approval**:
+
+### If Requirements Not Approved:
+1. **Review requirements.md** - Read through the generated requirements thoroughly
+2. **Edit if needed** - Make any necessary changes directly in the requirements.md file
+3. **Manual approval required** - Update spec.json to set `"requirements": {"approved": true}`
+
+### If Design Not Approved:
+1. **Review design.md** - Read through the generated design thoroughly
+2. **Edit if needed** - Make any necessary changes directly in the design.md file
+3. **Manual approval required** - Update spec.json to set `"design": {"approved": true}`
+4. **Reasoning**: Human review ensures technical design accuracy before task breakdown
+
+**Example full approval in spec.json**:
+```json
+{
+  "approvals": {
+    "requirements": {
+      "generated": true,
+      "approved": true  // ← Human reviewed and approved
+    },
+    "design": {
+      "generated": true,
+      "approved": true  // ← Human reviewed and approved
+    }
+  },
+  "phase": "design-approved"
+}
+```
+
+**Only proceed to task generation after both requirements and design are explicitly approved by human review.**
 
 ## Context Analysis
 
 ### Complete Spec Context (APPROVED)
-- Requirements: @.claude/specs/$ARGUMENTS/requirements.md
-- Design: @.claude/specs/$ARGUMENTS/design.md
-- Current tasks: @.claude/specs/$ARGUMENTS/tasks.md
-- Spec metadata: @.claude/specs/$ARGUMENTS/spec.json
+- Requirements: @.kiro/specs/$ARGUMENTS/requirements.md
+- Design: @.kiro/specs/$ARGUMENTS/design.md
+- Current tasks: @.kiro/specs/$ARGUMENTS/tasks.md
+- Spec metadata: @.kiro/specs/$ARGUMENTS/spec.json
 
 ### Steering Context
-- Architecture patterns: @.claude/steering/structure.md
-- Development practices: @.claude/steering/tech.md
-- Product constraints: @.claude/steering/product.md
+- Architecture patterns: @.kiro/steering/structure.md
+- Development practices: @.kiro/steering/tech.md
+- Product constraints: @.kiro/steering/product.md
 
 ## Task: Generate Implementation Plan
 
 **Prerequisites Verified**: Both requirements and design are approved and ready for task breakdown.
 
-Create comprehensive implementation plan following Japanese format from Kiro example:
+Create comprehensive implementation plan in the language specified in spec.json:
 
 ### 1. Tasks Document Structure
-Create tasks.md in English following Kiro's proven format:
+Create tasks.md in the language specified in spec.json (check `@.kiro/specs/$ARGUMENTS/spec.json` for "language" field):
 
 ```markdown
 # Implementation Plan
@@ -170,9 +202,9 @@ If changes are needed, please edit this file directly.
 ---
 ```
 
-### 7. Auto-Approval Option
+### 7. Update Metadata and Final Review
 
-Consider adding to spec.json:
+Update spec.json with:
 ```json
 {
   "phase": "tasks-generated",
@@ -182,24 +214,74 @@ Consider adding to spec.json:
     "tasks": 100
   },
   "approvals": {
-    "requirements": true,
-    "design": true,
-    "tasks": "pending_review"  // Human must verify before implementation
+    "requirements": {
+      "generated": true,
+      "approved": true
+    },
+    "design": {
+      "generated": true,
+      "approved": true
+    },
+    "tasks": {
+      "generated": true,
+      "approved": false
+    }
   },
   "updated_at": "current_timestamp"
 }
 ```
 
-This allows human review without requiring a separate review command.
+### 8. Human Review Required
+Add review notice at the end of tasks.md:
+```markdown
+---
+## Review and Approval Required
+
+**NEXT STEP**: Human review required before starting implementation.
+
+### Review Checklist:
+- [ ] Tasks are properly sized (2-4 hours each)
+- [ ] All requirements are covered by tasks
+- [ ] Task dependencies are correct
+- [ ] Technology choices match the design
+- [ ] Testing tasks are included
+
+### To Approve:
+After reviewing, update `.kiro/specs/$ARGUMENTS/spec.json`:
+```json
+{
+  "approvals": {
+    "requirements": {
+      "generated": true,
+      "approved": true
+    },
+    "design": {
+      "generated": true,
+      "approved": true
+    },
+    "tasks": {
+      "generated": true,
+      "approved": true
+    }
+  },
+  "phase": "ready-for-implementation",
+  "ready_for_implementation": true
+}
+```
+
+**Only after approval can you start implementation.**
+---
+```
 
 ## Instructions
 
-1. **Analyze requirements and design** to understand full scope
-2. **Create hierarchical task structure** with clear phases
-3. **Define discrete, actionable tasks** with acceptance criteria
-4. **Map all tasks to requirements** to ensure coverage
-5. **Order tasks by dependencies** for logical implementation flow
-6. **Include testing and documentation** tasks
-7. **Update tracking metadata** upon completion
+1. **Check spec.json for language** - Use the language specified in the metadata
+2. **Analyze requirements and design** to understand full scope
+3. **Create hierarchical task structure** with clear phases
+4. **Define discrete, actionable tasks** with acceptance criteria
+5. **Map all tasks to requirements** to ensure coverage
+6. **Order tasks by dependencies** for logical implementation flow
+7. **Include testing and documentation** tasks
+8. **Update tracking metadata** upon completion
 
 Generate tasks that provide clear roadmap for implementation.

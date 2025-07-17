@@ -1,6 +1,6 @@
 ---
 description: Generate comprehensive requirements for a specification
-allowed-tools: Bash, Read, Write, Edit
+allowed-tools: Bash, Read, Write, Edit, WebSearch, WebFetch
 ---
 
 # Requirements Generation
@@ -10,21 +10,21 @@ Generate comprehensive requirements for feature: **$ARGUMENTS**
 ## Context Validation
 
 ### Steering Context
-- Architecture context: @.claude/steering/structure.md
-- Technical constraints: @.claude/steering/tech.md
-- Product context: @.claude/steering/product.md
+- Architecture context: @.kiro/steering/structure.md
+- Technical constraints: @.kiro/steering/tech.md
+- Product context: @.kiro/steering/product.md
 
 ### Existing Spec Context
-- Current spec directory: !`ls -la .claude/specs/$ARGUMENTS/`
-- Current requirements: @.claude/specs/$ARGUMENTS/requirements.md
-- Spec metadata: @.claude/specs/$ARGUMENTS/spec.json
+- Current spec directory: !`ls -la .kiro/specs/$ARGUMENTS/`
+- Current requirements: @.kiro/specs/$ARGUMENTS/requirements.md
+- Spec metadata: @.kiro/specs/$ARGUMENTS/spec.json
 
 ## Task: Generate Detailed Requirements
 
-Create comprehensive requirements document following Japanese format from Kiro example:
+Create comprehensive requirements document in the language specified in spec.json:
 
 ### 1. Requirements Structure
-Generate requirements.md in English following Kiro's proven format:
+Generate requirements.md in the language specified in spec.json (check `@.kiro/specs/$ARGUMENTS/spec.json` for "language" field):
 
 ```markdown
 # Requirements Specification
@@ -72,22 +72,61 @@ Based on steering context, consider:
 Update spec.json with:
 ```json
 {
-  "phase": "requirements",
+  "phase": "requirements-generated",
   "progress": {
     "requirements": 100,
     "design": 0,
     "tasks": 0
   },
+  "approvals": {
+    "requirements": {
+      "generated": true,
+      "approved": false
+    }
+  },
   "updated_at": "current_timestamp"
 }
 ```
 
+### 5. Human Review Required
+Add review notice at the end of requirements.md:
+```markdown
+---
+## Review and Approval Required
+
+**NEXT STEP**: Human review required before proceeding to design phase.
+
+### Review Checklist:
+- [ ] Requirements are clear and complete
+- [ ] User stories cover all necessary functionality
+- [ ] Acceptance criteria are testable
+- [ ] Requirements align with project goals
+
+### To Approve:
+After reviewing, update `.kiro/specs/$ARGUMENTS/spec.json`:
+```json
+{
+  "approvals": {
+    "requirements": {
+      "generated": true,
+      "approved": true
+    }
+  },
+  "phase": "requirements-approved"
+}
+```
+
+**Only after approval can you proceed to `/spec-design $ARGUMENTS`**
+---
+```
+
 ## Instructions
 
-1. **Analyze existing product context** to understand user needs
-2. **Create user-focused requirements** with clear acceptance criteria
-3. **Consider technical constraints** from steering documents
-4. **Ensure requirements are testable** and specific
-5. **Update tracking metadata** upon completion
+1. **Check spec.json for language** - Use the language specified in the metadata
+2. **Analyze existing product context** to understand user needs
+3. **Create user-focused requirements** with clear acceptance criteria
+4. **Consider technical constraints** from steering documents
+5. **Ensure requirements are testable** and specific
+6. **Update tracking metadata** upon completion
 
 Generate requirements that provide clear foundation for design phase.

@@ -5,21 +5,25 @@ This project implements Kiro-style Spec-Driven Development for Claude Code using
 ## Project Context
 
 ### Active Specifications
-- Current spec: Check `.claude/specs/` for active specifications
+- Current spec: Check `.kiro/specs/` for active specifications
 - **pdf-drawing-explanation-app** - Phase: initialized
 - Use `/spec-status [feature-name]` to check progress
 
 ### Project Steering
-- Product context: `.claude/steering/product.md`
-- Technical constraints: `.claude/steering/tech.md`
-- Architecture decisions: `.claude/steering/structure.md`
+- Product overview: `.kiro/steering/product.md`
+- Technology stack: `.kiro/steering/tech.md`
+- Project structure: `.kiro/steering/structure.md`
+- Custom steering docs for specialized contexts
 
 ## Spec-Driven Development Workflow
 
 ### Phase 0: Steering Generation (Recommended)
+
+#### Kiro Steering (`.kiro/steering/`)
 ```
-/steering-init     # Generate initial steering documents
-/steering-update   # Update steering after changes
+/steering-init          # Generate initial steering documents
+/steering-update        # Update steering after changes
+/steering-custom        # Create custom steering for specialized contexts
 ```
 
 **Note**: For new features or empty projects, steering is recommended but not required. You can proceed directly to spec-requirements if needed.
@@ -37,23 +41,39 @@ This project implements Kiro-style Spec-Driven Development for Claude Code using
 /spec-status [feature-name]         # Check current progress and phases
 ```
 
-## Streamlined Review Process
+## Spec-Driven Development Workflow
 
-Each generation command includes a review checkpoint at the end:
+Kiro's spec-driven development follows a strict **3-phase approval workflow**:
 
-1. **After Requirements**: Review generated requirements, edit directly if changes needed
-2. **After Design**: Review technical design against requirements, edit as necessary
-3. **After Tasks**: Verify task breakdown and estimates, adjust before implementation
+### Phase 1: Requirements Generation & Approval
+1. **Generate**: `/spec-requirements [feature-name]` - Generate requirements document
+2. **Review**: Human reviews `requirements.md` and edits if needed
+3. **Approve**: Manually update `spec.json` to set `"requirements": true`
 
-**No separate review commands needed** - Simply read the generated content and edit the markdown files directly. The next phase will check that the previous phase was completed before proceeding.
+### Phase 2: Design Generation & Approval
+1. **Generate**: `/spec-design [feature-name]` - Generate technical design (requires requirements approval)
+2. **Review**: Human reviews `design.md` and edits if needed
+3. **Approve**: Manually update `spec.json` to set `"design": true`
+
+### Phase 3: Tasks Generation & Approval
+1. **Generate**: `/spec-tasks [feature-name]` - Generate implementation tasks (requires design approval)
+2. **Review**: Human reviews `tasks.md` and edits if needed
+3. **Approve**: Manually update `spec.json` to set `"tasks": true`
+
+### Implementation
+Only after all three phases are approved can implementation begin.
+
+**Key Principle**: Each phase requires explicit human approval before proceeding to the next phase, ensuring quality and accuracy throughout the development process.
 
 ## Development Rules
 
 1. **Consider steering**: Run `/steering-init` before major development (optional for new features)
-2. **Follow the 3-phase workflow**: Requirements → Design → Implementation
-3. **Update task status**: Mark tasks as completed when working on them
-4. **Keep steering current**: Run `/steering-update` after significant changes
-5. **Check spec compliance**: Use `/spec-status` to verify alignment
+2. **Follow the 3-phase approval workflow**: Requirements → Design → Tasks → Implementation
+3. **Manual approval required**: Each phase must be explicitly approved by human review
+4. **No skipping phases**: Design requires approved requirements; Tasks require approved design
+5. **Update task status**: Mark tasks as completed when working on them
+6. **Keep steering current**: Run `/steering-update` after significant changes
+7. **Check spec compliance**: Use `/spec-status` to verify alignment
 
 ## Automation
 
@@ -68,3 +88,27 @@ This project uses Claude Code hooks to:
 1. Initialize steering documents: `/steering-init`
 2. Create your first spec: `/spec-init [your-feature-name]`
 3. Follow the workflow through requirements, design, and tasks
+
+## Kiro Steering Details
+
+Kiro-style steering provides persistent project knowledge through markdown files:
+
+### Core Steering Documents
+- **product.md**: Product overview, features, use cases, value proposition
+- **tech.md**: Architecture, tech stack, dev environment, commands, ports
+- **structure.md**: Directory organization, code patterns, naming conventions
+
+### Custom Steering
+Create specialized steering documents for:
+- API standards
+- Testing approaches
+- Code style guidelines
+- Security policies
+- Database conventions
+- Performance standards
+- Deployment workflows
+
+### Inclusion Modes
+- **Always Included**: Loaded in every interaction (default)
+- **Conditional**: Loaded for specific file patterns (e.g., `"*.test.js"`)
+- **Manual**: Loaded on-demand with `#filename` reference

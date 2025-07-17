@@ -39,7 +39,7 @@ Kiroの核心は、プロジェクトの現状を理解する「Steering」シ�
 
 #### Steering Documents
 ```
-.claude/steering/
+.kiro/steering/
 ├── structure.md  # アーキテクチャとコード構成
 ├── tech.md       # 技術スタックと制約
 └── product.md    # ビジネスコンテキスト
@@ -55,7 +55,7 @@ Kiroの3段階ワークフローを実現するため、以下のスラッシュ
 
 #### Spec Directory Structure
 ```
-.claude/specs/[feature-name]/
+.kiro/specs/[feature-name]/
 ├── requirements.md  # 要件定義
 ├── design.md       # 技術設計
 ├── tasks.md        # 実装タスク
@@ -171,7 +171,7 @@ spec_data['progress'] = {
 /steering-init
 
 # 基盤文書の生成確認
-ls .claude/steering/
+ls .kiro/steering/
 ```
 
 ### 2. 新機能開発

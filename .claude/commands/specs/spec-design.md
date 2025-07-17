@@ -1,6 +1,6 @@
 ---
 description: Create technical design for a specification
-allowed-tools: Bash, Read, Write, Edit
+allowed-tools: Bash, Read, Write, Edit, WebSearch, WebFetch
 ---
 
 # Technical Design
@@ -12,37 +12,58 @@ Create comprehensive technical design for feature: **$ARGUMENTS**
 **CRITICAL**: Design can only be generated after requirements are approved.
 
 ### Approval Status Check
-- Spec metadata: @.claude/specs/$ARGUMENTS/spec.json
+- Spec metadata: @.kiro/specs/$ARGUMENTS/spec.json
 
 **STOP HERE** if spec.json shows:
 ```json
 "approvals": {
-  "requirements": false
+  "requirements": {
+    "approved": false
+  }
 }
 ```
 
-**Required Action**: Review and edit the requirements.md file directly. Mark as complete before proceeding.
+**Required Actions for Requirements Approval**:
+1. **Review requirements.md** - Read through the generated requirements thoroughly
+2. **Edit if needed** - Make any necessary changes directly in the requirements.md file
+3. **Manual approval required** - Update spec.json manually to set `"requirements": {"approved": true}`
+4. **Reasoning**: Human review ensures requirements accuracy before design phase
+
+**Example approval in spec.json**:
+```json
+{
+  "approvals": {
+    "requirements": {
+      "generated": true,
+      "approved": true  // ← Set this to true after human review
+    }
+  },
+  "phase": "requirements-approved"
+}
+```
+
+**Only proceed to design generation after requirements are explicitly approved by human review.**
 
 ## Context Analysis
 
 ### Steering Context
-- Current architecture: @.claude/steering/structure.md
-- Technology stack: @.claude/steering/tech.md
-- Product constraints: @.claude/steering/product.md
+- Current architecture: @.kiro/steering/structure.md
+- Technology stack: @.kiro/steering/tech.md
+- Product constraints: @.kiro/steering/product.md
 
 ### Requirements Context (APPROVED)
-- Feature requirements: @.claude/specs/$ARGUMENTS/requirements.md
-- Current design: @.claude/specs/$ARGUMENTS/design.md
-- Spec metadata: @.claude/specs/$ARGUMENTS/spec.json
+- Feature requirements: @.kiro/specs/$ARGUMENTS/requirements.md
+- Current design: @.kiro/specs/$ARGUMENTS/design.md
+- Spec metadata: @.kiro/specs/$ARGUMENTS/spec.json
 
 ## Task: Create Technical Design
 
 **Prerequisites Verified**: Requirements are approved and ready for design phase.
 
-Generate comprehensive design document following Japanese format from Kiro example:
+Generate comprehensive design document in the language specified in spec.json:
 
 ### 1. Design Document Structure
-Create design.md in English following Kiro's proven format:
+Create design.md in the language specified in spec.json (check `@.kiro/specs/$ARGUMENTS/spec.json` for "language" field):
 
 ```markdown
 # Technical Design
@@ -133,23 +154,71 @@ Include relevant diagrams:
 Update spec.json with:
 ```json
 {
-  "phase": "design",
+  "phase": "design-generated",
   "progress": {
     "requirements": 100,
     "design": 100,
     "tasks": 0
   },
+  "approvals": {
+    "requirements": {
+      "generated": true,
+      "approved": true
+    },
+    "design": {
+      "generated": true,
+      "approved": false
+    }
+  },
   "updated_at": "current_timestamp"
 }
 ```
 
+### 6. Human Review Required
+Add review notice at the end of design.md:
+```markdown
+---
+## Review and Approval Required
+
+**NEXT STEP**: Human review required before proceeding to tasks phase.
+
+### Review Checklist:
+- [ ] Technical design is comprehensive and clear
+- [ ] Architecture aligns with existing system
+- [ ] Technology choices are appropriate
+- [ ] Components and interfaces are well-defined
+- [ ] Security and performance considerations are addressed
+
+### To Approve:
+After reviewing, update `.kiro/specs/$ARGUMENTS/spec.json`:
+```json
+{
+  "approvals": {
+    "requirements": {
+      "generated": true,
+      "approved": true
+    },
+    "design": {
+      "generated": true,
+      "approved": true
+    }
+  },
+  "phase": "design-approved"
+}
+```
+
+**Only after approval can you proceed to `/spec-tasks $ARGUMENTS`**
+---
+```
+
 ## Instructions
 
-1. **Analyze requirements thoroughly** to understand scope
-2. **Follow existing architecture patterns** from steering
-3. **Create detailed component design** with clear interfaces
-4. **Include comprehensive diagrams** using mermaid
-5. **Plan error handling and testing** strategies
-6. **Update tracking metadata** upon completion
+1. **Check spec.json for language** - Use the language specified in the metadata
+2. **Analyze requirements thoroughly** to understand scope
+3. **Follow existing architecture patterns** from steering
+4. **Create detailed component design** with clear interfaces
+5. **Include comprehensive diagrams** using mermaid
+6. **Plan error handling and testing** strategies
+7. **Update tracking metadata** upon completion
 
 Generate design that provides clear blueprint for implementation phase.

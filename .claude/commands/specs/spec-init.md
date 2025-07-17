@@ -10,12 +10,12 @@ Initialize a new specification structure for feature: **$ARGUMENTS**
 ## Steering Context Validation
 
 ### Check Steering Documents
-- Structure context: @.claude/steering/structure.md
-- Technical constraints: @.claude/steering/tech.md  
-- Product context: @.claude/steering/product.md
+- Structure context: @.kiro/steering/structure.md
+- Technical constraints: @.kiro/steering/tech.md  
+- Product context: @.kiro/steering/product.md
 
 ### Verify Steering Exists
-- Steering files: !`ls -la .claude/steering/`
+- Steering files: !`ls -la .kiro/steering/`
 
 **FLEXIBILITY**: For new features or empty projects, steering documents are recommended but not required. If steering documents are missing or empty, you may proceed directly to spec generation phase.
 
@@ -24,7 +24,7 @@ Initialize a new specification structure for feature: **$ARGUMENTS**
 **SCOPE**: This command only initializes the directory structure and metadata. Content generation happens in subsequent phases with proper review.
 
 ### 1. Create Spec Directory
-Create `.claude/specs/{the summary of feature name: $ARGUMENTS}/` directory with empty template files:
+Create `.kiro/specs/{create a concise feature name based on $ARGUMENTS}/` directory with empty template files:
 - `requirements.md` - Empty template for user stories
 - `design.md` - Empty template for technical design  
 - `tasks.md` - Empty template for implementation tasks
@@ -34,22 +34,28 @@ Create `.claude/specs/{the summary of feature name: $ARGUMENTS}/` directory with
 Create initial metadata with approval tracking:
 ```json
 {
-  "feature_name": "{the summary of feature name: $ARGUMENTS}",
-  "created_at": "current_timestamp",
   "updated_at": "current_timestamp",
   "language": "japanese",
   "phase": "initialized",
   "approvals": {
-    "requirements": false,
-    "design": false,
-    "tasks": false
+    "requirements": {
+      "generated": false,
+      "approved": false
+    },
+    "design": {
+      "generated": false,
+      "approved": false
+    },
+    "tasks": {
+      "generated": false,
+      "approved": false
+    }
   },
   "progress": {
     "requirements": 0,
     "design": 0,
     "tasks": 0
   },
-  "steering_version": "current_git_hash",
   "ready_for_implementation": false
 }
 ```
@@ -102,15 +108,15 @@ Add the new spec to the active specifications list.
 Follow the proper spec-driven development workflow:
 
 **For new features or when no content exists:**
-1. **Generate requirements**: `/spec-requirements $ARGUMENTS`
+1. **Generate requirements**: `/specs:spec-requirements $ARGUMENTS`
 
 **Standard workflow (after requirements exist):**
-1. **Generate requirements**: `/spec-requirements $ARGUMENTS`
-2. **Review requirements**: `/spec-review-requirements $ARGUMENTS`
-3. **Generate design**: `/spec-design $ARGUMENTS` (after requirements approval)
-4. **Review design**: `/spec-review-design $ARGUMENTS`
-5. **Generate tasks**: `/spec-tasks $ARGUMENTS` (after design approval)
-6. **Review tasks**: `/spec-review-tasks $ARGUMENTS`
+1. **Generate requirements**: `/specs:spec-requirements $ARGUMENTS`
+2. **Review requirements**: `/specs:spec-review-requirements $ARGUMENTS`
+3. **Generate design**: `/specs:spec-design $ARGUMENTS` (after requirements approval)
+4. **Review design**: `/specs:spec-review-design $ARGUMENTS`
+5. **Generate tasks**: `/specs:spec-tasks $ARGUMENTS` (after design approval)
+6. **Review tasks**: `/specs:spec-review-tasks $ARGUMENTS`
 7. **Start implementation**: After all approvals are complete
 
 ## Instructions

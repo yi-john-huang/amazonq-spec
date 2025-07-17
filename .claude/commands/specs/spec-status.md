@@ -10,19 +10,19 @@ Show current status and progress for feature: **$ARGUMENTS**
 ## Spec Context
 
 ### Spec Files
-- Spec directory: !`ls -la .claude/specs/$ARGUMENTS/`
-- Spec metadata: @.claude/specs/$ARGUMENTS/spec.json
-- Requirements: @.claude/specs/$ARGUMENTS/requirements.md
-- Design: @.claude/specs/$ARGUMENTS/design.md
-- Tasks: @.claude/specs/$ARGUMENTS/tasks.md
+- Spec directory: !`ls -la .kiro/specs/$ARGUMENTS/`
+- Spec metadata: @.kiro/specs/$ARGUMENTS/spec.json
+- Requirements: @.kiro/specs/$ARGUMENTS/requirements.md
+- Design: @.kiro/specs/$ARGUMENTS/design.md
+- Tasks: @.kiro/specs/$ARGUMENTS/tasks.md
 
 ### All Specs Overview
-- Available specs: !`ls -la .claude/specs/`
-- Active specs: !`find .claude/specs/ -name "spec.json" -exec grep -l "implementation_ready.*true" {} \;`
+- Available specs: !`ls -la .kiro/specs/`
+- Active specs: !`find .kiro/specs/ -name "spec.json" -exec grep -l "implementation_ready.*true" {} \;`
 
 ## Task: Generate Status Report
 
-Create comprehensive status report for the specification:
+Create comprehensive status report for the specification in the language specified in spec.json (check `@.kiro/specs/$ARGUMENTS/spec.json` for "language" field):
 
 ### 1. Specification Overview
 Display:
@@ -79,11 +79,12 @@ Check alignment with steering documents:
 
 ## Instructions
 
-1. **Parse all spec files** to understand current state
-2. **Calculate completion percentages** for each phase
-3. **Identify next actions** based on current progress
-4. **Highlight any blockers** or issues
-5. **Provide clear recommendations** for moving forward
-6. **Check steering alignment** to ensure consistency
+1. **Check spec.json for language** - Use the language specified in the metadata
+2. **Parse all spec files** to understand current state
+3. **Calculate completion percentages** for each phase
+4. **Identify next actions** based on current progress
+5. **Highlight any blockers** or issues
+6. **Provide clear recommendations** for moving forward
+7. **Check steering alignment** to ensure consistency
 
 Generate status report that provides clear visibility into spec progress and next steps.
