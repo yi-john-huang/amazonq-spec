@@ -1,0 +1,155 @@
+---
+description: Create technical design for a specification
+allowed-tools: Bash, Read, Write, Edit
+---
+
+# Technical Design
+
+Create comprehensive technical design for feature: **$ARGUMENTS**
+
+## Approval Gate: Requirements Check
+
+**CRITICAL**: Design can only be generated after requirements are approved.
+
+### Approval Status Check
+- Spec metadata: @.claude/specs/$ARGUMENTS/spec.json
+
+**STOP HERE** if spec.json shows:
+```json
+"approvals": {
+  "requirements": false
+}
+```
+
+**Required Action**: Review and edit the requirements.md file directly. Mark as complete before proceeding.
+
+## Context Analysis
+
+### Steering Context
+- Current architecture: @.claude/steering/structure.md
+- Technology stack: @.claude/steering/tech.md
+- Product constraints: @.claude/steering/product.md
+
+### Requirements Context (APPROVED)
+- Feature requirements: @.claude/specs/$ARGUMENTS/requirements.md
+- Current design: @.claude/specs/$ARGUMENTS/design.md
+- Spec metadata: @.claude/specs/$ARGUMENTS/spec.json
+
+## Task: Create Technical Design
+
+**Prerequisites Verified**: Requirements are approved and ready for design phase.
+
+Generate comprehensive design document following Japanese format from Kiro example:
+
+### 1. Design Document Structure
+Create design.md in English following Kiro's proven format:
+
+```markdown
+# Technical Design
+
+## Overview
+[Technical overview of the implementation approach]
+
+## Architecture
+[Architecture diagram using mermaid]
+
+```mermaid
+graph TB
+    A[Frontend Layer] --> B[API Gateway]
+    B --> C[Business Logic]
+    C --> D[Data Layer]
+    D --> E[Database]
+```
+
+## Technology Stack
+- **Frontend**: [React/Vue/Next.js] + [TypeScript]
+- **Backend**: [FastAPI/Express/Django] + [Language]
+- **Database**: [PostgreSQL/MySQL/MongoDB]
+- **Authentication**: [JWT/OAuth/Auth0]
+- **Testing**: [Jest/pytest] + [Testing Library/Playwright]
+- **Deployment**: [Docker/Vercel/AWS]
+
+## Components and Interfaces
+[Detailed component design with clear interfaces]
+
+### API Endpoints
+```
+GET /api/[resource]
+POST /api/[resource]
+PUT /api/[resource]/:id
+DELETE /api/[resource]/:id
+```
+
+### Data Flow
+[Description of how data flows through the system]
+
+## Data Models
+[Data structures and database schemas]
+
+```typescript
+interface [ModelName] {
+  id: string;
+  // Add relevant fields
+}
+```
+
+## Error Handling
+[Comprehensive error handling strategy]
+
+## Security Considerations
+[Authentication, authorization, data validation]
+
+## Performance & Scalability
+[Caching, optimization, scaling strategy]
+
+## Testing Strategy
+[Unit, integration, and E2E testing approach]
+```
+
+### 2. Design Quality Guidelines
+- **Architecture Alignment**: Follow existing architectural patterns
+- **Technology Consistency**: Use established technology stack
+- **Interface Design**: Define clear component interfaces
+- **Data Modeling**: Design appropriate data structures
+- **Error Handling**: Plan comprehensive error scenarios
+- **Testing Strategy**: Include unit, integration, and E2E testing
+
+### 3. Integration Considerations
+Based on steering and requirements:
+- How components integrate with existing architecture
+- Database schema changes required
+- API endpoint design
+- Performance considerations
+- Security requirements
+
+### 4. Mermaid Diagrams
+Include relevant diagrams:
+- System architecture
+- Component interactions
+- Data flow diagrams
+- Sequence diagrams for key workflows
+
+### 5. Update Metadata
+Update spec.json with:
+```json
+{
+  "phase": "design",
+  "progress": {
+    "requirements": 100,
+    "design": 100,
+    "tasks": 0
+  },
+  "updated_at": "current_timestamp"
+}
+```
+
+## Instructions
+
+1. **Analyze requirements thoroughly** to understand scope
+2. **Follow existing architecture patterns** from steering
+3. **Create detailed component design** with clear interfaces
+4. **Include comprehensive diagrams** using mermaid
+5. **Plan error handling and testing** strategies
+6. **Update tracking metadata** upon completion
+
+Generate design that provides clear blueprint for implementation phase.
