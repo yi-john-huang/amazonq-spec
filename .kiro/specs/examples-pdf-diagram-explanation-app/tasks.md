@@ -2,7 +2,7 @@
 
 ## タスク一覧
 
-- [x] 1. プロジェクト設定とコア構造
+- [ ] 1. プロジェクト設定とコア構造
   - React + TypeScript フロントエンドとFastAPI + Pythonバックエンドのディレクトリ構造を作成
   - TypeScript型定義とコアデータモデルインターフェースを定義
   - 開発環境ファイル (package.json, requirements.txt, docker-compose.yml) を設定
