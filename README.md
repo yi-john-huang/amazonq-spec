@@ -1,119 +1,292 @@
-# PDF Diagram Explanation App
+# Claude Code Spec-Driven Development
 
-A web application that allows users to upload PDF diagrams and get AI-powered explanations of selected areas within the diagrams.
+Claude Codeのスラッシュコマンドを使用して、Kiro-style Spec-Driven Developmentを実践するためのプロジェクトです。
 
-## Features
+## 概要
 
-- PDF file upload and viewing
-- Interactive area selection on diagrams
-- AI-powered explanations using OpenAI GPT-4 Vision
-- Annotation and comment system
-- History management
-- Responsive design with accessibility support
+このプロジェクトは、Claude Codeのスラッシュコマンド機能を活用して、仕様駆動開発（Spec-Driven Development）を効率的に行うためのツールセットを提供します。各開発フェーズで適切なコマンドを使用することで、体系的かつ品質の高い開発プロセスを実現できます。
 
-## Tech Stack
+## Spec-Driven Development プロセス
 
-### Frontend
-- React 18 + TypeScript
-- Material-UI (MUI)
-- Zustand for state management
-- PDF.js for PDF rendering
-- Fabric.js for canvas interactions
+### プロセスフロー図
 
-### Backend
-- FastAPI + Python 3.11
-- PostgreSQL with SQLAlchemy
-- Celery + Redis for background tasks
-- MinIO for file storage
-- OpenAI API integration
+このフローでは、各フェーズで「レビュー・承認」にspec.jsonの更新が含まれています。
 
-## Development Setup
+**ステアリング文書**は、プロジェクトに関する永続的な知識（アーキテクチャ、技術スタック、コード規約など）を記録するドキュメントです。作成・更新はオプションですが、プロジェクトの長期的な保守性を高めるために推奨されます。
 
-### Prerequisites
-- Node.js 18+
-- Python 3.11+
-- Docker and Docker Compose
+```mermaid
+graph TD
+    A["プロジェクト開始"] --> B{"ステアリング<br/>文書化？"}
+    B -->|はい| C["/steering-init"]
+    B -->|いいえ| D["/spec-init"]
+    C --> D
+    
+    D --> E["/spec-requirements"]
+    E --> F["requirements.md"]
+    F --> G{"満足？"}
+    G -->|いいえ| G1["編集・修正"]
+    G1 --> F
+    G -->|はい| H["spec.json: requirements=true"]
+    
+    H --> I["/spec-design"]
+    I --> J["design.md"]
+    J --> K{"満足？"}
+    K -->|いいえ| K1["編集・修正"]
+    K1 --> J
+    K -->|はい| L["spec.json: design=true"]
+    
+    L --> M["/spec-tasks"]
+    M --> N["tasks.md"]
+    N --> O{"満足？"}
+    O -->|いいえ| O1["編集・修正"]
+    O1 --> N
+    O -->|はい| P["spec.json: tasks=true"]
+    
+    P --> Q["実装開始"]
+    Q --> R["/spec-status"]
+    R --> S{"完了？"}
+    S -->|いいえ| Q
+    S -->|はい| T["機能完成"]
+    
+    T --> U{"ステアリング<br/>更新？"}
+    U -->|はい| V["/steering-update"]
+    U -->|いいえ| W["完了"]
+    V --> W
+    
+    %% スタイル定義
+    style A fill:#f8f9fa,stroke:#495057
+    style C fill:#495057,stroke:#343a40,color:#ffffff
+    style D fill:#495057,stroke:#343a40,color:#ffffff
+    style E fill:#495057,stroke:#343a40,color:#ffffff
+    style I fill:#495057,stroke:#343a40,color:#ffffff
+    style M fill:#495057,stroke:#343a40,color:#ffffff
+    style R fill:#495057,stroke:#343a40,color:#ffffff
+    style V fill:#495057,stroke:#343a40,color:#ffffff
+    style F fill:#f8f9fa,stroke:#6c757d
+    style J fill:#f8f9fa,stroke:#6c757d
+    style N fill:#f8f9fa,stroke:#6c757d
+    style H fill:#e8f5e9,stroke:#28a745
+    style L fill:#e8f5e9,stroke:#28a745
+    style P fill:#e8f5e9,stroke:#28a745
+    style Q fill:#adb5bd,stroke:#495057
+    style T fill:#6c757d,stroke:#495057,color:#ffffff
+    style W fill:#6c757d,stroke:#495057,color:#ffffff
+```
 
-### Quick Start with Docker
+## スラッシュコマンド一覧
 
-1. Clone the repository
-2. Copy environment file:
-   ```bash
-   cp backend/.env.example backend/.env
-   ```
-3. Start all services:
-   ```bash
-   docker-compose up -d
-   ```
+### 🚀 Phase 0: プロジェクトステアリング（オプション）
 
-The application will be available at:
-- Frontend: http://localhost:3000
-- Backend API: http://localhost:8000
-- API Documentation: http://localhost:8000/docs
+| コマンド | 用途 | 使用タイミング |
+|---------|------|---------------|
+| `/steering-init` | 初期ステアリング文書の生成 | 新規/既存プロジェクトで文書化が必要な時 |
+| `/steering-update` | ステアリング文書の更新 | 大きな変更後、定期的なメンテナンス時 |
+| `/steering-custom` | カスタムステアリング文書の作成 | 特殊な規約やガイドラインが必要な時 |
 
-### Local Development
+**注意**: ステアリング文書は推奨されますが必須ではありません。小規模な機能追加や試験的な開発では省略可能です。
 
-#### Backend Setup
+#### ステアリング文書の種類
+- **product.md**: プロダクト概要、機能、ユースケース
+- **tech.md**: アーキテクチャ、技術スタック、開発環境
+- **structure.md**: ディレクトリ構造、コード規約、命名規則
+- **カスタム文書**: API規約、テスト方針、セキュリティポリシー等
+
+### 📋 Phase 1: 仕様作成
+
+| コマンド | 用途 | 使用タイミング |
+|---------|------|---------------|
+| `/spec-init [詳細なプロジェクト説明]` | プロジェクト説明から仕様構造を初期化 | 新機能開発開始時 |
+| `/spec-requirements [feature-name]` | 要件定義書の生成 | 仕様初期化後すぐ |
+| `/spec-design [feature-name]` | 技術設計書の生成 | 要件承認後 |
+| `/spec-tasks [feature-name]` | 実装タスクの生成 | 設計承認後 |
+
+### 📊 Phase 2: 進捗管理
+
+| コマンド | 用途 | 使用タイミング |
+|---------|------|---------------|
+| `/spec-status [feature-name]` | 現在の進捗とフェーズ確認 | 開発中随時 |
+
+## 使い方
+
+### 1. 新規プロジェクトの場合
+
 ```bash
-cd backend
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-pip install -r requirements.txt
-uvicorn main:app --reload
+# オプション: プロジェクトステアリング生成（推奨だが必須ではない）
+/steering-init
+
+# ステップ1: 新機能の仕様作成開始（詳細な説明を含める）
+/spec-init "ユーザーがPDFをアップロードして、その中の図表を抽出し、AIが内容を説明する機能を作りたい。技術スタックはNext.js、TypeScript、Tailwind CSSを使用。"
+
+# ステップ2: 要件定義（自動生成されたfeature-nameを使用）
+/spec-requirements pdf-diagram-extractor
+# → .kiro/specs/pdf-diagram-extractor/requirements.md をレビュー・編集
+
+# ステップ3: 要件承認（手動）
+# spec.json で "requirements": true に設定
+
+# ステップ4: 技術設計
+/spec-design pdf-diagram-extractor
+# → .kiro/specs/pdf-diagram-extractor/design.md をレビュー・編集
+
+# ステップ5: 設計承認（手動）
+# spec.json で "design": true に設定
+
+# ステップ6: タスク生成
+/spec-tasks pdf-diagram-extractor
+# → .kiro/specs/pdf-diagram-extractor/tasks.md をレビュー・編集
+
+# ステップ7: タスク承認（手動）
+# spec.json で "tasks": true に設定
+
+# ステップ8: 実装開始
 ```
 
-#### Frontend Setup
+### 2. 既存プロジェクトへの機能追加
+
 ```bash
-cd frontend
-npm install
-npm run dev
+# オプション: ステアリング更新（プロジェクトに大きな変更があった場合）
+/steering-update
+
+# または、既存プロジェクトでも初めてステアリングを作成する場合
+/steering-init
+
+# ステップ1: 新機能の仕様作成開始
+/spec-init "新しい機能の詳細な説明をここに記述"
+# 以降は新規プロジェクトと同じ
 ```
 
-## Testing
+### 3. 進捗確認
 
-### Frontend Tests
 ```bash
-cd frontend
-npm test
+# 特定機能の進捗確認
+/spec-status my-feature
+
+# 現在のフェーズ、承認状況、タスク進捗が表示される
 ```
 
-### Backend Tests
-```bash
-cd backend
-pytest
+## 3フェーズ承認ワークフロー
+
+このシステムの核心は、各フェーズで人間によるレビューと承認を必須とする点です：
+
+```mermaid
+sequenceDiagram
+    participant D as Developer
+    participant C as Claude Code
+    participant H as Human Reviewer
+    
+    D->>C: "/spec-requirements feature"
+    C->>C: "要件生成"
+    C->>D: "requirements.md"
+    D->>H: "レビュー依頼"
+    H->>H: "レビュー・編集"
+    H->>D: "承認 (spec.json更新)"
+    
+    D->>C: "/spec-design feature"
+    C->>C: "設計生成（要件ベース）"
+    C->>D: "design.md"
+    D->>H: "レビュー依頼"
+    H->>H: "レビュー・編集"
+    H->>D: "承認 (spec.json更新)"
+    
+    D->>C: "/spec-tasks feature"
+    C->>C: "タスク生成（設計ベース）"
+    C->>D: "tasks.md"
+    D->>H: "レビュー依頼"
+    H->>H: "レビュー・編集"
+    H->>D: "承認 (spec.json更新)"
+    
+    D->>C: "実装開始"
 ```
 
-## Project Structure
+## ベストプラクティス
+
+### ✅ 推奨事項
+
+1. **常にステアリングから開始**
+   - 新規プロジェクトでは必ず `/steering-init` を実行
+   - 既存プロジェクトでも `/steering-update` で最新化
+
+2. **フェーズを飛ばさない**
+   - 要件 → 設計 → タスクの順序を厳守
+   - 各フェーズで必ず人間によるレビューを実施
+
+3. **定期的な進捗確認**
+   - `/spec-status` で現在の状況を把握
+   - タスクの完了状況を適切に更新
+
+4. **ステアリングの保守**
+   - 大きな変更後は `/steering-update` を実行
+   - プロジェクトの成長に合わせて更新
+
+### ❌ 避けるべきこと
+
+1. **承認なしでの次フェーズ移行**
+   - spec.jsonの手動更新を忘れない
+
+2. **ステアリング文書の放置**
+   - 古い情報は開発の妨げになる
+
+3. **タスクステータスの未更新**
+   - 進捗が不明確になり管理が困難に
+
+## プロジェクト構造
 
 ```
-├── frontend/                 # React TypeScript frontend
-│   ├── src/
-│   │   ├── components/      # React components
-│   │   ├── types/          # TypeScript type definitions
-│   │   ├── services/       # API services
-│   │   ├── store/          # Zustand stores
-│   │   └── utils/          # Utility functions
-│   └── package.json
-├── backend/                 # FastAPI Python backend
-│   ├── app/
-│   │   ├── api/            # API routes
-│   │   ├── core/           # Core configuration
-│   │   ├── models/         # Database models
-│   │   ├── services/       # Business logic
-│   │   └── utils/          # Utility functions
-│   └── requirements.txt
-├── docker-compose.yml       # Docker services configuration
-└── .github/workflows/       # CI/CD pipelines
+.
+├── .claude/
+│   └── commands/          # スラッシュコマンド定義
+│       ├── spec-init.md
+│       ├── spec-requirements.md
+│       ├── spec-design.md
+│       ├── spec-tasks.md
+│       ├── spec-status.md
+│       ├── steering-init.md
+│       ├── steering-update.md
+│       └── steering-custom.md
+├── .kiro/
+│   ├── steering/          # ステアリング文書
+│   │   ├── product.md
+│   │   ├── tech.md
+│   │   └── structure.md
+│   └── specs/             # 機能仕様
+│       └── [feature-name]/
+│           ├── spec.json      # フェーズ承認状態
+│           ├── requirements.md # 要件定義書
+│           ├── design.md      # 技術設計書
+│           └── tasks.md       # 実装タスク
+├── CLAUDE.md              # Claude Code用設定
+└── README.md              # このファイル
 ```
 
-## Contributing
+## 自動化機能
 
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Run tests
-5. Submit a pull request
+Claude Codeのフック機能により以下が自動化されています：
 
-## License
+- タスク進捗の自動追跡
+- 仕様遵守のチェック
+- コンパクト時のコンテキスト保持
+- ステアリングドリフトの検出
 
-This project is licensed under the MIT License.
+## トラブルシューティング
+
+### コマンドが動作しない場合
+1. `.claude/commands/` ディレクトリの存在を確認
+2. コマンドファイルの命名規則を確認（`command-name.md`）
+3. Claude Codeの最新バージョンを使用しているか確認
+
+### 承認フローで詰まった場合
+1. `spec.json` の承認フラグを手動で確認
+2. 前フェーズの承認が完了しているか確認
+3. `/spec-status` で現在の状態を診断
+
+## まとめ
+
+Claude Codeのスラッシュコマンドを活用したSpec-Driven Developmentにより、以下が実現できます：
+
+- 📐 体系的な開発プロセス
+- ✅ 品質保証のための段階的承認
+- 📊 透明性の高い進捗管理
+- 🔄 継続的なドキュメント更新
+- 🤖 AIアシストによる効率化
+
+このシステムを使用することで、開発の品質と効率を大幅に向上させることができます。

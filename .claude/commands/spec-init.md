@@ -1,11 +1,13 @@
 ---
-description: Initialize a new specification directory and metadata (initialization only)
+description: Initialize a new specification with detailed project description and requirements
 allowed-tools: Bash, Read, Write, Glob
 ---
 
 # Spec Initialization
 
-Initialize a new specification structure for feature: **$ARGUMENTS**
+Initialize a new specification based on the provided project description:
+
+**Project Description**: $ARGUMENTS
 
 ## Steering Context Validation
 
@@ -21,19 +23,33 @@ Initialize a new specification structure for feature: **$ARGUMENTS**
 
 ## Task: Initialize Specification Structure
 
-**SCOPE**: This command only initializes the directory structure and metadata. Content generation happens in subsequent phases with proper review.
+**SCOPE**: This command initializes the directory structure and metadata based on the detailed project description provided.
 
-### 1. Create Spec Directory
-Create `.kiro/specs/{create a concise feature name based on $ARGUMENTS}/` directory with empty template files:
+### 1. Analyze Project Description
+From the provided description ($ARGUMENTS), extract:
+- Project purpose and goals
+- Key features and functionality
+- Target users or use cases
+- Technical requirements or constraints
+- Any specific implementation details mentioned
+
+### 2. Generate Feature Name
+Based on the analysis, create a concise, descriptive feature name that captures the essence of the project.
+
+### 3. Create Spec Directory
+Create `.kiro/specs/{generated-feature-name}/` directory with template files:
 - `requirements.md` - Empty template for user stories
 - `design.md` - Empty template for technical design  
 - `tasks.md` - Empty template for implementation tasks
 - `spec.json` - Metadata and approval tracking
 
-### 2. Initialize spec.json Metadata
-Create initial metadata with approval tracking:
+### 4. Initialize spec.json Metadata
+Create initial metadata with approval tracking and project description:
 ```json
 {
+  "feature_name": "{generated-feature-name}",
+  "project_description": "$ARGUMENTS",
+  "created_at": "current_timestamp",
   "updated_at": "current_timestamp",
   "language": "japanese",
   "phase": "initialized",
@@ -60,21 +76,24 @@ Create initial metadata with approval tracking:
 }
 ```
 
-### 3. Create Empty Template Files
+### 5. Create Template Files with Project Context
 
-#### requirements.md (Empty Template)
+#### requirements.md (Template with Context)
 ```markdown
 # Requirements Document
 
-## Introduction
-<!-- Feature overview will be generated in /spec-requirements phase -->
+## Project Overview
+{Brief summary of the project based on the provided description}
+
+## Project Description (User Input)
+$ARGUMENTS
 
 ## Requirements
-<!-- User stories will be generated in /spec-requirements phase -->
+<!-- Detailed user stories will be generated in /spec-requirements phase -->
 
 ---
 **STATUS**: Ready for requirements generation
-**NEXT STEP**: Run `/spec-requirements $ARGUMENTS` to generate requirements
+**NEXT STEP**: Run `/spec-requirements {feature-name}` to generate detailed requirements
 ```
 
 #### design.md (Empty Template)
@@ -100,31 +119,38 @@ Create initial metadata with approval tracking:
 **NEXT STEP**: Complete and approve design first
 ```
 
-### 4. Update CLAUDE.md Reference
-Add the new spec to the active specifications list.
+### 6. Update CLAUDE.md Reference
+Add the new spec to the active specifications list with the generated feature name and a brief description.
 
 ## Next Steps After Initialization
 
 Follow the proper spec-driven development workflow:
 
-**For new features or when no content exists:**
-1. **Generate requirements**: `/specs:spec-requirements $ARGUMENTS`
-
-**Standard workflow (after requirements exist):**
-1. **Generate requirements**: `/specs:spec-requirements $ARGUMENTS`
-2. **Review requirements**: `/specs:spec-review-requirements $ARGUMENTS`
-3. **Generate design**: `/specs:spec-design $ARGUMENTS` (after requirements approval)
-4. **Review design**: `/specs:spec-review-design $ARGUMENTS`
-5. **Generate tasks**: `/specs:spec-tasks $ARGUMENTS` (after design approval)
-6. **Review tasks**: `/specs:spec-review-tasks $ARGUMENTS`
+**Standard workflow:**
+1. **Generate requirements**: `/spec-requirements {feature-name}`
+2. **Review and approve requirements**: Update spec.json
+3. **Generate design**: `/spec-design {feature-name}` (after requirements approval)
+4. **Review and approve design**: Update spec.json
+5. **Generate tasks**: `/spec-tasks {feature-name}` (after design approval)
+6. **Review and approve tasks**: Update spec.json
 7. **Start implementation**: After all approvals are complete
 
 ## Instructions
 
-1. **Check steering documents** - recommended but not required for new features
-2. **Create directory structure only** - no content generation
-3. **Set up approval tracking** in metadata
-4. **Provide clear next steps** for the user
-5. **Enable flexible workflow** - allow direct progression to requirements when appropriate
+1. **Parse project description** - Extract key information from the detailed description
+2. **Generate appropriate feature name** - Create a concise, descriptive name
+3. **Check steering documents** - recommended but not required for new features
+4. **Create directory structure** - Include project context in templates
+5. **Set up approval tracking** in metadata with project description
+6. **Provide clear next steps** for the user with the generated feature name
+7. **Enable flexible workflow** - allow direct progression to requirements when appropriate
+
+## Output Format
+
+After initialization, provide:
+1. Generated feature name and rationale
+2. Brief project summary
+3. Created file paths
+4. Clear next steps with the exact command to run
 
 This ensures the proper spec-driven development workflow with mandatory review phases between each step.
