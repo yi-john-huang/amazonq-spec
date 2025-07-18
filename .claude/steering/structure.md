@@ -1,1 +1,0 @@
-../../.kiro/steering/structure.md

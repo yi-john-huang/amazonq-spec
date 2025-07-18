@@ -1,1 +1,0 @@
-../../.kiro/steering/product.md

@@ -274,3 +274,4 @@ After reviewing, update `.kiro/specs/$ARGUMENTS/spec.json`:
 8. **Update tracking metadata** upon completion
 
 Generate tasks that provide clear roadmap for implementation.
+ultrathink

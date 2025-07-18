@@ -68,3 +68,4 @@ This ensures generated code fits seamlessly into the existing codebase.
 7. **Follow spec-driven development principles** - these documents will guide future specifications
 
 The goal is to create a solid foundation of project knowledge that will make all future AI interactions more consistent and aligned with your project's standards, enabling effective spec-driven development.
+ultrathink

@@ -226,3 +226,4 @@ After reviewing, update `.kiro/specs/$ARGUMENTS/spec.json`:
 7. **Update tracking metadata** upon completion
 
 Generate design that provides clear blueprint for implementation phase.
+ultrathink

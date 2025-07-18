@@ -14,6 +14,7 @@ This project implements Kiro-style Spec-Driven Development for Claude Code using
 - Current spec: Check `.kiro/specs/` for active specifications
 - **pdf-diagram-explanation-app** - Phase: initialized
 - **sangiiin-senkyo-realtime-app** - Phase: initialized
+- **rubiks-cube-solver-app** - Phase: initialized
 - Use `/spec-status [feature-name]` to check progress
 
 ## Development Guidelines
