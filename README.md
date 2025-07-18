@@ -1,10 +1,10 @@
 # Claude Code Spec-Driven Development
 
-Claude Codeのスラッシュコマンドを使用して、Kiro-style Spec-Driven Developmentを実践するためのプロジェクト。
+Claude CodeのSlash CommandsとCLAUDE.mdを使用して、Kiro IDEに組み込まれているSpec-Driven Developmentを実践するためのプロジェクト。Kiroでの実際の仕様書駆動開発の流れをディレクトリ構成も含めてほぼそのまま再現している。
 
 ## 概要
 
-このプロジェクトは、Claude Codeのスラッシュコマンド機能を活用して、仕様駆動開発（Spec-Driven Development）を効率的に行うためのツールセットを提供する。各開発フェーズで適切なコマンドを使用することで、体系的かつ品質の高い開発プロセスを実現できる。
+このプロジェクトは、Claude CodeのSlash Commandsを活用して、仕様駆動開発（Spec-Driven Development）を効率的に行うためのツールセットを提供する。各開発フェーズで適切なコマンドを使用することで、体系的かつ品質の高い開発プロセスを実現できる。
 
 ## セットアップ
 
@@ -12,7 +12,7 @@ Claude Codeのスラッシュコマンドを使用して、Kiro-style Spec-Drive
 
 Claude Code Spec-Driven Developmentを自分のプロジェクトに導入するには、以下の2つのファイル/ディレクトリをコピーするだけ
 
-1. **`.claude/commands/` ディレクトリ** - スラッシュコマンドの定義
+1. **`.claude/commands/` ディレクトリ** - Slash Commandsの定義
 2. **`CLAUDE.md` ファイル** - Claude Codeの設定とプロジェクト指示
 
 
