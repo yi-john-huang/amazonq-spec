@@ -6,6 +6,102 @@ Claude Codeのスラッシュコマンドを使用して、Kiro-style Spec-Drive
 
 このプロジェクトは、Claude Codeのスラッシュコマンド機能を活用して、仕様駆動開発（Spec-Driven Development）を効率的に行うためのツールセットを提供する。各開発フェーズで適切なコマンドを使用することで、体系的かつ品質の高い開発プロセスを実現できる。
 
+## セットアップ
+
+### 自分のプロジェクトに導入する
+
+Claude Code Spec-Driven Developmentを自分のプロジェクトに導入するには、以下の2つのファイル/ディレクトリをコピーするだけ
+
+1. **`.claude/commands/` ディレクトリ** - スラッシュコマンドの定義
+2. **`CLAUDE.md` ファイル** - Claude Codeの設定とプロジェクト指示
+
+
+### 初回セットアップ手順
+
+1. **ファイルをコピー**（上記参照）
+2. **CLAUDE.mdをコピー**してプロジェクトに合わせて調整
+3. **最初のコマンドを実行**:
+   ```bash
+   # オプション: ステアリング文書を作成
+   /steering-init
+   
+   # 最初の機能仕様を作成
+   /spec-init "あなたのプロジェクトの詳細な説明"
+   ```
+
+### 必要なディレクトリ構造
+
+コマンドを実行すると、以下のディレクトリが自動的に作成される
+
+```
+あなたのプロジェクト/
+├── .claude/
+│   └── commands/          # コピーしたコマンド定義
+├── .kiro/
+│   ├── steering/          # 自動生成されるステアリング文書
+│   └── specs/             # 自動生成される機能仕様
+├── CLAUDE.md              # コピーした設定ファイル
+└── （あなたのプロジェクトファイル）
+```
+
+## 使い方
+
+### 1. 新規プロジェクトの場合
+
+```bash
+# オプション: プロジェクトステアリング生成（推奨だが必須ではない）
+/steering-init
+
+# ステップ1: 新機能の仕様作成開始（詳細な説明を含める）
+/spec-init "ユーザーがPDFをアップロードして、その中の図表を抽出し、AIが内容を説明する機能を作りたい。技術スタックはNext.js、TypeScript、Tailwind CSSを使用。"
+
+# ステップ2: 要件定義（自動生成されたfeature-nameを使用）
+/spec-requirements pdf-diagram-extractor
+# → .kiro/specs/pdf-diagram-extractor/requirements.md をレビュー・編集
+
+# ステップ3: 要件承認（手動）
+# spec.json で "requirements": true に設定
+
+# ステップ4: 技術設計
+/spec-design pdf-diagram-extractor
+# → .kiro/specs/pdf-diagram-extractor/design.md をレビュー・編集
+
+# ステップ5: 設計承認（手動）
+# spec.json で "design": true に設定
+
+# ステップ6: タスク生成
+/spec-tasks pdf-diagram-extractor
+# → .kiro/specs/pdf-diagram-extractor/tasks.md をレビュー・編集
+
+# ステップ7: タスク承認（手動）
+# spec.json で "tasks": true に設定
+
+# ステップ8: 実装開始
+```
+
+### 2. 既存プロジェクトへの機能追加
+
+```bash
+# オプション: ステアリング更新（プロジェクトに大きな変更があった場合）
+/steering-update
+
+# または、既存プロジェクトでも初めてステアリングを作成する場合
+/steering-init
+
+# ステップ1: 新機能の仕様作成開始
+/spec-init "新しい機能の詳細な説明をここに記述"
+# 以降は新規プロジェクトと同じ
+```
+
+### 3. 進捗確認
+
+```bash
+# 特定機能の進捗確認
+/spec-status my-feature
+
+# 現在のフェーズ、承認状況、タスク進捗が表示される
+```
+
 ## Spec-Driven Development プロセス
 
 ### プロセスフロー図
@@ -105,102 +201,6 @@ graph TD
 | コマンド | 用途 | 使用タイミング |
 |---------|------|---------------|
 | `/spec-status [feature-name]` | 現在の進捗とフェーズ確認 | 開発中随時 |
-
-## セットアップ
-
-### 自分のプロジェクトに導入する
-
-Claude Code Spec-Driven Developmentを自分のプロジェクトに導入するには、以下の2つのファイル/ディレクトリをコピーするだけ
-
-1. **`.claude/commands/` ディレクトリ** - スラッシュコマンドの定義
-2. **`CLAUDE.md` ファイル** - Claude Codeの設定とプロジェクト指示
-
-
-### 初回セットアップ手順
-
-1. **ファイルをコピー**（上記参照）
-2. **CLAUDE.mdをコピー**してプロジェクトに合わせて調整
-3. **最初のコマンドを実行**:
-   ```bash
-   # オプション: ステアリング文書を作成
-   /steering-init
-   
-   # 最初の機能仕様を作成
-   /spec-init "あなたのプロジェクトの詳細な説明"
-   ```
-
-### 必要なディレクトリ構造
-
-コマンドを実行すると、以下のディレクトリが自動的に作成される
-
-```
-あなたのプロジェクト/
-├── .claude/
-│   └── commands/          # コピーしたコマンド定義
-├── .kiro/
-│   ├── steering/          # 自動生成されるステアリング文書
-│   └── specs/             # 自動生成される機能仕様
-├── CLAUDE.md              # コピーした設定ファイル
-└── （あなたのプロジェクトファイル）
-```
-
-## 使い方
-
-### 1. 新規プロジェクトの場合
-
-```bash
-# オプション: プロジェクトステアリング生成（推奨だが必須ではない）
-/steering-init
-
-# ステップ1: 新機能の仕様作成開始（詳細な説明を含める）
-/spec-init "ユーザーがPDFをアップロードして、その中の図表を抽出し、AIが内容を説明する機能を作りたい。技術スタックはNext.js、TypeScript、Tailwind CSSを使用。"
-
-# ステップ2: 要件定義（自動生成されたfeature-nameを使用）
-/spec-requirements pdf-diagram-extractor
-# → .kiro/specs/pdf-diagram-extractor/requirements.md をレビュー・編集
-
-# ステップ3: 要件承認（手動）
-# spec.json で "requirements": true に設定
-
-# ステップ4: 技術設計
-/spec-design pdf-diagram-extractor
-# → .kiro/specs/pdf-diagram-extractor/design.md をレビュー・編集
-
-# ステップ5: 設計承認（手動）
-# spec.json で "design": true に設定
-
-# ステップ6: タスク生成
-/spec-tasks pdf-diagram-extractor
-# → .kiro/specs/pdf-diagram-extractor/tasks.md をレビュー・編集
-
-# ステップ7: タスク承認（手動）
-# spec.json で "tasks": true に設定
-
-# ステップ8: 実装開始
-```
-
-### 2. 既存プロジェクトへの機能追加
-
-```bash
-# オプション: ステアリング更新（プロジェクトに大きな変更があった場合）
-/steering-update
-
-# または、既存プロジェクトでも初めてステアリングを作成する場合
-/steering-init
-
-# ステップ1: 新機能の仕様作成開始
-/spec-init "新しい機能の詳細な説明をここに記述"
-# 以降は新規プロジェクトと同じ
-```
-
-### 3. 進捗確認
-
-```bash
-# 特定機能の進捗確認
-/spec-status my-feature
-
-# 現在のフェーズ、承認状況、タスク進捗が表示される
-```
 
 ## 3フェーズ承認ワークフロー
 
