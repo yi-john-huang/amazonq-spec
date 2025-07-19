@@ -1,5 +1,9 @@
 # Claude Code Spec-Driven Development
 
+> [!Warning]
+> 初期バージョンのため、使いながら適宜改善していく予定
+
+
 Claude CodeのSlash CommandsとCLAUDE.mdを使用して、Kiro IDEに組み込まれているSpec-Driven Developmentを実践するためのプロジェクト。Kiroでの実際の仕様書駆動開発の流れをディレクトリ構成も含めてほぼそのまま再現している。
 
 ## 概要
