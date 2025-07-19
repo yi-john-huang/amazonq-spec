@@ -80,10 +80,18 @@ Only after all three phases are approved can implementation begin.
 ## Automation
 
 This project uses Claude Code hooks to:
-- Automatically track task progress
+- Automatically track task progress in tasks.md
 - Check spec compliance
 - Preserve context during compaction
 - Detect steering drift
+
+### Task Progress Tracking
+
+When working on implementation:
+1. **Manual tracking**: Update tasks.md checkboxes manually as you complete tasks
+2. **Progress monitoring**: Use `/spec-status` to view current completion status
+3. **TodoWrite integration**: Use TodoWrite tool to track active work items
+4. **Status visibility**: Checkbox parsing shows completion percentage
 
 ## Getting Started
 

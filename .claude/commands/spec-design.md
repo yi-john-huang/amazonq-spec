@@ -1,6 +1,6 @@
 ---
 description: Create technical design for a specification
-allowed-tools: Bash, Read, Write, Edit, WebSearch, WebFetch
+allowed-tools: Bash, Read, Write, Edit, MultiEdit, Update, WebSearch, WebFetch
 ---
 
 # Technical Design

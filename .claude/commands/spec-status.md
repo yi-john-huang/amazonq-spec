@@ -1,6 +1,6 @@
 ---
 description: Show specification status and progress
-allowed-tools: Bash, Read, Glob
+allowed-tools: Bash, Read, Glob, Write, Edit, MultiEdit, Update
 ---
 
 # Specification Status
@@ -56,6 +56,12 @@ If in implementation phase:
 - Current blockers or issues
 - Estimated time to completion
 - Next actions needed
+
+#### Task Completion Tracking
+- Parse tasks.md checkbox status: `- [x]` (completed) vs `- [ ]` (pending)
+- Count completed vs total tasks
+- Show completion percentage
+- Identify next uncompleted task
 
 ### 4. Quality Metrics
 Show:

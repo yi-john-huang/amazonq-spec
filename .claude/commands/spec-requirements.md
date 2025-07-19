@@ -1,6 +1,6 @@
 ---
 description: Generate comprehensive requirements for a specification
-allowed-tools: Bash, Read, Write, Edit, WebSearch, WebFetch
+allowed-tools: Bash, Read, Write, Edit, MultiEdit, Update, WebSearch, WebFetch
 ---
 
 # Requirements Generation
