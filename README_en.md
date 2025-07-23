@@ -26,7 +26,7 @@ To integrate Claude Code Spec-Driven Development into your project, simply copy 
 
 1. **Copy files** (see above)
 2. **Copy CLAUDE_en.md and rename it to CLAUDE.md**, then adjust it for your project
-3. **Configure language** (if needed): If generated content appears in Japanese, change `"language": "japanese"` to `"language": "english"` in `.claude/commands/spec-init.md`
+3. **Configure language** (if needed): If generated content appears in Japanese, change `"language": "japanese"` to `"language": "english"` in `.claude/commands/kiro/spec-init.md`
 4. **Run initial commands**:
    ```bash
    # Optional: Create steering documents
