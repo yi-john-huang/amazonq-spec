@@ -280,14 +280,15 @@ sequenceDiagram
 .
 ├── .claude/
 │   └── commands/          # スラッシュコマンド定義
-│       ├── spec-init.md
-│       ├── spec-requirements.md
-│       ├── spec-design.md
-│       ├── spec-tasks.md
-│       ├── spec-status.md
-│       ├── steering-init.md
-│       ├── steering-update.md
-│       └── steering-custom.md
+│       └── kiro/
+│           ├── spec-init.md
+│           ├── spec-requirements.md
+│           ├── spec-design.md
+│           ├── spec-tasks.md
+│           ├── spec-status.md
+│           ├── steering-init.md
+│           ├── steering-update.md
+│           └── steering-custom.md
 ├── .kiro/
 │   ├── steering/          # ステアリング文書
 │   │   ├── product.md
