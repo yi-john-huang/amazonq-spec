@@ -3,6 +3,8 @@
  * Handles prompt template creation, adaptation, validation, and caching
  */
 
+// cSpell:ignore amazonq QCLI kiro AMAZONQ
+
 import Handlebars from 'handlebars';
 import { existsSync, writeFileSync, mkdirSync } from 'fs';
 import { join } from 'path';
