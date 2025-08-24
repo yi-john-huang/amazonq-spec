@@ -1,0 +1,125 @@
+# {{projectName}} - Amazon Q CLI Configuration
+
+*Generated on {{timestamp}} by amazonq-sdd package*
+
+## Project Context
+
+This project uses Amazon Q CLI for Spec-Driven Development (SDD) workflow, following the Kiro-style methodology for systematic feature development.
+
+**Project Details:**
+- **Name**: {{projectName}}
+- **Amazon Q CLI Path**: {{amazonQCLIPath}}
+- **Kiro Directory**: {{kiroDirectory}}
+- **Language**: {{localization.messages.language_name}}
+- **Platform**: {{platform}}
+
+## SDD Workflow
+
+This project follows the Kiro-style Spec-Driven Development approach with these phases:
+
+### Phase 0: Steering (Optional)
+Create project-wide context and guidance documents:
+- **`/kiro:steering`** - Create/update core steering documents (product.md, tech.md, structure.md)
+- **`/kiro:steering-custom`** - Create domain-specific steering for specialized contexts
+
+**Note**: Steering is optional for new features or small additions. You can proceed directly to spec-init for most development work.
+
+### Phase 1: Specification Creation
+Systematic feature development following approval workflows:
+
+1. **`/kiro:spec-init [detailed description]`** - Initialize spec with detailed project description
+   - Creates initial feature specification structure
+   - Establishes feature scope and initial analysis
+   - Sets up directory structure in `{{kiroDirectory}}/specs/[feature-name]/`
+
+2. **`/kiro:spec-requirements [feature]`** - Generate comprehensive requirements document
+   - Creates functional and non-functional requirements
+   - Defines acceptance criteria and business rules
+   - Establishes technical constraints and validation rules
+
+3. **`/kiro:spec-design [feature]`** - Create technical design document
+   - **Interactive Checkpoint**: "Have you reviewed requirements.md? [y/N]"
+   - Only proceeds after requirements approval
+   - Generates architecture, component design, and implementation approach
+
+4. **`/kiro:spec-tasks [feature]`** - Generate implementation task breakdown
+   - **Interactive Checkpoint**: Confirms both requirements AND design review
+   - Creates actionable development tasks with acceptance criteria
+   - Organizes tasks into logical implementation phases
+
+### Phase 2: Implementation & Tracking
+Support for development execution and progress monitoring:
+
+- **`/kiro:spec-impl [feature]`** - Get implementation guidance for specific tasks
+- **`/kiro:spec-status [feature]`** - Check current progress and identify next steps
+
+## Available Commands
+
+### Core SDD Commands
+
+- **kiro:spec-init** - Initialize feature specification
+- **kiro:spec-requirements** - Generate requirements document  
+- **kiro:spec-design** - Create design document
+- **kiro:spec-tasks** - Generate task breakdown
+- **kiro:spec-impl** - Implementation guidance
+- **kiro:spec-status** - Check specification status
+- **kiro:steering** - Create steering documents
+- **kiro:steering-custom** - Create custom steering
+
+## Directory Structure
+
+Your project follows this SDD directory organization:
+
+```
+{{kiroDirectory}}/
+├── specs/                    # Feature specifications
+│   ├── [feature-name]/       # Individual feature directories
+│   │   ├── specification.md  # Initial feature spec
+│   │   ├── requirements.md   # Detailed requirements
+│   │   ├── design.md         # Technical design
+│   │   ├── tasks.md          # Implementation tasks
+│   │   └── progress.md       # Development progress
+│   └── ...
+├── steering/                 # Project steering documents
+│   ├── product.md           # Business context
+│   ├── tech.md              # Technical standards
+│   ├── structure.md         # Project organization
+│   └── [custom].md          # Domain-specific steering
+└── templates/               # Custom templates (optional)
+    ├── prompts/             # Custom prompt templates
+    └── config/              # Configuration templates
+```
+
+## Development Guidelines
+
+{{localization.help.development_guidelines}}
+
+- **Think in English, generate responses in English**
+- **Follow the 3-phase approval workflow**: Requirements → Design → Tasks → Implementation
+- **Each phase requires human review** before proceeding to the next
+- **Update task status** when working on features using `/kiro:spec-status`
+- **Keep steering documents current** after significant changes
+- **Use approval gates** to ensure quality and alignment throughout development
+
+### Quality Standards
+
+- **Requirements must be specific, measurable, and testable**
+- **Design must comprehensively address all requirements**
+- **Tasks must be actionable with clear acceptance criteria**
+- **Implementation must follow established patterns and standards**
+- **All phases must maintain traceability and consistency**
+
+## Amazon Q CLI Integration
+
+- **Binary Location**: `{{amazonQCLIPath}}`
+- **Chat Interface**: Commands use Amazon Q's chat functionality with structured prompts
+- **File-Based Prompts**: Templates generate context-rich prompts for optimal AI responses
+- **Interactive Workflows**: Built-in approval gates ensure quality control
+
+---
+
+**Generated by**: amazonq-sdd package  
+**Configuration Template**: AMAZONQ.md.hbs  
+**Last Updated**: {{timestamp}}
+
+For more information about Spec-Driven Development, visit the project documentation.

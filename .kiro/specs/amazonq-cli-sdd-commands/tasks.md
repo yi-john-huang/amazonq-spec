@@ -108,7 +108,7 @@
 
 ## Configuration Management & Localization
 
-- [ ] 13. Implement AMAZONQ.md configuration generation
+- [x] 13. Implement AMAZONQ.md configuration generation
   - Create templates/config/AMAZONQ.md.hbs template
   - Add project context sections and SDD workflow instructions
   - Implement dynamic content insertion based on project detection

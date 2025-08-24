@@ -369,6 +369,24 @@ export class ConfigurationManager {
    * Get configuration template content based on language
    */
   private getConfigTemplateContent(language: Language): string {
+    // Try to load from external template files first
+    const templateFiles = {
+      [Language.ENGLISH]: 'templates/config/AMAZONQ.md.hbs',
+      [Language.JAPANESE]: 'templates/config/AMAZONQ.ja.md.hbs', 
+      [Language.CHINESE_TRADITIONAL]: 'templates/config/AMAZONQ.zh-TW.md.hbs'
+    };
+
+    const templatePath = templateFiles[language];
+    if (existsSync(templatePath)) {
+      try {
+        const { readFileSync } = require('fs');
+        return readFileSync(templatePath, 'utf8');
+      } catch (error) {
+        this.logger.warn(`Failed to load external template ${templatePath}, using built-in template`);
+      }
+    }
+
+    // Fallback to built-in templates
     const templates = {
       [Language.ENGLISH]: `# {{projectName}} - Amazon Q CLI Configuration
 
