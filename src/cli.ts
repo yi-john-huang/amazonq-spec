@@ -35,7 +35,7 @@ program
   .helpOption('-h, --help', 'Display help information');
 
 /**
- * Main install command (default)
+ * Main install command (default action like cc-sdd)
  */
 program
   .option(
@@ -76,6 +76,11 @@ program
   .option(
     '--skip-detection',
     'Skip Amazon Q CLI detection',
+    false
+  )
+  .option(
+    '--backup',
+    'Backup existing files before installation',
     false
   )
   .action(async (options) => {

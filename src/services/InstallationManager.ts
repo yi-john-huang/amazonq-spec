@@ -85,7 +85,7 @@ export class InstallationManager {
       const scriptFiles = await this.createCommandScripts(options, amazonQInfo);
       result.createdFiles.push(...scriptFiles);
       
-      // Add the main SDD commands that will be created
+      // Add the main SDD commands that will be created (matching cc-sdd naming)
       const sddCommands = [
         'kiro-steering',
         'kiro-steering-custom', 
@@ -93,8 +93,8 @@ export class InstallationManager {
         'kiro-spec-requirements',
         'kiro-spec-design',
         'kiro-spec-tasks',
-        'kiro-spec-status',
-        'kiro-spec-implement'
+        'kiro-spec-impl',
+        'kiro-spec-status'
       ];
       
       result.installedCommands = sddCommands;
@@ -532,8 +532,8 @@ Thumbs.db
         template: 'spec-status'
       },
       {
-        name: 'kiro-spec-implement',
-        description: 'Start implementation phase',
+        name: 'kiro-spec-impl',
+        description: 'Start implementation phase with TDD',
         template: 'spec-impl'
       }
     ];
