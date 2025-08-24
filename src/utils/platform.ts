@@ -6,8 +6,12 @@
 import { platform as osPlatform } from 'os';
 import { Platform } from '../types';
 
+// Re-export enhanced platform utilities
+export * from './platform-enhanced';
+
 /**
- * Detect the current platform
+ * Detect the current platform (simplified version)
+ * @deprecated Use detectPlatform from platform-enhanced instead
  */
 export async function detectPlatform(): Promise<Platform> {
   const platform = osPlatform();
