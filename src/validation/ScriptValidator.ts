@@ -347,6 +347,15 @@ export class ScriptValidator {
     const hasSetE = content.includes('set -e') || content.includes('set -euo pipefail');
     const hasErrorHandling = /if\s+\[.*\].*then|&&|\|\|/.test(content);
     const hasTrap = content.includes('trap ');
+    
+    if (hasTrap && !hasSetE) {
+      warnings.push({
+        code: 'TRAP_WITHOUT_SETE',
+        message: 'Script uses trap but lacks set -e for proper error propagation',
+        field: 'errorHandling',
+        suggestion: 'Add set -e or set -euo pipefail at the beginning of the script'
+      });
+    }
 
     if (!hasSetE && !hasErrorHandling) {
       warnings.push({

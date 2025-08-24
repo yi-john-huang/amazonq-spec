@@ -2,21 +2,37 @@
   "name": "amazonq-sdd",
   "version": "0.1.0",
   "description": "Spec-driven development workflow for Amazon Q CLI users",
-  "main": "dist/index.js",
+  "main": "dist/cli.js",
   "bin": {
     "amazonq-sdd": "dist/cli.js"
   },
   "scripts": {
-    "build": "tsc",
+    "build": "npm run build:tsc && npm run build:templates && npm run build:bin",
+    "build:tsc": "tsc",
+    "build:templates": "node scripts/build-templates.js",
+    "build:bin": "node scripts/build-executable.js",
     "dev": "ts-node src/cli.ts",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
+    "test:integration": "jest --testPathPattern=integration",
+    "test:unit": "jest --testPathPattern=__tests__ --testPathIgnorePatterns=integration",
     "lint": "eslint src/**/*.ts",
     "lint:fix": "eslint src/**/*.ts --fix",
-    "clean": "rimraf dist",
-    "prebuild": "npm run clean",
-    "prepublishOnly": "npm run build && npm test"
+    "typecheck": "tsc --noEmit",
+    "clean": "rimraf dist coverage .nyc_output",
+    "prebuild": "npm run clean && npm run typecheck",
+    "postbuild": "npm run validate:build",
+    "validate:build": "node scripts/validate-build.js",
+    "package": "npm run build && npm pack",
+    "package:test": "npm run package && node scripts/test-package.js",
+    "prepublishOnly": "npm run build && npm run test && npm run package:test",
+    "release:patch": "npm version patch && npm run build && npm publish",
+    "release:minor": "npm version minor && npm run build && npm publish",
+    "release:major": "npm version major && npm run build && npm publish",
+    "install:local": "npm run build && npm install -g .",
+    "uninstall:local": "npm uninstall -g amazonq-sdd",
+    "version:check": "node scripts/version-check.js"
   },
   "keywords": [
     "amazon-q",
@@ -53,7 +69,20 @@
     "typescript": "^5.3.3"
   },
   "engines": {
-    "node": ">=16.0.0"
+    "node": ">=16.0.0",
+    "npm": ">=7.0.0"
+  },
+  "files": [
+    "dist/",
+    "templates/",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md"
+  ],
+  "preferGlobal": true,
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
   },
   "repository": {
     "type": "git",

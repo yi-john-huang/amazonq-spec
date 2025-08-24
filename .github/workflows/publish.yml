@@ -1,42 +1,219 @@
-name: Publish Package
+name: Build and Publish
 
 on:
   push:
     tags:
-      - 'cc-sdd-v*'
-
-permissions:
-  id-token: write  # Required for OIDC
-  contents: read
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      version_type:
+        description: 'Version type (patch, minor, major)'
+        required: true
+        default: 'patch'
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
 
 jobs:
-  publish:
+  test:
     runs-on: ubuntu-latest
-
+    strategy:
+      matrix:
+        node-version: [16.x, 18.x, 20.x]
+    
     steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          registry-url: 'https://registry.npmjs.org'
-
-      # Ensure npm 11.5.1 or later is installed
-      - name: Update npm
-        run: npm install -g npm@latest
+    - uses: actions/checkout@v4
       
-      - name: Install
-        working-directory: tools/cc-sdd
-        run: npm ci
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Run linting
+      run: npm run lint
+      
+    - name: Run type checking
+      run: npm run typecheck
+      
+    - name: Run unit tests
+      run: npm run test:unit
+      
+    - name: Run integration tests
+      run: npm run test:integration
+      
+    - name: Run test coverage
+      run: npm run test:coverage
+      
+    - name: Upload coverage reports
+      uses: codecov/codecov-action@v3
+      if: matrix.node-version == '18.x'
 
-      - name: Build
-        working-directory: tools/cc-sdd
-        run: npm run build --if-present
+  build-and-test:
+    needs: test
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+      
+    - name: Use Node.js 18
+      uses: actions/setup-node@v4
+      with:
+        node-version: 18
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Build package
+      run: npm run build
+      
+    - name: Test package
+      run: npm run package:test
+      
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: dist-files
+        path: |
+          dist/
+          *.tgz
+        retention-days: 7
 
-      - name: Test
-        working-directory: tools/cc-sdd
-        run: npm test --if-present
+  cross-platform-test:
+    needs: build-and-test
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        
+    runs-on: ${{ matrix.os }}
+    
+    steps:
+    - uses: actions/checkout@v4
+      
+    - name: Use Node.js 18
+      uses: actions/setup-node@v4
+      with:
+        node-version: 18
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Build package
+      run: npm run build
+      
+    - name: Test CLI functionality
+      run: node dist/cli.js --help
+      
+    - name: Test package creation
+      run: npm pack
+      
+    - name: Test package installation (Unix)
+      if: matrix.os != 'windows-latest'
+      run: |
+        TARBALL=$(ls *.tgz | head -n1)
+        mkdir test-install
+        cd test-install
+        npm init -y
+        npm install "../$TARBALL"
+        node node_modules/amazonq-sdd/dist/cli.js --version
+        
+    - name: Test package installation (Windows)
+      if: matrix.os == 'windows-latest'
+      shell: cmd
+      run: |
+        for %%f in (*.tgz) do set TARBALL=%%f
+        mkdir test-install
+        cd test-install
+        npm init -y
+        npm install "../%TARBALL%"
+        node node_modules/amazonq-sdd/dist/cli.js --version
 
-      - name: Publish
-        working-directory: tools/cc-sdd
-        run: npm publish
+  publish:
+    if: startsWith(github.ref, 'refs/tags/v') || github.event_name == 'workflow_dispatch'
+    needs: [test, build-and-test, cross-platform-test]
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+        
+    - name: Use Node.js 18
+      uses: actions/setup-node@v4
+      with:
+        node-version: 18
+        cache: 'npm'
+        registry-url: 'https://registry.npmjs.org'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Configure Git
+      run: |
+        git config --global user.email "action@github.com"
+        git config --global user.name "GitHub Action"
+        
+    - name: Bump version (manual trigger)
+      if: github.event_name == 'workflow_dispatch'
+      run: |
+        npm version ${{ github.event.inputs.version_type }} --no-git-tag-version
+        NEW_VERSION=$(node -p "require('./package.json').version")
+        echo "NEW_VERSION=v$NEW_VERSION" >> $GITHUB_ENV
+        
+    - name: Get version from tag (tag trigger)
+      if: startsWith(github.ref, 'refs/tags/v')
+      run: |
+        TAG_VERSION=${GITHUB_REF#refs/tags/}
+        echo "NEW_VERSION=$TAG_VERSION" >> $GITHUB_ENV
+        
+    - name: Build package
+      run: npm run build
+      
+    - name: Final package test
+      run: npm run package:test
+      
+    - name: Publish to NPM
+      run: npm publish
+      env:
+        NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        
+    - name: Create GitHub Release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ env.NEW_VERSION }}
+        release_name: Release ${{ env.NEW_VERSION }}
+        body: |
+          ## Changes in ${{ env.NEW_VERSION }}
+          
+          See [CHANGELOG.md](CHANGELOG.md) for detailed changes.
+          
+          ### Installation
+          ```bash
+          npm install -g amazonq-sdd@${{ env.NEW_VERSION }}
+          ```
+          
+          ### Usage
+          ```bash
+          amazonq-sdd --help
+          ```
+        draft: false
+        prerelease: false
+        
+    - name: Upload package to release
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./amazonq-sdd-*.tgz
+        asset_name: amazonq-sdd-${{ env.NEW_VERSION }}.tgz
+        asset_content_type: application/gzip

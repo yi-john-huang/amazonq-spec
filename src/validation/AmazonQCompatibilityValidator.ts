@@ -387,7 +387,7 @@ export class AmazonQCompatibilityValidator {
    */
   private validateRateLimiting(
     prompt: AmazonQPrompt,
-    _errors: ValidationError[],
+    errors: ValidationError[],
     warnings: ValidationWarning[]
   ): void {
     const analysis = this.analyzePrompt(prompt);
