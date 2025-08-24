@@ -203,7 +203,7 @@ OUTPUT_FILE=""
 if [[ "${commandName}" == *"spec"* ]] && [ -n "$FEATURE_NAME" ]; then
     case "${commandName}" in
         *"init"*)
-            OUTPUT_FILE="$FEATURE_DIR/specification.md"
+            OUTPUT_FILE="$FEATURE_DIR/requirements.md"
             ;;
         *"requirements"*)
             OUTPUT_FILE="$FEATURE_DIR/requirements.md"
@@ -236,7 +236,80 @@ if [ -n "$OUTPUT_FILE" ]; then
         echo "# Feature: $FEATURE_NAME"
         echo "# Project: \$(basename \$(pwd))"
         echo ""
-        ${this.generateExecutionScript(info)} 2>&1
+        
+        # Process template with variable substitution and run Amazon Q CLI
+        TEMP_OUTPUT=\$(mktemp)
+        PROCESSED_TEMPLATE=\$(mktemp)
+        
+        # Process Handlebars-style variables in template
+        sed "
+            s/{{FEATURE_DESCRIPTION}}/\$1/g
+            s/{{PROJECT_NAME}}/\$PROJECT_NAME/g  
+            s/{{TECHNOLOGY_STACK}}/Unknown/g
+            s/{{PROJECT_PATH}}/\$PROJECT_PATH/g
+            s/{{ARCHITECTURE_TYPE}}/Standard/g
+            s/{{FEATURE_NAME}}/\$FEATURE_NAME/g
+        " "\$TEMPLATE_PATH" > "\$PROCESSED_TEMPLATE"
+        
+        # Run Amazon Q CLI with processed template
+        ${this.generateExecutionScript(info).replace('$TEMPLATE_PATH', '$PROCESSED_TEMPLATE')} > "\$TEMP_OUTPUT" 2>&1
+        
+        # Filter out Amazon Q CLI UI elements and keep only content
+        # First, remove ANSI escape codes, then filter out UI elements
+        sed 's/\\x1b\\[[0-9;]*[a-zA-Z]//g' "\$TEMP_OUTPUT" | \\
+        sed -E '
+            # Remove ASCII art and box characters (including braille patterns)
+            /^[[:space:]]*[⠋⠙⠹⠸⠼⠴⠦⠧⢀⢠⢰⢸⡀⡄⡆⡇⣀⣄⣆⣇⣠⣤⣦⣧⣰⣴⣶⣷⣸⣼⣾⣿]/d
+            /^[[:space:]]*[╭╮╯╰─│┌┐└┘├┤┬┴┼═║╔╗╚╝╠╣╦╩╬]/d  
+            /^[[:space:]]*[━┃┏┓┗┛┣┫┳┻╋]/d
+            
+            # Remove thinking indicators and spinners
+            /Thinking\.\.\./d
+            /^[⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏]/d
+            
+            # Remove control sequences and positioning
+            /\\[?[0-9]*[hlK]/d
+            /\\[[0-9]*[GJK]/d
+            /^[[:space:]]*\\[m/d
+            
+            # Remove help text and UI elements
+            /help all commands/d
+            /ctrl.*new lines/d  
+            /ctrl.*fuzzy search/d
+            /You are chatting with/d
+            /Did you know/d
+            /Get notified whenever/d
+            /enableNotifications/d
+            /To exit the CLI/d
+            /press Ctrl/d
+            /type.*quit/d
+            
+            # Remove Amazon Q branding and logos (ASCII art)
+            /Amazon Q/d
+            /built by AWS/d
+            /I can see you.re in a project directory/d
+            /set up for spec-driven development/d
+            /Feel free to ask me anything/d
+            /what you.d like to work on/d
+            
+            # Remove lines that are just special characters or formatting
+            /^[[:space:]]*[─━│┃╭╮╯╰┌┐└┘├┤┬┴┼═║╔╗╚╝╠╣╦╩╬⠀-⣿]*[[:space:]]*$$/d
+            
+            # Remove lines with just numbers and special chars (like cursor positioning)
+            /^[[:space:]]*[0-9\\[\\]mKGJ]*[[:space:]]*$$/d
+            
+            # Remove completely empty lines at start
+            1{/^[[:space:]]*$$/d}
+            
+            # Keep lines that have actual content (letters, words)
+            /[a-zA-Z]/!d
+            
+            # Final cleanup - remove lines that are just escape sequences
+            /^[[:space:]]*$$/d
+        '
+        
+        # Clean up
+        rm -f "\$TEMP_OUTPUT" "\$PROCESSED_TEMPLATE"
     } > "$OUTPUT_FILE"
     
     # Check result
