@@ -98,7 +98,7 @@
   - Implement script execution flow with proper exit codes
   - _Requirements: 1.3, 1.4, 3.2, 4.2_
 
-- [ ] 12. Create shell script templates for Windows systems
+- [x] 12. Create shell script templates for Windows systems
   - Create templates/scripts/windows/ directory with PowerShell scripts
   - Implement kiro-spec-init.ps1 template with Amazon Q CLI integration
   - Create remaining PowerShell script templates for all commands
