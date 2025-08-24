@@ -241,15 +241,13 @@ if [ -n "$OUTPUT_FILE" ]; then
         TEMP_OUTPUT=\$(mktemp)
         PROCESSED_TEMPLATE=\$(mktemp)
         
-        # Process Handlebars-style variables in template
-        sed "
-            s/{{FEATURE_DESCRIPTION}}/\$1/g
-            s/{{PROJECT_NAME}}/\$PROJECT_NAME/g  
-            s/{{TECHNOLOGY_STACK}}/Unknown/g
-            s/{{PROJECT_PATH}}/\$PROJECT_PATH/g
-            s/{{ARCHITECTURE_TYPE}}/Standard/g
-            s/{{FEATURE_NAME}}/\$FEATURE_NAME/g
-        " "\$TEMPLATE_PATH" > "\$PROCESSED_TEMPLATE"
+        # Process Handlebars-style variables in template - escape special characters
+        ESCAPED_FEATURE_DESC=\$(printf '%s\\n' "\$1" | sed 's/[[\.*^$(){}?+|\\]/\\\\&/g')
+        ESCAPED_PROJECT_NAME=\$(printf '%s\\n' "\$PROJECT_NAME" | sed 's/[[\.*^$(){}?+|\\]/\\\\&/g')
+        ESCAPED_PROJECT_PATH=\$(printf '%s\\n' "\$PROJECT_PATH" | sed 's/[[\.*^$(){}?+|\\]/\\\\&/g')
+        ESCAPED_FEATURE_NAME=\$(printf '%s\\n' "\$FEATURE_NAME" | sed 's/[[\.*^$(){}?+|\\]/\\\\&/g')
+        
+        sed "s/{{FEATURE_DESCRIPTION}}/\$ESCAPED_FEATURE_DESC/g; s/{{PROJECT_NAME}}/\$ESCAPED_PROJECT_NAME/g; s/{{TECHNOLOGY_STACK}}/Unknown/g; s/{{PROJECT_PATH}}/\$ESCAPED_PROJECT_PATH/g; s/{{ARCHITECTURE_TYPE}}/Standard/g; s/{{FEATURE_NAME}}/\$ESCAPED_FEATURE_NAME/g" "\$TEMPLATE_PATH" > "\$PROCESSED_TEMPLATE"
         
         # Run Amazon Q CLI with processed template
         ${this.generateExecutionScript(info).replace('$TEMPLATE_PATH', '$PROCESSED_TEMPLATE')} > "\$TEMP_OUTPUT" 2>&1
