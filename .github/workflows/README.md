@@ -4,7 +4,18 @@ This repository uses GitHub Actions for continuous integration and deployment.
 
 ## Workflows
 
-### 1. CI (Continuous Integration)
+### 1. Auto Tag on Merge
+**File**: `.github/workflows/auto-tag.yml`  
+**Triggers**: Push to main (when merging from develop)  
+**Purpose**: Automatically create version tags
+
+- Detects merges from develop to main
+- Automatically increments patch version (z in vX.Y.Z)
+- Updates package.json version
+- Creates and pushes new tag
+- Triggers release workflow
+
+### 2. CI (Continuous Integration)
 **File**: `.github/workflows/ci.yml`  
 **Triggers**: Push to main/develop, Pull requests to main  
 **Purpose**: Run tests, linting, and build validation
@@ -14,7 +25,17 @@ This repository uses GitHub Actions for continuous integration and deployment.
 - Type checking and linting
 - Build validation
 
-### 2. Release & Publish
+### 3. Merge Develop to Main
+**File**: `.github/workflows/merge-develop.yml`  
+**Triggers**: Manual dispatch, Weekly schedule (optional)  
+**Purpose**: Create PR to merge develop into main
+
+- Checks for changes in develop branch
+- Creates pull request for review
+- Can be triggered manually or on schedule
+- Optional auto-merge capability
+
+### 4. Release & Publish
 **File**: `.github/workflows/release.yml`  
 **Triggers**: Git tags (v*), Manual dispatch  
 **Purpose**: Publish new versions to npm
@@ -24,7 +45,7 @@ This repository uses GitHub Actions for continuous integration and deployment.
 - npm package publishing
 - Artifact uploading
 
-### 3. PR Check
+### 5. PR Check
 **File**: `.github/workflows/pr-check.yml`  
 **Triggers**: Pull request events  
 **Purpose**: Validate pull requests
@@ -34,7 +55,7 @@ This repository uses GitHub Actions for continuous integration and deployment.
 - Code quality checks
 - Test coverage reporting
 
-### 4. CodeQL Analysis
+### 6. CodeQL Analysis
 **File**: `.github/workflows/codeql.yml`  
 **Triggers**: Push to main, PRs, Weekly schedule  
 **Purpose**: Security and code quality analysis
@@ -61,9 +82,40 @@ Enable these in your repository settings:
 - **Code scanning**: Enable CodeQL analysis
 - **Dependabot**: Enable security updates
 
+## Automated Versioning Workflow
+
+### How It Works
+1. **Development**: Work on `develop` branch
+2. **Merge to Main**: 
+   - Option A: Manually create PR from develop to main
+   - Option B: Use "Merge Develop to Main" workflow
+3. **Auto-tagging**: When PR is merged to main:
+   - Auto-tag workflow detects the merge
+   - Increments patch version (e.g., v0.1.0 → v0.1.1)
+   - Updates package.json
+   - Creates and pushes new tag
+4. **Auto-release**: Tag creation triggers:
+   - Release workflow automatically runs
+   - Creates GitHub release
+   - Publishes to npm
+
+### Version Numbering
+- Format: `vX.Y.Z`
+- **X (Major)**: Breaking changes - update manually
+- **Y (Minor)**: New features - update manually  
+- **Z (Patch)**: Bug fixes - auto-increments on merge
+
+### Manual Version Control
+For minor or major version bumps:
+```bash
+# On develop branch
+npm version minor  # or major
+git push origin develop --follow-tags
+```
+
 ## Usage
 
-### Automatic Releases
+### Automatic Releases (Default Flow)
 1. Create a new tag:
    ```bash
    git tag v0.1.1
