@@ -21,6 +21,7 @@ import {
 } from '../utils/platform-enhanced';
 import { ScriptGenerator } from './ScriptGenerator';
 import { TemplateGenerator } from './TemplateGenerator';
+import { AmazonQCLIDetector, AmazonQCLIInfo } from '../utils/amazonq-cli-detector';
 
 /**
  * Manages the installation process for Amazon Q SDD
@@ -29,10 +30,12 @@ export class InstallationManager {
   private rollbackActions: Array<() => void> = [];
   private scriptGenerator: ScriptGenerator;
   private templateGenerator: TemplateGenerator;
+  private amazonQDetector: AmazonQCLIDetector;
 
   constructor(private logger: Logger) {
     this.scriptGenerator = new ScriptGenerator(this.logger);
     this.templateGenerator = new TemplateGenerator(this.logger);
+    this.amazonQDetector = new AmazonQCLIDetector(this.logger);
   }
 
   /**
@@ -54,22 +57,15 @@ export class InstallationManager {
       this.logger.info('Starting Amazon Q SDD installation...');
 
       // Step 1: Detect Amazon Q CLI if not skipping
+      let amazonQInfo: AmazonQCLIInfo | null = null;
       if (!options.skipDetection) {
         this.logger.info('Detecting Amazon Q CLI installation...');
-        const amazonQValidation = await this.detectAmazonQCLI();
+        amazonQInfo = await this.detectAmazonQCLI();
         
-        if (!amazonQValidation.isInstalled) {
-          result.errors.push('Amazon Q CLI not found. Please install it first.');
-          result.warnings.push('Install from: https://aws.amazon.com/q/developer/');
-          throw new AmazonQSDDError(
-            ErrorType.AMAZON_Q_NOT_FOUND,
-            'Amazon Q CLI is required but not found on system',
-            { validation: amazonQValidation }
-          );
+        this.logger.info(`Amazon Q CLI found: ${amazonQInfo.command} (${amazonQInfo.type})`);
+        if (amazonQInfo.version) {
+          this.logger.info(`Version: ${amazonQInfo.version}`);
         }
-        
-        this.logger.info(`Amazon Q CLI found: ${amazonQValidation.path} (v${amazonQValidation.version})`);
-        // Store Amazon Q info for reference (InstallResult doesn't have these fields)
       } else {
         this.logger.verbose('Skipping Amazon Q CLI detection as requested');
         result.warnings.push('Amazon Q CLI detection skipped - installation may not work properly');
@@ -86,7 +82,7 @@ export class InstallationManager {
 
       // Step 4: Create executable command scripts
       this.logger.info('Creating command scripts...');
-      const scriptFiles = await this.createCommandScripts(options);
+      const scriptFiles = await this.createCommandScripts(options, amazonQInfo);
       result.createdFiles.push(...scriptFiles);
       
       // Add the main SDD commands that will be created
@@ -145,28 +141,20 @@ export class InstallationManager {
   /**
    * Detect and validate Amazon Q CLI installation
    */
-  async detectAmazonQCLI(): Promise<AmazonQValidation> {
+  async detectAmazonQCLI(): Promise<AmazonQCLIInfo> {
     this.logger.verbose('Detecting Amazon Q CLI...');
     
     try {
-      const validation = await validateAmazonQCLI();
+      const cliInfo = await this.amazonQDetector.detectCLI();
       
-      if (validation.isInstalled) {
-        this.logger.verbose(`Found Amazon Q CLI at: ${validation.path}`);
-        if (validation.version) {
-          this.logger.verbose(`Version: ${validation.version}`);
-        }
-      } else {
-        this.logger.verbose('Amazon Q CLI not found');
-        if (validation.errors.length > 0) {
-          this.logger.verbose('Detection errors:');
-          validation.errors.forEach(error => {
-            this.logger.verbose(`  - ${error}`);
-          });
-        }
+      this.logger.verbose(`Found Amazon Q CLI: ${cliInfo.command} (${cliInfo.type})`);
+      if (cliInfo.version) {
+        this.logger.verbose(`Version: ${cliInfo.version}`);
       }
-
-      return validation;
+      this.logger.verbose(`Supports --file flag: ${cliInfo.supportsFileFlag}`);
+      this.logger.verbose(`Supports --context flag: ${cliInfo.supportsContextFlag}`);
+      
+      return cliInfo;
     } catch (error) {
       this.logger.error('Error detecting Amazon Q CLI:', error);
       throw new AmazonQSDDError(
@@ -373,8 +361,10 @@ export class InstallationManager {
       }
 
       // Check if Amazon Q CLI is accessible
-      const amazonQValidation = await this.detectAmazonQCLI();
-      if (!amazonQValidation.isInstalled) {
+      try {
+        const amazonQInfo = await this.detectAmazonQCLI();
+        this.logger.verbose(`Amazon Q CLI accessible: ${amazonQInfo.command} (${amazonQInfo.type})`);
+      } catch (error) {
         this.logger.verbose('Amazon Q CLI not accessible');
         return false;
       }
@@ -500,7 +490,7 @@ Thumbs.db
   /**
    * Create executable command scripts for kiro-* commands
    */
-  async createCommandScripts(options: InstallOptions): Promise<string[]> {
+  async createCommandScripts(options: InstallOptions, amazonQInfo: AmazonQCLIInfo | null = null): Promise<string[]> {
     const amazonqDir = resolve('.amazonq');
     const scriptsDir = join(amazonqDir, 'scripts');
     const createdFiles: string[] = [];
@@ -551,8 +541,8 @@ Thumbs.db
     if (!options.dryRun) {
       for (const command of commands) {
         try {
-          // Generate shell script content directly for now (simplified approach)
-          const scriptContent = this.generateScriptContentDirect(command, options);
+          // Generate shell script content using detected CLI info
+          const scriptContent = this.generateScriptContentDirect(command, options, amazonQInfo);
 
           // Write script file
           const scriptExtension = options.platform === Platform.WINDOWS ? '.cmd' : '.sh';
@@ -611,28 +601,26 @@ Thumbs.db
   }
 
   /**
-   * Generate script content directly (simplified approach)
+   * Generate script content using detected CLI capabilities
    */
-  private generateScriptContentDirect(command: any, options: InstallOptions): string {
+  private generateScriptContentDirect(command: any, options: InstallOptions, amazonQInfo: AmazonQCLIInfo | null): string {
+    // Use detected CLI info to generate compatible script, or use the new detector's method
+    if (amazonQInfo) {
+      return this.amazonQDetector.generateScriptContent(amazonQInfo, command.name, command.description);
+    }
+    
+    // Fallback to default script generation if no CLI info available
     const isWindows = options.platform === Platform.WINDOWS;
     const amazonqDir = '.amazonq';
     const templateDir = join(amazonqDir, 'templates');
     
     if (isWindows) {
-      // Windows batch script
+      // Windows batch script with dynamic CLI detection
       return `@echo off
 REM ${command.description}
-REM Generated by amazonq-sdd v${this.getPackageVersion()}
+REM Generated by amazonq-sdd v${this.getPackageVersion()} - Auto-detecting Amazon Q CLI
 
 setlocal enabledelayedexpansion
-
-REM Check if Amazon Q CLI is available
-q --version >nul 2>&1
-if errorlevel 1 (
-    echo Error: Amazon Q CLI not found. Please install it first.
-    echo Install from: https://aws.amazon.com/q/developer/
-    exit /b 1
-)
 
 REM Check if .amazonq directory exists
 if not exist "${amazonqDir}" (
@@ -660,32 +648,48 @@ if not exist "!TEMPLATE_PATH!" (
     exit /b 1
 )
 
-REM Execute Amazon Q CLI with structured prompt
+REM Try different Amazon Q CLI commands in order of preference
 echo Executing ${command.name}...
-q chat --file "!TEMPLATE_PATH!" %*
 
-REM Check result
-if errorlevel 1 (
-    echo Error: Amazon Q CLI command failed
-    exit /b 1
+REM Try q chat --file first (newest CLI)
+q chat --file "!TEMPLATE_PATH!" %* 2>nul
+if not errorlevel 1 (
+    echo ${command.name} completed successfully
+    exit /b 0
 )
 
-echo ${command.name} completed successfully
+REM Try qchat chat (legacy CLI without --file support)
+type "!TEMPLATE_PATH!" | qchat chat %* 2>nul
+if not errorlevel 1 (
+    echo ${command.name} completed successfully
+    exit /b 0
+)
+
+REM Try amazon-q chat --file
+amazon-q chat --file "!TEMPLATE_PATH!" %* 2>nul
+if not errorlevel 1 (
+    echo ${command.name} completed successfully
+    exit /b 0
+)
+
+REM Try amazonq chat --file
+amazonq chat --file "!TEMPLATE_PATH!" %* 2>nul
+if not errorlevel 1 (
+    echo ${command.name} completed successfully
+    exit /b 0
+)
+
+echo Error: No compatible Amazon Q CLI found. Please install Amazon Q CLI.
+echo Install from: https://aws.amazon.com/q/developer/
+exit /b 1
 `;
     } else {
-      // Unix shell script
+      // Unix shell script with dynamic CLI detection
       return `#!/bin/bash
 # ${command.description}
-# Generated by amazonq-sdd v${this.getPackageVersion()}
+# Generated by amazonq-sdd v${this.getPackageVersion()} - Auto-detecting Amazon Q CLI
 
 set -euo pipefail
-
-# Check if Amazon Q CLI is available
-if ! command -v q &> /dev/null; then
-    echo "Error: Amazon Q CLI not found. Please install it first."
-    echo "Install from: https://aws.amazon.com/q/developer/"
-    exit 1
-fi
 
 # Check if .amazonq directory exists
 if [ ! -d "${amazonqDir}" ]; then
@@ -714,15 +718,44 @@ export PROJECT_NAME="\$(basename \$(pwd))"
 
 # Execute Amazon Q CLI with structured prompt
 echo "Executing ${command.name}..."
-q chat --file "\$TEMPLATE_PATH" "\$@"
 
-# Check result
-if [ \$? -eq 0 ]; then
-    echo "${command.name} completed successfully"
-else
-    echo "Error: Amazon Q CLI command failed"
-    exit 1
+# Try different Amazon Q CLI commands in order of preference
+
+# Try q chat --file first (newest CLI)
+if command -v q &> /dev/null; then
+    if q chat --file "\$TEMPLATE_PATH" "\$@" 2>/dev/null; then
+        echo "${command.name} completed successfully"
+        exit 0
+    fi
 fi
+
+# Try qchat chat (legacy CLI without --file support)
+if command -v qchat &> /dev/null; then
+    if cat "\$TEMPLATE_PATH" | qchat chat "\$@" 2>/dev/null; then
+        echo "${command.name} completed successfully"
+        exit 0
+    fi
+fi
+
+# Try amazon-q chat --file
+if command -v amazon-q &> /dev/null; then
+    if amazon-q chat --file "\$TEMPLATE_PATH" "\$@" 2>/dev/null; then
+        echo "${command.name} completed successfully"
+        exit 0
+    fi
+fi
+
+# Try amazonq chat --file
+if command -v amazonq &> /dev/null; then
+    if amazonq chat --file "\$TEMPLATE_PATH" "\$@" 2>/dev/null; then
+        echo "${command.name} completed successfully"
+        exit 0
+    fi
+fi
+
+echo "Error: No compatible Amazon Q CLI found. Please install Amazon Q CLI."
+echo "Install from: https://aws.amazon.com/q/developer/"
+exit 1
 `;
     }
   }
