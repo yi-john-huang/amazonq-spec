@@ -253,7 +253,7 @@ export interface ValidationResult {
   warnings: ValidationWarning[];
   
   /** Validated entity type */
-  entityType: 'template' | 'script' | 'config' | 'installation';
+  entityType: 'template' | 'script' | 'configuration' | 'installation' | 'amazonq_prompt';
   
   /** Additional validation metadata */
   metadata?: Record<string, any>;
@@ -277,6 +277,9 @@ export interface ValidationError {
   
   /** Expected value or format */
   expectedValue?: any;
+  
+  /** Suggestion for resolution */
+  suggestion?: string;
 }
 
 /**
@@ -291,6 +294,12 @@ export interface ValidationWarning {
   
   /** Affected field */
   field?: string;
+  
+  /** Actual value that failed */
+  actualValue?: any;
+  
+  /** Expected value or format */
+  expectedValue?: any;
   
   /** Suggestion for resolution */
   suggestion?: string;
@@ -343,6 +352,17 @@ export enum CommandType {
   SPEC_STATUS = 'spec-status',
   STEERING = 'steering',
   STEERING_CUSTOM = 'steering-custom'
+}
+
+/**
+ * Validation types for different content categories
+ */
+export enum ValidationType {
+  TEMPLATE = 'template',
+  CONFIGURATION = 'configuration',
+  SCRIPT = 'script',
+  AMAZONQ_COMPATIBILITY = 'amazonq_compatibility',
+  INSTALLATION = 'installation'
 }
 
 /**

@@ -142,7 +142,7 @@ export class ConfigurationManager {
           valid: false,
           errors,
           warnings,
-          entityType: 'config'
+          entityType: 'configuration'
         };
       }
 
@@ -215,7 +215,7 @@ export class ConfigurationManager {
         valid: errors.length === 0,
         errors,
         warnings,
-        entityType: 'config',
+        entityType: 'configuration',
         metadata: {
           fileSize: content.length,
           sections: requiredSections.filter(section => content.includes(section))
@@ -234,7 +234,7 @@ export class ConfigurationManager {
         valid: false,
         errors,
         warnings,
-        entityType: 'config'
+        entityType: 'configuration'
       };
     }
   }

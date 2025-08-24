@@ -57,7 +57,7 @@ export class ConfigValidator {
           valid: false,
           errors,
           warnings,
-          entityType: 'config'
+          entityType: 'configuration'
         };
       }
 
@@ -87,7 +87,7 @@ export class ConfigValidator {
         valid: errors.length === 0,
         errors,
         warnings,
-        entityType: 'config',
+        entityType: 'configuration',
         metadata: {
           fileSize: content.length,
           lineCount: content.split('\n').length,
@@ -108,7 +108,7 @@ export class ConfigValidator {
         valid: false,
         errors,
         warnings,
-        entityType: 'config'
+        entityType: 'configuration'
       };
     }
   }
