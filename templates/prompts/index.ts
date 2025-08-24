@@ -127,6 +127,77 @@ export const PROMPT_TEMPLATES: Record<string, PromptTemplate> = {
       'CODE_LANGUAGE'
     ],
     category: 'spec'
+  },
+
+  'spec-status': {
+    name: 'spec-status',
+    description: 'Check current progress and status of feature specification',
+    templatePath: 'templates/prompts/spec-status.hbs',
+    requiredVariables: [
+      'FEATURE_NAME',
+      'PROJECT_NAME',
+      'SPEC_DIRECTORY'
+    ],
+    optionalVariables: [
+      'SPEC_PATH',
+      'REQUIREMENTS_PATH',
+      'DESIGN_PATH',
+      'TASKS_PATH',
+      'CURRENT_ISSUES',
+      'TEAM_CONCERNS',
+      'TIMELINE_CONSTRAINTS'
+    ],
+    category: 'spec'
+  },
+
+  'steering': {
+    name: 'steering',
+    description: 'Create or update project-wide steering documents for AI development guidance',
+    templatePath: 'templates/prompts/steering.hbs',
+    requiredVariables: [
+      'PROJECT_NAME',
+      'PROJECT_PATH',
+      'STEERING_DIRECTORY'
+    ],
+    optionalVariables: [
+      'TECHNOLOGY_STACK',
+      'ARCHITECTURE_TYPE',
+      'TEAM_SIZE',
+      'DEVELOPMENT_STAGE',
+      'CODEBASE_SUMMARY',
+      'CODE_PATTERNS',
+      'EXISTING_ARCHITECTURE',
+      'PROJECT_CHALLENGES',
+      'QUALITY_REQUIREMENTS',
+      'TEAM_WORKFLOW',
+      'EXISTING_STEERING'
+    ],
+    category: 'steering'
+  },
+
+  'steering-custom': {
+    name: 'steering-custom',
+    description: 'Create custom steering document for specific context or domain',
+    templatePath: 'templates/prompts/steering-custom.hbs',
+    requiredVariables: [
+      'STEERING_NAME',
+      'PROJECT_NAME',
+      'STEERING_DIRECTORY',
+      'SPECIFIC_CONTEXT',
+      'STEERING_PURPOSE',
+      'PROBLEMS_SOLVED',
+      'APPLIES_TO',
+      'DOES_NOT_APPLY_TO',
+      'ACTIVATION_PATTERN'
+    ],
+    optionalVariables: [
+      'DOMAIN_SPECIFIC',
+      'TECHNICAL_PATTERN',
+      'WORKFLOW_CONTEXT',
+      'INTEGRATION_CONTEXT',
+      'STEERING_TYPE'
+    ],
+    category: 'steering'
   }
 };
 

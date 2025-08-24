@@ -21,7 +21,10 @@ describe('Prompt Templates Index', () => {
         'spec-requirements', 
         'spec-design',
         'spec-tasks',
-        'spec-impl'
+        'spec-impl',
+        'spec-status',
+        'steering',
+        'steering-custom'
       ];
 
       expectedTemplates.forEach(templateName => {
@@ -50,7 +53,9 @@ describe('Prompt Templates Index', () => {
 
     it('should have proper template categories', () => {
       const specTemplates = Object.values(PROMPT_TEMPLATES).filter(t => t.category === 'spec');
-      expect(specTemplates.length).toBe(5); // All current templates are spec category
+      const steeringTemplates = Object.values(PROMPT_TEMPLATES).filter(t => t.category === 'steering');
+      expect(specTemplates.length).toBe(6); // spec-init, spec-requirements, spec-design, spec-tasks, spec-impl, spec-status
+      expect(steeringTemplates.length).toBe(2); // steering, steering-custom
     });
   });
 
@@ -62,7 +67,10 @@ describe('Prompt Templates Index', () => {
       expect(names).toContain('spec-design');
       expect(names).toContain('spec-tasks');
       expect(names).toContain('spec-impl');
-      expect(names.length).toBe(5);
+      expect(names).toContain('spec-status');
+      expect(names).toContain('steering');
+      expect(names).toContain('steering-custom');
+      expect(names.length).toBe(8);
     });
   });
 
@@ -83,16 +91,21 @@ describe('Prompt Templates Index', () => {
   describe('getTemplatesByCategory', () => {
     it('should return all spec templates', () => {
       const specTemplates = getTemplatesByCategory('spec');
-      expect(specTemplates.length).toBe(5);
+      expect(specTemplates.length).toBe(6);
       specTemplates.forEach(template => {
         expect(template.category).toBe('spec');
       });
     });
 
-    it('should return empty array for categories with no templates', () => {
+    it('should return steering templates', () => {
       const steeringTemplates = getTemplatesByCategory('steering');
-      expect(steeringTemplates).toHaveLength(0);
-      
+      expect(steeringTemplates).toHaveLength(2);
+      steeringTemplates.forEach(template => {
+        expect(template.category).toBe('steering');
+      });
+    });
+
+    it('should return empty array for categories with no templates', () => {
       const utilityTemplates = getTemplatesByCategory('utility');
       expect(utilityTemplates).toHaveLength(0);
     });
@@ -179,6 +192,48 @@ describe('Prompt Templates Index', () => {
       expect(validation.valid).toBe(true);
       expect(validation.missing).toHaveLength(0);
     });
+
+    it('should validate spec-status template variables', () => {
+      const validVariables = {
+        FEATURE_NAME: 'user-authentication',
+        PROJECT_NAME: 'My App',
+        SPEC_DIRECTORY: '.kiro/specs/user-auth'
+      };
+
+      const validation = validateTemplateVariables('spec-status', validVariables);
+      expect(validation.valid).toBe(true);
+      expect(validation.missing).toHaveLength(0);
+    });
+
+    it('should validate steering template variables', () => {
+      const validVariables = {
+        PROJECT_NAME: 'My App',
+        PROJECT_PATH: '/path/to/project',
+        STEERING_DIRECTORY: '.kiro/steering'
+      };
+
+      const validation = validateTemplateVariables('steering', validVariables);
+      expect(validation.valid).toBe(true);
+      expect(validation.missing).toHaveLength(0);
+    });
+
+    it('should validate steering-custom template variables', () => {
+      const validVariables = {
+        STEERING_NAME: 'database',
+        PROJECT_NAME: 'My App',
+        STEERING_DIRECTORY: '.kiro/steering',
+        SPECIFIC_CONTEXT: 'Database operations and migrations',
+        STEERING_PURPOSE: 'Provide guidance for database-related development',
+        PROBLEMS_SOLVED: 'Consistency in database code and migrations',
+        APPLIES_TO: 'Database models, migrations, queries',
+        DOES_NOT_APPLY_TO: 'Frontend UI components',
+        ACTIVATION_PATTERN: '*.model.ts, *.migration.ts files'
+      };
+
+      const validation = validateTemplateVariables('steering-custom', validVariables);
+      expect(validation.valid).toBe(true);
+      expect(validation.missing).toHaveLength(0);
+    });
   });
 
   describe('getTemplateMetadata', () => {
@@ -209,7 +264,7 @@ describe('Prompt Templates Index', () => {
     it('should have consistent naming patterns', () => {
       const templateNames = getTemplateNames();
       templateNames.forEach(name => {
-        expect(name).toMatch(/^spec-[a-z]+$/);
+        expect(name).toMatch(/^(spec-[a-z]+|steering(-[a-z]+)?)$/);
       });
     });
 
@@ -228,6 +283,9 @@ describe('Prompt Templates Index', () => {
       expect(PROMPT_TEMPLATES['spec-design'].description).toContain('design');
       expect(PROMPT_TEMPLATES['spec-tasks'].description).toContain('tasks');
       expect(PROMPT_TEMPLATES['spec-impl'].description).toContain('implementation');
+      expect(PROMPT_TEMPLATES['spec-status'].description).toContain('status');
+      expect(PROMPT_TEMPLATES['steering'].description).toContain('steering');
+      expect(PROMPT_TEMPLATES['steering-custom'].description).toContain('custom');
     });
   });
 });

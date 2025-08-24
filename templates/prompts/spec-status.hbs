@@ -1,0 +1,159 @@
+# Feature Specification Status Check
+
+I need to check the current progress and status of a feature specification. Please help me analyze the current state and provide guidance on next steps.
+
+## Feature Information
+- **Feature Name**: {{FEATURE_NAME}}
+- **Project Name**: {{PROJECT_NAME}}
+- **Specification Directory**: {{SPEC_DIRECTORY}}
+
+## Current State Analysis
+{{#if SPEC_PATH}}
+**Specification Path**: {{SPEC_PATH}}
+{{/if}}
+
+{{#if REQUIREMENTS_PATH}}
+**Requirements Path**: {{REQUIREMENTS_PATH}}  
+{{/if}}
+
+{{#if DESIGN_PATH}}
+**Design Path**: {{DESIGN_PATH}}
+{{/if}}
+
+{{#if TASKS_PATH}}  
+**Tasks Path**: {{TASKS_PATH}}
+{{/if}}
+
+## Status Check Request
+
+Please analyze the current specification state and provide a comprehensive status report including:
+
+### 1. Phase Completion Analysis
+Check which SDD phases are complete:
+- **Specification Initialization**: Has the initial spec been created?
+- **Requirements Phase**: Are requirements documented and approved?
+- **Design Phase**: Is the technical design complete and approved?
+- **Task Breakdown**: Have implementation tasks been defined?
+- **Implementation Phase**: What is the current implementation progress?
+
+### 2. Document Quality Assessment
+For each existing document, evaluate:
+- Completeness and thoroughness
+- Clarity and readability
+- Alignment with SDD best practices
+- Missing sections or information
+- Consistency across documents
+
+### 3. Workflow Compliance Check
+Verify adherence to SDD workflow:
+- Are approval gates properly documented?
+- Have prerequisites been met for each phase?
+- Are there any workflow violations or skipped steps?
+- Is the progression logical and well-structured?
+
+### 4. Gap Analysis
+Identify missing or incomplete elements:
+- Required documents not yet created
+- Incomplete sections within existing documents
+- Missing approval confirmations
+- Unaddressed requirements or design concerns
+
+### 5. Next Steps Recommendation
+Based on the current state, recommend:
+- Immediate next actions to take
+- Which SDD command to run next
+- Any corrections needed to existing documents
+- Priority order for outstanding tasks
+
+## Expected Output Format
+
+Please provide the status report in this structure:
+
+```markdown
+# Feature Status Report: [Feature Name]
+
+## Current Phase
+**Active Phase**: [Current SDD phase]  
+**Overall Progress**: [Percentage or description]
+
+## Phase Status Summary
+- [ ] **Specification Initialization**: [Status and notes]
+- [ ] **Requirements Definition**: [Status and notes]  
+- [ ] **Design Documentation**: [Status and notes]
+- [ ] **Task Breakdown**: [Status and notes]
+- [ ] **Implementation**: [Status and notes]
+
+## Document Analysis
+### [Document Name]
+- **Status**: Complete/Incomplete/Missing
+- **Quality**: Excellent/Good/Needs Improvement
+- **Issues**: [List any problems]
+- **Recommendations**: [Suggested improvements]
+
+## Workflow Compliance
+- **Approval Gates**: [Status of required approvals]
+- **Prerequisites**: [Status of phase prerequisites]
+- **Process Adherence**: [Any deviations noted]
+
+## Risk Assessment
+- **High Priority Issues**: [Critical problems to address]
+- **Medium Priority Issues**: [Important but not blocking]  
+- **Low Priority Issues**: [Nice-to-have improvements]
+
+## Recommendations
+
+### Immediate Actions
+1. [First priority action]
+2. [Second priority action]
+
+### Next Command to Run
+**Recommended**: `/kiro:spec-[command] [feature-name]`
+**Reason**: [Why this is the logical next step]
+
+### Future Considerations
+- [Longer-term planning items]
+- [Potential improvements or optimizations]
+```
+
+## Context-Specific Analysis
+{{#if CURRENT_ISSUES}}
+**Known Issues to Address**:
+{{CURRENT_ISSUES}}
+
+Please pay special attention to these issues in your analysis.
+{{/if}}
+
+{{#if TEAM_CONCERNS}}
+**Team Concerns**:
+{{TEAM_CONCERNS}}
+
+Please address these concerns in your recommendations.
+{{/if}}
+
+{{#if TIMELINE_CONSTRAINTS}}
+**Timeline Constraints**:
+{{TIMELINE_CONSTRAINTS}}
+
+Please factor these constraints into your next steps recommendations.
+{{/if}}
+
+## Validation Requests
+Please also validate:
+- Are all specification documents following consistent formatting?
+- Do the requirements align with the initial specification?
+- Does the design properly address all requirements?
+- Are the tasks comprehensive and actionable?
+- Is there proper traceability between phases?
+
+## Success Metrics
+Help me understand:
+- How complete is this specification compared to SDD best practices?
+- What percentage of the SDD workflow has been completed?
+- Are we on track for successful implementation?
+- What are the key quality indicators for this specification?
+
+The goal is to get a clear picture of where we are in the SDD process and what we need to do next to move forward effectively.
+
+---
+
+*This prompt is part of the Kiro-style Spec-Driven Development workflow.*

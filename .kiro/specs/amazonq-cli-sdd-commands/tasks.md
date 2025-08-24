@@ -80,7 +80,7 @@
   - Implement spec-tasks.hbs and spec-impl.hbs templates
   - _Requirements: 1.1, 4.1, 4.4_
 
-- [ ] 10. Create remaining SDD command templates
+- [x] 10. Create remaining SDD command templates
   - Implement spec-status.hbs template for progress checking
   - Create steering.hbs and steering-custom.hbs templates
   - Add template variables and conditional logic for customization
