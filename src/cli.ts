@@ -141,14 +141,14 @@ program
         
         if (result.installedCommands.length > 0) {
           console.log(chalk.cyan('Installed commands:'));
-          result.installedCommands.forEach(cmd => {
+          result.installedCommands.forEach((cmd: string) => {
             console.log(chalk.gray(`  • ${cmd}`));
           });
         }
 
         if (result.warnings.length > 0) {
           console.log(chalk.yellow('\n⚠️  Warnings:'));
-          result.warnings.forEach(warning => {
+          result.warnings.forEach((warning: string) => {
             console.log(chalk.yellow(`  • ${warning}`));
           });
         }
@@ -163,7 +163,7 @@ program
         
         if (result.errors.length > 0) {
           console.log(chalk.red('Errors:'));
-          result.errors.forEach(error => {
+          result.errors.forEach((error: string) => {
             console.log(chalk.red(`  • ${error}`));
           });
         }
