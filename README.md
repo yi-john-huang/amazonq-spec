@@ -83,12 +83,17 @@ After installation, your project will have:
 
 ```
 your-project/
-├── .kiro/
-│   ├── steering/          # Project knowledge documents
-│   └── specs/            # Feature specifications
-├── AMAZONQ.md            # Amazon Q CLI configuration
-└── kiro-* commands       # Shell script wrappers
+└── .kiro/
+    ├── config/
+    │   └── AMAZONQ.md     # Amazon Q CLI configuration
+    ├── specs/             # Feature specifications
+    ├── steering/          # Project knowledge documents
+    ├── scripts/           # Generated command scripts
+    ├── templates/         # Template files
+    └── .gitignore         # Git ignore rules for .kiro/
 ```
+
+The `kiro-*` commands are available through the Amazon Q CLI integration and can be used directly in your project directory.
 
 ## Development
 
