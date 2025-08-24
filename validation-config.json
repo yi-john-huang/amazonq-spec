@@ -1,0 +1,167 @@
+{
+  "validation": {
+    "packageValidation": {
+      "requiredFiles": [
+        "package.json",
+        "README.md",
+        "CHANGELOG.md",
+        "dist/cli.js",
+        "dist/cli.d.ts",
+        "templates/prompts/spec-init.hbs",
+        "templates/prompts/spec-requirements.hbs",
+        "templates/prompts/spec-design.hbs",
+        "templates/prompts/spec-tasks.hbs",
+        "templates/prompts/spec-status.hbs",
+        "templates/prompts/steering.hbs",
+        "templates/config/AMAZONQ.md.hbs"
+      ],
+      "maxPackageSize": "200KB",
+      "maxUnpackedSize": "1MB",
+      "minFiles": 50
+    },
+    "cliValidation": {
+      "requiredCommands": [
+        "--help",
+        "--version"
+      ],
+      "requiredOptions": [
+        "--lang",
+        "--os", 
+        "--kiro-dir",
+        "--dry-run",
+        "--force",
+        "--verbose",
+        "--debug"
+      ],
+      "timeoutMs": 10000
+    },
+    "projectStructure": {
+      "requiredDirectories": [
+        ".kiro",
+        ".kiro/specs",
+        ".kiro/steering",
+        ".claude",
+        ".claude/commands"
+      ],
+      "requiredFiles": [
+        "AMAZONQ.md"
+      ],
+      "requiredScripts": [
+        "kiro-spec-init",
+        "kiro-spec-requirements",
+        "kiro-spec-design", 
+        "kiro-spec-tasks",
+        "kiro-spec-status",
+        "kiro-steering"
+      ]
+    },
+    "templateValidation": {
+      "requiredTemplates": {
+        "prompts": [
+          "spec-init.hbs",
+          "spec-requirements.hbs",
+          "spec-design.hbs",
+          "spec-tasks.hbs",
+          "spec-status.hbs",
+          "steering.hbs",
+          "steering-custom.hbs"
+        ],
+        "config": [
+          "AMAZONQ.md.hbs",
+          "AMAZONQ.en.md.hbs",
+          "AMAZONQ.ja.md.hbs",
+          "AMAZONQ.zh-TW.md.hbs"
+        ]
+      },
+      "minTemplateSize": 100,
+      "requiredPlaceholders": [
+        "{{feature}}",
+        "{{projectName}}",
+        "{{language}}"
+      ]
+    },
+    "configurationValidation": {
+      "requiredSections": [
+        "# {{projectName}} - Amazon Q CLI Configuration",
+        "## Project Context",
+        "## SDD Workflow",
+        "## Commands",
+        "## Directory Structure"
+      ],
+      "requiredElements": [
+        "Amazon Q CLI",
+        ".kiro/",
+        "SDD Workflow",
+        "spec-init",
+        "spec-requirements"
+      ]
+    },
+    "crossPlatformValidation": {
+      "supportedPlatforms": ["darwin", "linux", "win32"],
+      "cliPaths": {
+        "unix": [
+          "/usr/local/bin/q",
+          "/opt/homebrew/bin/q",
+          "/usr/bin/q"
+        ],
+        "windows": [
+          "C:\\Program Files\\Amazon\\Q\\q.exe",
+          "C:\\Program Files (x86)\\Amazon\\Q\\q.exe"
+        ]
+      },
+      "scriptExtensions": {
+        "unix": ".sh",
+        "windows": ".ps1"
+      }
+    },
+    "performanceValidation": {
+      "maxInstallationTime": 30000,
+      "maxTemplateGenerationTime": 5000,
+      "maxCLIResponseTime": 10000,
+      "maxConcurrentOperations": 5
+    },
+    "securityValidation": {
+      "disallowedPatterns": [
+        "eval\\(",
+        "exec\\(",
+        "system\\(",
+        "rm -rf /",
+        "del /f /s /q",
+        "password",
+        "secret",
+        "token"
+      ],
+      "requiredPermissions": {
+        "scripts": "755",
+        "configs": "644"
+      }
+    },
+    "integrationValidation": {
+      "amazonQCLI": {
+        "required": false,
+        "fallback": "mock",
+        "commands": [
+          "--version",
+          "--help"
+        ]
+      },
+      "nodeVersions": [
+        "16.x",
+        "18.x",
+        "20.x"
+      ]
+    }
+  },
+  "reporting": {
+    "format": "json",
+    "includeTimestamps": true,
+    "includeSystemInfo": true,
+    "savePath": "validation-report.json",
+    "verbose": true
+  },
+  "cleanup": {
+    "removeTestDirectories": true,
+    "preserveReports": true,
+    "maxReportsAge": "7d"
+  }
+}

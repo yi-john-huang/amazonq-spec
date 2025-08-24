@@ -17,6 +17,8 @@
     "test:coverage": "jest --coverage",
     "test:integration": "jest --testPathPattern=integration",
     "test:unit": "jest --testPathPattern=__tests__ --testPathIgnorePatterns=integration",
+    "test:e2e": "jest --testPathPattern=e2e",
+    "validate:e2e": "node scripts/e2e-validation.js",
     "lint": "eslint src/**/*.ts",
     "lint:fix": "eslint src/**/*.ts --fix",
     "typecheck": "tsc --noEmit",
