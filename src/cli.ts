@@ -11,7 +11,7 @@ import { readFileSync } from 'fs';
 import { join } from 'path';
 import { Language, Platform, InstallOptions, ErrorType, AmazonQSDDError } from './types';
 import { Logger } from './utils/logger';
-import { detectPlatform } from './utils/platform';
+import { detectPlatform, validateAmazonQCLI, getPlatformInfo } from './utils/platform';
 import { InstallationManager } from './services/InstallationManager';
 
 // Read package.json for version information
@@ -232,21 +232,36 @@ program
     try {
       console.log(chalk.cyan.bold('\n📋 System Information\n'));
       
-      const platform = await detectPlatform();
-      const installer = new InstallationManager(logger);
-      const amazonQPath = await installer.detectAmazonQCLI();
+      const platformInfo = await getPlatformInfo();
+      const amazonQValidation = await validateAmazonQCLI();
       
       console.log(chalk.gray('System:'));
-      console.log(chalk.gray(`  • Platform: ${platform}`));
+      console.log(chalk.gray(`  • Platform: ${platformInfo.platform} (${platformInfo.os})`));
+      console.log(chalk.gray(`  • Architecture: ${platformInfo.arch}`));
+      console.log(chalk.gray(`  • OS Version: ${platformInfo.version}`));
       console.log(chalk.gray(`  • Node.js: ${process.version}`));
       console.log(chalk.gray(`  • NPM: ${process.env.npm_version || 'unknown'}`));
+      console.log(chalk.gray(`  • Shell: ${platformInfo.shell}`));
+      if (platformInfo.isWSL) {
+        console.log(chalk.yellow('  • WSL: Detected'));
+      }
+      if (platformInfo.isDocker) {
+        console.log(chalk.yellow('  • Docker: Detected'));
+      }
       
       console.log(chalk.gray('\nAmazon Q CLI:'));
-      if (amazonQPath) {
-        console.log(chalk.gray(`  • Path: ${amazonQPath}`));
-        console.log(chalk.green('  • Status: Detected ✓'));
+      if (amazonQValidation.isInstalled) {
+        console.log(chalk.gray(`  • Path: ${amazonQValidation.path}`));
+        console.log(chalk.gray(`  • Version: ${amazonQValidation.version || 'unknown'}`));
+        console.log(chalk.green('  • Status: Installed and accessible ✓'));
       } else {
         console.log(chalk.yellow('  • Status: Not found'));
+        if (amazonQValidation.errors.length > 0) {
+          console.log(chalk.red('  • Issues:'));
+          amazonQValidation.errors.forEach(error => {
+            console.log(chalk.red(`    - ${error}`));
+          });
+        }
         console.log(chalk.gray('  • Install from: https://aws.amazon.com/q/developer/'));
       }
       
