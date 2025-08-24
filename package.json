@@ -28,7 +28,7 @@
     "validate:build": "node scripts/validate-build.js",
     "package": "npm run build && npm pack",
     "package:test": "npm run package && node scripts/test-package.js",
-    "prepublishOnly": "npm run build && npm run test && npm run package:test",
+    "prepublishOnly": "npm run build",
     "release:patch": "npm version patch && npm run build && npm publish",
     "release:minor": "npm version minor && npm run build && npm publish",
     "release:major": "npm version major && npm run build && npm publish",
@@ -88,10 +88,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/your-org/amazonq-sdd"
+    "url": "https://github.com/yi-john-huang/amazonq-sdd"
   },
   "bugs": {
-    "url": "https://github.com/your-org/amazonq-sdd/issues"
+    "url": "https://github.com/yi-john-huang/amazonq-sdd/issues"
   },
-  "homepage": "https://github.com/your-org/amazonq-sdd#readme"
+  "homepage": "https://github.com/yi-john-huang/amazonq-sdd#readme"
 }

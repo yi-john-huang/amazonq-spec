@@ -1,5 +1,10 @@
 # amazonq-sdd
 
+![CI](https://github.com/yi-john-huang/amazonq-sdd/workflows/CI/badge.svg)
+![npm version](https://img.shields.io/npm/v/amazonq-sdd)
+![npm downloads](https://img.shields.io/npm/dm/amazonq-sdd)
+![License](https://img.shields.io/npm/l/amazonq-sdd)
+
 Spec-driven development workflow for Amazon Q CLI users.
 
 ## Overview
