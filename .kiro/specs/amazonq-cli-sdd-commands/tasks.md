@@ -90,7 +90,7 @@
 
 ## Shell Script Generation
 
-- [ ] 11. Create shell script templates for Unix systems
+- [x] 11. Create shell script templates for Unix systems
   - Create templates/scripts/unix/ directory with bash/zsh scripts
   - Implement kiro-spec-init.sh template with Amazon Q CLI integration
   - Create kiro-spec-requirements.sh and kiro-spec-design.sh templates
