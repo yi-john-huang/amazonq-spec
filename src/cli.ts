@@ -50,8 +50,8 @@ program
   )
   .option(
     '-k, --kiro-dir <path>',
-    'Custom .kiro directory location',
-    '.kiro'
+    'Custom .amazonq directory location (legacy option)',
+    '.amazonq'
   )
   .option(
     '-d, --dry-run',
@@ -125,7 +125,7 @@ program
       console.log(chalk.gray('Configuration:'));
       console.log(chalk.gray(`  • Language: ${getLanguageDisplay(language)}`));
       console.log(chalk.gray(`  • Platform: ${platform}`));
-      console.log(chalk.gray(`  • Directory: ${options.kiroDir}`));
+      console.log(chalk.gray(`  • Directory: .amazonq`));
       console.log();
 
       // Initialize installation manager
@@ -379,10 +379,87 @@ function handleError(error: unknown): void {
   process.exit(1);
 }
 
-// Parse command line arguments
-program.parse(process.argv);
-
-// Show help if no arguments provided
+// Check if no arguments provided and run default installation (like cc-sdd)
 if (process.argv.length === 2) {
-  program.help();
+  // Run installation with default options
+  (async () => {
+    try {
+      // Set up logging (default level)
+      logger.setLevel('info');
+
+      // Display welcome message
+      console.log(chalk.cyan.bold('\n🚀 Amazon Q SDD Installer\n'));
+      
+      // Use default options
+      const language = Language.ENGLISH;
+      const platform = await detectPlatform();
+
+      // Create installation options
+      const installOptions: InstallOptions = {
+        language,
+        platform,
+        kiroDirectory: '.amazonq', // Note: this is legacy, actual implementation uses .amazonq hardcoded
+        dryRun: false,
+        force: false,
+        verbose: false,
+        skipDetection: false
+      };
+
+      // Display configuration
+      console.log(chalk.gray('Configuration:'));
+      console.log(chalk.gray(`  • Language: ${getLanguageDisplay(language)}`));
+      console.log(chalk.gray(`  • Platform: ${platform}`));
+      console.log(chalk.gray(`  • Directory: .amazonq`));
+      console.log();
+
+      // Initialize installation manager
+      const installer = new InstallationManager(logger);
+      
+      // Run installation
+      console.log(chalk.cyan('📦 Installing Amazon Q SDD templates...\n'));
+      const result = await installer.install(installOptions);
+
+      // Display results
+      if (result.success) {
+        console.log(chalk.green.bold('\n✅ Installation completed successfully!\n'));
+        
+        if (result.installedCommands.length > 0) {
+          console.log(chalk.cyan('Installed commands:'));
+          result.installedCommands.forEach((cmd: string) => {
+            console.log(chalk.gray(`  • ${cmd}`));
+          });
+        }
+
+        if (result.warnings.length > 0) {
+          console.log(chalk.yellow('\n⚠️  Warnings:'));
+          result.warnings.forEach((warning: string) => {
+            console.log(chalk.yellow(`  • ${warning}`));
+          });
+        }
+
+        console.log(chalk.cyan('\n📚 Next steps:'));
+        console.log(chalk.gray('  1. Run `kiro-steering` to set up project context'));
+        console.log(chalk.gray('  2. Run `kiro-spec-init "your feature"` to start'));
+        console.log(chalk.gray('  3. Follow the SDD workflow with generated commands'));
+        
+      } else {
+        console.log(chalk.red.bold('\n❌ Installation failed\n'));
+        
+        if (result.errors.length > 0) {
+          console.log(chalk.red('Errors:'));
+          result.errors.forEach((error: string) => {
+            console.log(chalk.red(`  • ${error}`));
+          });
+        }
+        
+        process.exit(1);
+      }
+
+    } catch (error) {
+      handleError(error);
+    }
+  })();
+} else {
+  // Parse command line arguments normally
+  program.parse(process.argv);
 }

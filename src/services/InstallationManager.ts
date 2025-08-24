@@ -8,23 +8,32 @@ import {
   InstallResult, 
   Language,
   AmazonQSDDError, 
-  ErrorType
+  ErrorType,
+  Platform,
+  Command
 } from '../types';
 import { Logger } from '../utils/logger';
-import { existsSync, mkdirSync, writeFileSync, readFileSync } from 'fs';
+import { existsSync, mkdirSync, writeFileSync, readFileSync, chmodSync } from 'fs';
 import { join, resolve } from 'path';
 import { 
   validateAmazonQCLI, 
   AmazonQValidation
 } from '../utils/platform-enhanced';
+import { ScriptGenerator } from './ScriptGenerator';
+import { TemplateGenerator } from './TemplateGenerator';
 
 /**
  * Manages the installation process for Amazon Q SDD
  */
 export class InstallationManager {
   private rollbackActions: Array<() => void> = [];
+  private scriptGenerator: ScriptGenerator;
+  private templateGenerator: TemplateGenerator;
 
-  constructor(private logger: Logger) {}
+  constructor(private logger: Logger) {
+    this.scriptGenerator = new ScriptGenerator(this.logger);
+    this.templateGenerator = new TemplateGenerator(this.logger);
+  }
 
   /**
    * Main installation method
@@ -75,8 +84,10 @@ export class InstallationManager {
       const configFiles = await this.generateConfigFiles(options);
       result.createdFiles.push(...configFiles);
 
-      // Step 4: Create shell scripts (placeholder for now)
+      // Step 4: Create executable command scripts
       this.logger.info('Creating command scripts...');
+      const scriptFiles = await this.createCommandScripts(options);
+      result.createdFiles.push(...scriptFiles);
       
       // Add the main SDD commands that will be created
       const sddCommands = [
@@ -170,17 +181,14 @@ export class InstallationManager {
    * Create directory structure for amazonq-sdd
    */
   async createDirectoryStructure(options: InstallOptions): Promise<void> {
-    const kiroDir = resolve(options.kiroDirectory || '.kiro');
+    const amazonqDir = resolve('.amazonq');
     
-    this.logger.verbose(`Creating directory structure in: ${kiroDir}`);
+    this.logger.verbose(`Creating directory structure in: ${amazonqDir}`);
 
     const directories = [
-      kiroDir,
-      join(kiroDir, 'steering'),
-      join(kiroDir, 'specs'),
-      join(kiroDir, 'templates'),
-      join(kiroDir, 'scripts'),
-      join(kiroDir, 'config')
+      amazonqDir,
+      join(amazonqDir, 'templates'),
+      join(amazonqDir, 'scripts')
     ];
 
     if (!options.dryRun) {
@@ -214,11 +222,10 @@ export class InstallationManager {
    * Generate configuration files
    */
   async generateConfigFiles(options: InstallOptions): Promise<string[]> {
-    const kiroDir = resolve(options.kiroDirectory || '.kiro');
     const createdFiles: string[] = [];
     
-    // Generate AMAZONQ.md configuration file
-    const amazonqMdPath = join(kiroDir, 'config', 'AMAZONQ.md');
+    // Generate AMAZONQ.md configuration file in root directory (like CLAUDE.md)
+    const amazonqMdPath = resolve('AMAZONQ.md');
     const amazonqMdContent = this.generateAmazonQConfig(options);
     
     if (!options.dryRun) {
@@ -243,7 +250,8 @@ export class InstallationManager {
     }
 
     // Generate .gitignore if needed
-    const gitignorePath = join(kiroDir, '.gitignore');
+    const amazonqDir = resolve('.amazonq');
+    const gitignorePath = join(amazonqDir, '.gitignore');
     if (!existsSync(gitignorePath)) {
       const gitignoreContent = this.generateGitignore();
       
@@ -269,6 +277,77 @@ export class InstallationManager {
       }
     }
 
+    // Copy template files
+    const templateFiles = await this.copyTemplateFiles(options);
+    createdFiles.push(...templateFiles);
+
+    return createdFiles;
+  }
+
+  /**
+   * Copy template files to the .amazonq/templates directory
+   */
+  async copyTemplateFiles(options: InstallOptions): Promise<string[]> {
+    const amazonqDir = resolve('.amazonq');
+    const templatesDir = join(amazonqDir, 'templates');
+    const createdFiles: string[] = [];
+    
+    // Source templates directory in the package
+    const sourceTemplatesDir = join(__dirname, '..', '..', 'templates', 'prompts');
+    
+    const templateFiles = [
+      'steering.hbs',
+      'steering-custom.hbs',
+      'spec-init.hbs',
+      'spec-requirements.hbs',
+      'spec-design.hbs',
+      'spec-tasks.hbs',
+      'spec-status.hbs',
+      'spec-impl.hbs'
+    ];
+
+    if (!options.dryRun) {
+      for (const templateFile of templateFiles) {
+        try {
+          const sourcePath = join(sourceTemplatesDir, templateFile);
+          const targetPath = join(templatesDir, templateFile);
+          
+          if (existsSync(sourcePath)) {
+            this.logger.verbose(`Copying template: ${templateFile}`);
+            const templateContent = readFileSync(sourcePath, 'utf-8');
+            writeFileSync(targetPath, templateContent, 'utf-8');
+            createdFiles.push(targetPath);
+            
+            // Add rollback action
+            this.rollbackActions.push(() => {
+              try {
+                if (existsSync(targetPath)) {
+                  this.logger.verbose(`Rollback: Would remove ${targetPath}`);
+                  // Note: Actual file removal would be implemented here
+                }
+              } catch (error) {
+                this.logger.warn(`Failed to rollback template ${targetPath}:`, error);
+              }
+            });
+          } else {
+            this.logger.warn(`Source template not found: ${sourcePath}`);
+          }
+        } catch (error) {
+          this.logger.error(`Failed to copy template ${templateFile}:`, error);
+          throw new AmazonQSDDError(
+            ErrorType.TEMPLATE_GENERATION_FAILED,
+            `Failed to copy template file: ${templateFile}`,
+            { originalError: error }
+          );
+        }
+      }
+    } else {
+      this.logger.verbose('Dry run: Would copy template files:', templateFiles);
+      templateFiles.forEach(templateFile => {
+        createdFiles.push(join(templatesDir, templateFile));
+      });
+    }
+
     return createdFiles;
   }
 
@@ -279,17 +358,17 @@ export class InstallationManager {
     try {
       this.logger.verbose('Validating Amazon Q SDD installation...');
       
-      // Check if .kiro directory exists
-      const kiroExists = existsSync('.kiro');
-      if (!kiroExists) {
-        this.logger.verbose('No .kiro directory found');
+      // Check if .amazonq directory exists
+      const amazonqExists = existsSync('.amazonq');
+      if (!amazonqExists) {
+        this.logger.verbose('No .amazonq directory found');
         return false;
       }
 
-      // Check if config file exists
-      const configExists = existsSync(join('.kiro', 'config', 'AMAZONQ.md'));
+      // Check if config file exists in root
+      const configExists = existsSync('AMAZONQ.md');
       if (!configExists) {
-        this.logger.verbose('No AMAZONQ.md configuration found');
+        this.logger.verbose('No AMAZONQ.md configuration found in root');
         return false;
       }
 
@@ -341,7 +420,7 @@ export class InstallationManager {
 - **Version**: amazonq-sdd v${this.getPackageVersion()}
 
 ## Amazon Q CLI Integration
-This directory contains spec-driven development templates and scripts designed to work with Amazon Q CLI.
+This project is set up for spec-driven development with Amazon Q CLI.
 
 ### Available Commands
 - \`kiro-steering\` - Create/update steering documents  
@@ -355,22 +434,27 @@ This directory contains spec-driven development templates and scripts designed t
 
 ### Directory Structure
 \`\`\`
-${options.kiroDirectory || '.kiro'}/
-├── steering/           # Project-wide AI guidance
-├── specs/             # Feature specifications
-├── templates/         # Handlebars templates
-├── scripts/           # Generated shell scripts
-└── config/            # Configuration files
+your-project/
+├── AMAZONQ.md         # This configuration file
+├── .amazonq/          # Amazon Q SDD tools
+│   ├── templates/     # Handlebars templates
+│   └── scripts/       # Executable command scripts
+└── .kiro/             # Project content (created by commands)
+    ├── steering/      # Project-wide AI guidance
+    └── specs/         # Feature specifications
 \`\`\`
 
 ### Usage
-1. Run steering setup (optional): \`kiro-steering\`
-2. Initialize spec: \`kiro-spec-init "feature description"\`
-3. Follow the 3-phase workflow: Requirements → Design → Tasks → Implementation
+1. Add scripts to PATH: \`export PATH="$PATH:$PWD/.amazonq/scripts"\`
+2. Run steering setup (optional): \`kiro-steering\`
+3. Initialize spec: \`kiro-spec-init "feature description"\`
+4. Follow the 3-phase workflow: Requirements → Design → Tasks → Implementation
 
 ### Customization
-Edit templates in \`templates/\` directory to customize prompts and workflow.
-Steering files in \`steering/\` provide project context to Amazon Q CLI.
+- Edit templates in \`.amazonq/templates/\` to customize prompts and workflow
+- Steering files will be created in \`.kiro/steering/\` when you run \`kiro-steering\`
+- Specs will be created in \`.kiro/specs/\` when you run \`kiro-spec-init\`
+- See \`.amazonq/scripts/SETUP_INSTRUCTIONS.md\` for PATH configuration help
 
 ---
 *Generated by amazonq-sdd - Spec-driven development for Amazon Q CLI*
@@ -411,6 +495,291 @@ Thumbs.db
       [Language.CHINESE_TRADITIONAL]: '繁體中文'
     };
     return displays[language] || language;
+  }
+
+  /**
+   * Create executable command scripts for kiro-* commands
+   */
+  async createCommandScripts(options: InstallOptions): Promise<string[]> {
+    const amazonqDir = resolve('.amazonq');
+    const scriptsDir = join(amazonqDir, 'scripts');
+    const createdFiles: string[] = [];
+
+    const commands = [
+      {
+        name: 'kiro-steering',
+        description: 'Create/update steering documents',
+        template: 'steering'
+      },
+      {
+        name: 'kiro-steering-custom',
+        description: 'Create custom steering contexts',
+        template: 'steering-custom'
+      },
+      {
+        name: 'kiro-spec-init',
+        description: 'Initialize new feature specification',
+        template: 'spec-init'
+      },
+      {
+        name: 'kiro-spec-requirements',
+        description: 'Generate requirements document',
+        template: 'spec-requirements'
+      },
+      {
+        name: 'kiro-spec-design',
+        description: 'Generate technical design',
+        template: 'spec-design'
+      },
+      {
+        name: 'kiro-spec-tasks',
+        description: 'Generate implementation tasks',
+        template: 'spec-tasks'
+      },
+      {
+        name: 'kiro-spec-status',
+        description: 'Check specification progress',
+        template: 'spec-status'
+      },
+      {
+        name: 'kiro-spec-implement',
+        description: 'Start implementation phase',
+        template: 'spec-impl'
+      }
+    ];
+
+    if (!options.dryRun) {
+      for (const command of commands) {
+        try {
+          // Generate shell script content directly for now (simplified approach)
+          const scriptContent = this.generateScriptContentDirect(command, options);
+
+          // Write script file
+          const scriptExtension = options.platform === Platform.WINDOWS ? '.cmd' : '.sh';
+          const scriptPath = join(scriptsDir, `${command.name}${scriptExtension}`);
+          
+          this.logger.verbose(`Creating script: ${scriptPath}`);
+          writeFileSync(scriptPath, scriptContent, 'utf-8');
+          
+          // Make script executable on Unix-like systems
+          if (options.platform !== Platform.WINDOWS) {
+            chmodSync(scriptPath, '755');
+          }
+          
+          createdFiles.push(scriptPath);
+
+          // Add rollback action
+          this.rollbackActions.push(() => {
+            try {
+              if (existsSync(scriptPath)) {
+                this.logger.verbose(`Rollback: Would remove ${scriptPath}`);
+                // Note: Actual file removal would be implemented here
+              }
+            } catch (error) {
+              this.logger.warn(`Failed to rollback script ${scriptPath}:`, error);
+            }
+          });
+        } catch (error) {
+          this.logger.error(`Failed to create script ${command.name}:`, error);
+          throw new AmazonQSDDError(
+            ErrorType.SCRIPT_GENERATION_FAILED,
+            `Failed to create command script: ${command.name}`,
+            { originalError: error }
+          );
+        }
+      }
+
+      // Create PATH setup instructions file
+      const setupInstructionsPath = join(scriptsDir, 'SETUP_INSTRUCTIONS.md');
+      const setupContent = this.generateSetupInstructions(options, commands);
+      
+      this.logger.verbose(`Creating setup instructions: ${setupInstructionsPath}`);
+      writeFileSync(setupInstructionsPath, setupContent, 'utf-8');
+      createdFiles.push(setupInstructionsPath);
+
+    } else {
+      this.logger.verbose('Dry run: Would create command scripts:', commands.map(c => c.name));
+      // Add theoretical files to created list for dry run reporting
+      commands.forEach(command => {
+        const scriptExtension = options.platform === Platform.WINDOWS ? '.cmd' : '.sh';
+        createdFiles.push(join(scriptsDir, `${command.name}${scriptExtension}`));
+      });
+      createdFiles.push(join(scriptsDir, 'SETUP_INSTRUCTIONS.md'));
+    }
+
+    return createdFiles;
+  }
+
+  /**
+   * Generate script content directly (simplified approach)
+   */
+  private generateScriptContentDirect(command: any, options: InstallOptions): string {
+    const isWindows = options.platform === Platform.WINDOWS;
+    const amazonqDir = '.amazonq';
+    const templateDir = join(amazonqDir, 'templates');
+    
+    if (isWindows) {
+      // Windows batch script
+      return `@echo off
+REM ${command.description}
+REM Generated by amazonq-sdd v${this.getPackageVersion()}
+
+setlocal enabledelayedexpansion
+
+REM Check if Amazon Q CLI is available
+q --version >nul 2>&1
+if errorlevel 1 (
+    echo Error: Amazon Q CLI not found. Please install it first.
+    echo Install from: https://aws.amazon.com/q/developer/
+    exit /b 1
+)
+
+REM Check if .amazonq directory exists
+if not exist "${amazonqDir}" (
+    echo Error: .amazonq directory not found. Run 'npx amazonq-sdd@latest' first.
+    exit /b 1
+)
+
+REM Create .kiro directories if they don't exist
+if not exist ".kiro" (
+    echo Creating .kiro directory structure...
+    mkdir .kiro\\steering
+    mkdir .kiro\\specs
+)
+
+REM Set environment variables for templates
+set "STEERING_DIRECTORY=.kiro\\steering"
+set "SPECS_DIRECTORY=.kiro\\specs"
+set "PROJECT_PATH=%CD%"
+for %%I in (.) do set "PROJECT_NAME=%%~nxI"
+
+REM Prepare template path
+set "TEMPLATE_PATH=${templateDir}\\${command.template}.hbs"
+if not exist "!TEMPLATE_PATH!" (
+    echo Error: Template file not found: !TEMPLATE_PATH!
+    exit /b 1
+)
+
+REM Execute Amazon Q CLI with structured prompt
+echo Executing ${command.name}...
+q chat --file "!TEMPLATE_PATH!" %*
+
+REM Check result
+if errorlevel 1 (
+    echo Error: Amazon Q CLI command failed
+    exit /b 1
+)
+
+echo ${command.name} completed successfully
+`;
+    } else {
+      // Unix shell script
+      return `#!/bin/bash
+# ${command.description}
+# Generated by amazonq-sdd v${this.getPackageVersion()}
+
+set -euo pipefail
+
+# Check if Amazon Q CLI is available
+if ! command -v q &> /dev/null; then
+    echo "Error: Amazon Q CLI not found. Please install it first."
+    echo "Install from: https://aws.amazon.com/q/developer/"
+    exit 1
+fi
+
+# Check if .amazonq directory exists
+if [ ! -d "${amazonqDir}" ]; then
+    echo "Error: .amazonq directory not found. Run 'npx amazonq-sdd@latest' first."
+    exit 1
+fi
+
+# Create .kiro directories if they don't exist
+if [ ! -d ".kiro" ]; then
+    echo "Creating .kiro directory structure..."
+    mkdir -p .kiro/steering .kiro/specs
+fi
+
+# Prepare template path
+TEMPLATE_PATH="${templateDir}/${command.template}.hbs"
+if [ ! -f "\$TEMPLATE_PATH" ]; then
+    echo "Error: Template file not found: \$TEMPLATE_PATH"
+    exit 1
+fi
+
+# Set environment variables for templates
+export STEERING_DIRECTORY=".kiro/steering"
+export SPECS_DIRECTORY=".kiro/specs"
+export PROJECT_PATH="\$(pwd)"
+export PROJECT_NAME="\$(basename \$(pwd))"
+
+# Execute Amazon Q CLI with structured prompt
+echo "Executing ${command.name}..."
+q chat --file "\$TEMPLATE_PATH" "\$@"
+
+# Check result
+if [ \$? -eq 0 ]; then
+    echo "${command.name} completed successfully"
+else
+    echo "Error: Amazon Q CLI command failed"
+    exit 1
+fi
+`;
+    }
+  }
+
+  /**
+   * Generate setup instructions for PATH configuration
+   */
+  private generateSetupInstructions(options: InstallOptions, commands: any[]): string {
+    const amazonqDir = '.amazonq';
+    const scriptsDir = join(amazonqDir, 'scripts');
+    
+    let instructions = `# Amazon Q SDD Command Setup Instructions\n\n`;
+    
+    if (options.platform === Platform.WINDOWS) {
+      instructions += `## Windows Setup\n\n`;
+      instructions += `To use the kiro-* commands from anywhere in your project, add the scripts directory to your PATH:\n\n`;
+      instructions += `### Option 1: PowerShell (Recommended)\n`;
+      instructions += `\`\`\`powershell\n`;
+      instructions += `$env:PATH += ";$(Get-Location)\\${scriptsDir.replace(/\//g, '\\')}"\n`;
+      instructions += `\`\`\`\n\n`;
+      instructions += `### Option 2: Command Prompt\n`;
+      instructions += `\`\`\`cmd\n`;
+      instructions += `set PATH=%PATH%;%CD%\\${scriptsDir.replace(/\//g, '\\')}\n`;
+      instructions += `\`\`\`\n\n`;
+    } else {
+      instructions += `## Unix/Linux/macOS Setup\n\n`;
+      instructions += `To use the kiro-* commands from anywhere in your project, add the scripts directory to your PATH:\n\n`;
+      instructions += `### Option 1: Current Session Only\n`;
+      instructions += `\`\`\`bash\n`;
+      instructions += `export PATH="$PATH:$(pwd)/${scriptsDir}"\n`;
+      instructions += `\`\`\`\n\n`;
+      instructions += `### Option 2: Project-Specific (Recommended)\n`;
+      instructions += `Add to your project's .env file or shell rc file:\n`;
+      instructions += `\`\`\`bash\n`;
+      instructions += `export PATH="$PATH:$PWD/${scriptsDir}"\n`;
+      instructions += `\`\`\`\n\n`;
+    }
+
+    instructions += `## Available Commands\n\n`;
+    commands.forEach(command => {
+      instructions += `- **${command.name}**: ${command.description}\n`;
+    });
+    
+    instructions += `\n## Quick Test\n\n`;
+    instructions += `After setting up PATH, test with:\n`;
+    instructions += `\`\`\`bash\n`;
+    instructions += `kiro-spec-init "test feature"\n`;
+    instructions += `\`\`\`\n\n`;
+    instructions += `## Troubleshooting\n\n`;
+    instructions += `If commands are not found:\n`;
+    instructions += `1. Verify PATH includes the scripts directory\n`;
+    instructions += `2. Check script permissions (Unix/Linux/macOS only)\n`;
+    instructions += `3. Restart your terminal session\n`;
+    instructions += `4. Ensure Amazon Q CLI is installed and accessible\n\n`;
+    instructions += `For support, see: https://github.com/your-org/amazonq-sdd/issues\n`;
+
+    return instructions;
   }
 
   /**
