@@ -85,15 +85,15 @@ After installation, your project will have:
 your-project/
 └── .kiro/
     ├── config/
-    │   └── AMAZONQ.md     # Amazon Q CLI configuration
+    │   └── AMAZONQ.md     # Project reference & documentation (not read by Amazon Q CLI)
     ├── specs/             # Feature specifications
-    ├── steering/          # Project knowledge documents
+    ├── steering/          # Project knowledge documents  
     ├── scripts/           # Generated command scripts
     ├── templates/         # Template files
     └── .gitignore         # Git ignore rules for .kiro/
 ```
 
-The `kiro-*` commands are available through the Amazon Q CLI integration and can be used directly in your project directory.
+**Note**: Amazon Q CLI does not automatically read configuration files. The `kiro-*` commands work by generating structured prompts that are passed directly to `q chat` with project context included in the prompt content.
 
 ## Development
 
