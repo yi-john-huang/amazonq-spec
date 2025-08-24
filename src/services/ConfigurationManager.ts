@@ -19,6 +19,7 @@ import {
   Platform
 } from '../types';
 import { Logger } from '../utils/logger';
+import { LocalizationManager } from '../localization';
 
 /**
  * Configuration template context for AMAZONQ.md generation
@@ -39,10 +40,12 @@ export interface ConfigContext {
  */
 export class ConfigurationManager {
   private logger: Logger;
+  private localizationManager: LocalizationManager;
   private templateCache: Map<string, Handlebars.TemplateDelegate> = new Map();
 
-  constructor(logger: Logger) {
+  constructor(logger: Logger, localizationManager?: LocalizationManager) {
     this.logger = logger;
+    this.localizationManager = localizationManager || new LocalizationManager(logger);
     this.setupHandlebarsHelpers();
   }
 
@@ -564,102 +567,7 @@ The following SDD commands are available for this project:
    * Get localized strings for a specific language
    */
   private getLocalizationStrings(language: Language): LocalizedStrings {
-    const localizations = {
-      [Language.ENGLISH]: {
-        messages: {
-          language_name: 'English'
-        },
-        errors: {
-          config_not_found: 'Configuration file not found',
-          invalid_format: 'Invalid configuration format',
-          backup_failed: 'Failed to create backup'
-        },
-        commands: {
-          spec_init: 'Initialize feature specification',
-          spec_requirements: 'Generate requirements document',
-          spec_design: 'Create design document',
-          spec_tasks: 'Generate task breakdown',
-          spec_impl: 'Implementation guidance',
-          spec_status: 'Check specification status',
-          steering: 'Create steering documents',
-          steering_custom: 'Create custom steering'
-        },
-        help: {
-          development_guidelines: `
-- Think in English, generate responses in English
-- Follow the 3-phase approval workflow: Requirements → Design → Tasks → Implementation
-- Each phase requires human review before proceeding
-- Update task status when working on features
-- Keep steering documents current after significant changes
-- Use /kiro:spec-status to verify alignment with specifications
-          `.trim()
-        }
-      },
-
-      [Language.JAPANESE]: {
-        messages: {
-          language_name: '日本語'
-        },
-        errors: {
-          config_not_found: '設定ファイルが見つかりません',
-          invalid_format: '無効な設定形式',
-          backup_failed: 'バックアップの作成に失敗しました'
-        },
-        commands: {
-          spec_init: '機能仕様の初期化',
-          spec_requirements: '要件文書の生成',
-          spec_design: '設計文書の作成',
-          spec_tasks: 'タスク分解の生成',
-          spec_impl: '実装ガイダンス',
-          spec_status: '仕様ステータスの確認',
-          steering: 'ステアリング文書の作成',
-          steering_custom: 'カスタムステアリングの作成'
-        },
-        help: {
-          development_guidelines: `
-- 英語で考え、英語で応答を生成する
-- 3段階承認ワークフローに従う：要件 → 設計 → タスク → 実装
-- 各段階で進む前に人間のレビューが必要
-- 機能に取り組む際はタスクステータスを更新する
-- 重要な変更後はステアリング文書を最新に保つ
-- /kiro:spec-statusを使用して仕様との整合性を確認する
-          `.trim()
-        }
-      },
-
-      [Language.CHINESE_TRADITIONAL]: {
-        messages: {
-          language_name: '繁體中文'
-        },
-        errors: {
-          config_not_found: '找不到配置文件',
-          invalid_format: '無效的配置格式',
-          backup_failed: '無法建立備份'
-        },
-        commands: {
-          spec_init: '初始化功能規格',
-          spec_requirements: '生成需求文件',
-          spec_design: '建立設計文件',
-          spec_tasks: '生成任務分解',
-          spec_impl: '實作指導',
-          spec_status: '檢查規格狀態',
-          steering: '建立導向文件',
-          steering_custom: '建立自訂導向'
-        },
-        help: {
-          development_guidelines: `
-- 用英語思考，生成英語回應
-- 遵循 3 階段審批工作流程：需求 → 設計 → 任務 → 實作
-- 每個階段在進行前都需要人工審查
-- 在處理功能時更新任務狀態
-- 在重大變更後保持導向文件為最新
-- 使用 /kiro:spec-status 驗證與規格的一致性
-          `.trim()
-        }
-      }
-    };
-
-    return localizations[language];
+    return this.localizationManager.getStrings(language);
   }
 
   /**
