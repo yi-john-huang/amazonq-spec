@@ -194,7 +194,7 @@ The following SDD commands are available.
       const validation = manager.validateConfiguration(configPath);
 
       expect(validation.valid).toBe(true);
-      expect(validation.entityType).toBe('config');
+      expect(validation.entityType).toBe('configuration');
       expect(validation.errors).toHaveLength(0);
     });
 

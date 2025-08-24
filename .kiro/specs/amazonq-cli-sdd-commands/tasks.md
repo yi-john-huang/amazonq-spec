@@ -144,7 +144,7 @@
 
 ## Testing Implementation
 
-- [ ] 17. Create unit tests for core services
+- [x] 17. Create unit tests for core services
   - Set up Jest testing framework with TypeScript support
   - Write unit tests for InstallationManager with mocked file system
   - Create unit tests for TemplateGenerator with sample templates
