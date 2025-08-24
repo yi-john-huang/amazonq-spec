@@ -190,6 +190,9 @@ export interface InstallOptions {
   
   /** Skip Amazon Q CLI detection */
   skipDetection?: boolean;
+  
+  /** Backup existing files before installation */
+  backup?: boolean;
 }
 
 /**

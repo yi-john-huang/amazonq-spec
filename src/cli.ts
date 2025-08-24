@@ -119,7 +119,8 @@ program
         dryRun: options.dryRun,
         force: options.force,
         verbose: options.verbose || options.debug,
-        skipDetection: options.skipDetection
+        skipDetection: options.skipDetection,
+        backup: options.backup
       };
 
       // Display configuration
@@ -407,7 +408,8 @@ if (process.argv.length === 2) {
         dryRun: false,
         force: false,
         verbose: false,
-        skipDetection: false
+        skipDetection: false,
+        backup: false
       };
 
       // Display configuration

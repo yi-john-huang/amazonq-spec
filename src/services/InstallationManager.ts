@@ -283,6 +283,10 @@ export class InstallationManager {
     // Source templates directory in the package
     const sourceTemplatesDir = join(__dirname, '..', '..', 'templates', 'prompts');
     
+    // Determine language suffix for templates
+    const language = options.language || Language.ENGLISH;
+    const languageSuffix = this.getLanguageSuffix(language);
+    
     const templateFiles = [
       'steering.hbs',
       'steering-custom.hbs',
@@ -297,11 +301,28 @@ export class InstallationManager {
     if (!options.dryRun) {
       for (const templateFile of templateFiles) {
         try {
-          const sourcePath = join(sourceTemplatesDir, templateFile);
+          // Try language-specific template first
+          const baseFileName = templateFile.replace('.hbs', '');
+          const languageSpecificFile = `${baseFileName}${languageSuffix}.hbs`;
+          const languageSourcePath = join(sourceTemplatesDir, languageSpecificFile);
+          const fallbackSourcePath = join(sourceTemplatesDir, templateFile);
           const targetPath = join(templatesDir, templateFile);
           
+          let sourcePath = fallbackSourcePath;
+          let templateType = 'default';
+          
+          // Check if language-specific template exists
+          if (languageSuffix && existsSync(languageSourcePath)) {
+            sourcePath = languageSourcePath;
+            templateType = language === Language.JAPANESE ? 'Japanese' : 
+                          language === Language.CHINESE_TRADITIONAL ? 'Traditional Chinese' : 'localized';
+            this.logger.verbose(`Using ${templateType} template: ${languageSpecificFile}`);
+          } else if (languageSuffix && language !== Language.ENGLISH) {
+            this.logger.verbose(`${templateType} template not found for ${baseFileName}, using English fallback`);
+          }
+          
           if (existsSync(sourcePath)) {
-            this.logger.verbose(`Copying template: ${templateFile}`);
+            this.logger.verbose(`Copying template: ${templateFile} (${templateType})`);
             const templateContent = readFileSync(sourcePath, 'utf-8');
             writeFileSync(targetPath, templateContent, 'utf-8');
             createdFiles.push(targetPath);
@@ -825,6 +846,21 @@ exit 1
       return packageJson.version || '0.1.0';
     } catch {
       return '0.1.0';
+    }
+  }
+
+  /**
+   * Get language suffix for template files
+   */
+  private getLanguageSuffix(language: Language): string {
+    switch (language) {
+      case Language.JAPANESE:
+        return '.ja';
+      case Language.CHINESE_TRADITIONAL:
+        return '.zh-TW';
+      case Language.ENGLISH:
+      default:
+        return '';
     }
   }
 }
