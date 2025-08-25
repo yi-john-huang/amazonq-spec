@@ -242,10 +242,10 @@ if [ -n "$OUTPUT_FILE" ]; then
         PROCESSED_TEMPLATE=\$(mktemp)
         
         # Process Handlebars-style variables in template - escape special characters
-        ESCAPED_FEATURE_DESC=\$(printf '%s\\n' "\$1" | sed 's/[[\.*^$(){}?+|\\]/\\\\&/g')
-        ESCAPED_PROJECT_NAME=\$(printf '%s\\n' "\$PROJECT_NAME" | sed 's/[[\.*^$(){}?+|\\]/\\\\&/g')
-        ESCAPED_PROJECT_PATH=\$(printf '%s\\n' "\$PROJECT_PATH" | sed 's/[[\.*^$(){}?+|\\]/\\\\&/g')
-        ESCAPED_FEATURE_NAME=\$(printf '%s\\n' "\$FEATURE_NAME" | sed 's/[[\.*^$(){}?+|\\]/\\\\&/g')
+        ESCAPED_FEATURE_DESC=\$(printf '%s\\n' "\$1" | sed 's/[\\\\&/]/\\\\\\\\&/g; s/\\//\\\\\\//g')
+        ESCAPED_PROJECT_NAME=\$(printf '%s\\n' "\$PROJECT_NAME" | sed 's/[\\\\&/]/\\\\\\\\&/g; s/\\//\\\\\\//g')
+        ESCAPED_PROJECT_PATH=\$(printf '%s\\n' "\$PROJECT_PATH" | sed 's/[\\\\&/]/\\\\\\\\&/g; s/\\//\\\\\\//g')
+        ESCAPED_FEATURE_NAME=\$(printf '%s\\n' "\$FEATURE_NAME" | sed 's/[\\\\&/]/\\\\\\\\&/g; s/\\//\\\\\\//g')
         
         sed "s/{{FEATURE_DESCRIPTION}}/\$ESCAPED_FEATURE_DESC/g; s/{{PROJECT_NAME}}/\$ESCAPED_PROJECT_NAME/g; s/{{TECHNOLOGY_STACK}}/Unknown/g; s/{{PROJECT_PATH}}/\$ESCAPED_PROJECT_PATH/g; s/{{ARCHITECTURE_TYPE}}/Standard/g; s/{{FEATURE_NAME}}/\$ESCAPED_FEATURE_NAME/g" "\$TEMPLATE_PATH" > "\$PROCESSED_TEMPLATE"
         
