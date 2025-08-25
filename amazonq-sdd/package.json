@@ -7,7 +7,7 @@
     "amazonq-sdd": "./install.js"
   },
   "scripts": {
-    "test": "node install.js status"
+    "test": "node install.js status && node install.js --help"
   },
   "keywords": [
     "amazon-q",
