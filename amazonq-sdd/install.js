@@ -471,7 +471,15 @@ function installAgent() {
     
     // Write template files
     for (const [filePath, content] of Object.entries(TEMPLATES)) {
-      const fullPath = path.join(amazonqDir, filePath);
+      let fullPath;
+      if (filePath === 'AMAZONQ.md') {
+        // AMAZONQ.md goes in project root, not .amazonq directory
+        fullPath = path.join(getProjectDir(), filePath);
+      } else {
+        // Other templates go in .amazonq directory
+        fullPath = path.join(amazonqDir, filePath);
+      }
+      
       const dir = path.dirname(fullPath);
       
       if (!fs.existsSync(dir)) {

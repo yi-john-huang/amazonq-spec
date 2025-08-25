@@ -1,6 +1,6 @@
 {
   "name": "amazonq-sdd",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "SDD Custom Agent installer for Amazon Q CLI - Native /kiro: command support",
   "main": "install.js",
   "bin": {
