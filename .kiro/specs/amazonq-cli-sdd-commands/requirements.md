@@ -1,78 +1,96 @@
 # Requirements Document
 
 ## Introduction
-This feature creates a standalone `amazonq-sdd` NPM package that enables Amazon Q CLI users to leverage the same spec-driven development workflow that Claude Code users enjoy through the cc-sdd package. By creating Amazon Q CLI-specific command templates and configuration, developers using Amazon Q CLI will be able to execute commands like `/kiro:spec-init` to initialize and manage structured development specifications.
+This feature creates a production-ready `amazonq-sdd` NPM package that provides native `/kiro:` command support in Amazon Q CLI through Custom Agents. The package enables Amazon Q CLI users to leverage the same systematic spec-driven development workflow that Claude Code users enjoy, but with native integration through Amazon Q CLI's Custom Agent system rather than external shell scripts.
 
-The `amazonq-sdd` package provides a dedicated solution for Amazon Q CLI users, offering the same systematic development workflow while being tailored specifically to Amazon Q CLI's capabilities and interface.
+The `amazonq-sdd` package delivers a single-command installation (`npx amazonq-sdd`) that configures an SDD Custom Agent in Amazon Q CLI, allowing users to execute commands like `/kiro:spec-init` directly in chat sessions with `q chat --agent sdd`.
 
 ## Requirements
 
-### Requirement 1: Amazon Q CLI Command Template System
-**User Story:** As an Amazon Q CLI user, I want to run spec-driven development commands similar to Claude Code's `/kiro:spec-init`, so that I can follow structured development workflows regardless of my AI assistant choice.
+### Requirement 1: NPX Installation System
+**User Story:** As a developer, I want to install SDD functionality for Amazon Q CLI with a single command, so that I can start using spec-driven development workflows immediately without complex setup.
 
 #### Acceptance Criteria
-1. WHEN Amazon Q CLI command templates are implemented THEN the system SHALL provide Amazon Q CLI-specific command templates for all 8 SDD commands (spec-init, spec-requirements, spec-design, spec-tasks, spec-impl, spec-status, steering, steering-custom)
-2. WHEN Amazon Q CLI command templates are generated THEN each template SHALL be formatted according to Amazon Q CLI's command specification requirements
-3. IF Amazon Q CLI uses a different command format than Claude Code THEN the templates SHALL be adapted to Amazon Q CLI's native format while preserving identical functionality
-4. WHEN templates are generated THEN they SHALL include proper metadata headers, argument handling, and tool specifications compatible with Amazon Q CLI
-5. WHERE Amazon Q CLI has specific syntax or limitations THE command templates SHALL be adapted accordingly while maintaining feature parity with Claude Code commands
+1. WHEN a user runs `npx amazonq-sdd` THEN the system SHALL download and execute a single installer file (~12KB)
+2. WHEN installation completes THEN the system SHALL write an SDD Custom Agent configuration to `~/.aws/amazonq/cli-agents/sdd.json`
+3. IF Amazon Q CLI is not detected THEN the system SHALL provide clear instructions for Amazon Q CLI installation
+4. WHEN installation succeeds THEN users SHALL be able to immediately use `q chat --agent sdd` to access SDD commands
+5. WHILE being a standalone package THE installer SHALL include all necessary agent configuration embedded within the installer file
 
-### Requirement 2: amazonq-sdd NPM Package Creation
-**User Story:** As a developer, I want a standalone `amazonq-sdd` NPM package that provides spec-driven development for Amazon Q CLI, so that I can deploy SDD workflows to Amazon Q CLI projects with a single command.
-
-#### Acceptance Criteria
-1. WHEN a user runs `npx amazonq-sdd@latest` THEN the system SHALL install Amazon Q CLI-specific SDD templates and configuration
-2. IF Amazon Q CLI is not detected in the project THEN the system SHALL provide clear instructions for Amazon Q CLI setup
-3. WHEN amazonq-sdd templates are installed THEN the system SHALL create the appropriate `.kiro/` directory structure and Amazon Q CLI command files
-4. WHERE the user specifies language preferences (--lang en/ja/zh-TW) THE amazonq-sdd installation SHALL respect these preferences and generate localized documentation
-5. WHILE being independent from cc-sdd THE amazonq-sdd package SHALL provide equivalent functionality tailored for Amazon Q CLI
-
-### Requirement 3: Template Structure and Organization
-**User Story:** As a maintainer, I want Amazon Q CLI templates organized in a clear structure, so that the amazonq-sdd package remains maintainable and extensible.
+### Requirement 2: Custom Agent Configuration
+**User Story:** As an Amazon Q CLI user, I want native `/kiro:` command recognition in chat sessions, so that I can use spec-driven development commands naturally without external tools.
 
 #### Acceptance Criteria
-1. WHEN Amazon Q CLI templates are created THEN they SHALL be organized in a logical directory structure similar to the cc-sdd template organization
-2. IF the template structure includes platform-specific variations THEN Amazon Q CLI SHALL support both `os-mac` and `os-windows` subdirectories like other agents
-3. WHEN command templates are defined THEN they SHALL include appropriate frontmatter/metadata compatible with Amazon Q CLI's command system
-4. WHERE Amazon Q CLI requires different configuration formats THE templates SHALL use Amazon Q CLI's native format (e.g., TOML, JSON, or other formats) rather than Markdown frontmatter if needed
-5. WHILE maintaining consistency with other agents THE Amazon Q CLI templates SHALL adapt to Amazon Q CLI's specific capabilities and limitations
+1. WHEN users type `/kiro:spec-init <description>` in `q chat --agent sdd` THEN the agent SHALL immediately recognize and execute the command
+2. WHEN Custom Agent executes commands THEN it SHALL have access to `fs_read` and `fs_write` tools restricted to `.kiro/**` and `*.md` paths
+3. IF users type unrecognized `/kiro:` commands THEN the agent SHALL provide helpful suggestions for correct syntax
+4. WHEN the agent processes commands THEN it SHALL maintain workflow state through spec.json files in each feature directory
+5. WHERE Amazon Q CLI provides native slash command support THE agent SHALL leverage those capabilities for optimal user experience
 
-### Requirement 4: Feature Parity and Functionality
-**User Story:** As an Amazon Q CLI user, I want access to the complete spec-driven development workflow, so that I have the same capabilities as Claude Code users.
-
-#### Acceptance Criteria
-1. WHEN Amazon Q CLI SDD commands are implemented THEN they SHALL provide identical functionality to their Claude Code counterparts
-2. IF Amazon Q CLI has different tool restrictions or capabilities THEN the commands SHALL be adapted while maintaining core SDD workflow integrity
-3. WHEN users execute Amazon Q CLI SDD commands THEN they SHALL generate the same `.kiro/specs/` and `.kiro/steering/` directory structures as other agents
-4. WHERE Amazon Q CLI supports different argument passing mechanisms THE commands SHALL adapt the `$ARGUMENTS` variable handling appropriately
-5. WHILE preserving the 3-phase approval workflow THE Amazon Q CLI implementation SHALL maintain requirements → design → tasks → implementation progression with human review gates
-
-### Requirement 5: Documentation and Configuration
-**User Story:** As an Amazon Q CLI user, I want proper documentation and configuration files, so that I can understand how to use the SDD features effectively.
-
-#### Acceptance Criteria  
-1. WHEN Amazon Q CLI templates are generated THEN the system SHALL create an `AMAZONQ.md` configuration file equivalent to `CLAUDE.md` for Claude Code
-2. IF multi-language support is requested THEN the system SHALL generate `AMAZONQ.en.md`, `AMAZONQ.ja.md`, and `AMAZONQ.zh-TW.md` files as appropriate
-3. WHEN Amazon Q CLI documentation is created THEN it SHALL include instructions specific to Amazon Q CLI's interface and capabilities
-4. WHERE Amazon Q CLI has different hook or automation capabilities THE documentation SHALL explain Amazon Q CLI-specific automation options or limitations
-5. WHILE maintaining consistency with other agents THE Amazon Q CLI documentation SHALL be tailored to Amazon Q CLI users' needs and context
-
-### Requirement 6: Testing and Validation
-**User Story:** As a developer, I want assurance that Amazon Q CLI SDD commands work correctly, so that I can confidently deploy the feature to production.
+### Requirement 3: Complete SDD Command Suite
+**User Story:** As a developer, I want access to all 8 SDD commands through the Custom Agent, so that I have complete spec-driven development workflow capabilities.
 
 #### Acceptance Criteria
-1. WHEN Amazon Q CLI templates are generated THEN they SHALL be syntactically valid for Amazon Q CLI's command parsing system
-2. IF Amazon Q CLI has a command validation mechanism THEN all generated templates SHALL pass validation  
-3. WHEN the amazonq-sdd package generates Amazon Q CLI templates THEN the process SHALL complete without errors for all supported configurations (base, os-mac, os-windows)
-4. WHERE Amazon Q CLI templates reference external files or configurations THEN all referenced paths and files SHALL exist and be accessible
-5. WHILE ensuring quality THE Amazon Q CLI implementation SHALL include comprehensive test cases covering template generation, command execution, and workflow validation
+1. WHEN the agent is configured THEN it SHALL support all 8 commands: `/kiro:spec-init`, `/kiro:spec-requirements`, `/kiro:spec-design`, `/kiro:spec-tasks`, `/kiro:spec-impl`, `/kiro:spec-status`, `/kiro:steering`, `/kiro:steering-custom`
+2. WHEN users execute commands THEN each command SHALL provide equivalent functionality to the original shell script versions
+3. IF workflow gates are required (e.g., design requires approved requirements) THEN the agent SHALL enforce these constraints with clear user prompts
+4. WHEN commands generate files THEN they SHALL create the same `.kiro/specs/` and `.kiro/steering/` directory structures as other SDD implementations
+5. WHILE using Amazon Q CLI's tools THE agent SHALL generate professional, enterprise-quality documentation and maintain workflow integrity
 
-### Requirement 7: CLI Integration and User Experience
-**User Story:** As a user, I want a seamless experience installing and using Amazon Q CLI SDD features, so that adoption is straightforward and intuitive.
+### Requirement 4: Workflow State Management
+**User Story:** As a user following the SDD workflow, I want the system to track my progress and enforce approval gates, so that I maintain quality and don't skip important steps.
 
 #### Acceptance Criteria
-1. WHEN a user runs `npx amazonq-sdd@latest` THEN the installation SHALL complete successfully and provide clear feedback on what was installed
-2. IF Amazon Q CLI is not detected or available THEN the system SHALL provide helpful error messages explaining requirements or setup steps
-3. WHEN installation completes THEN users SHALL receive clear instructions on how to start using SDD commands in Amazon Q CLI
-4. WHERE users need to configure Amazon Q CLI settings THE installation process SHALL provide guidance or automatic configuration where possible
-5. WHILE being a standalone package THE amazonq-sdd SHALL provide equivalent user experience to cc-sdd but tailored for Amazon Q CLI
+1. WHEN users initialize specs THEN the system SHALL create spec.json files with phase tracking and approval states
+2. WHEN users attempt to skip workflow phases THEN the agent SHALL prevent progression and prompt for required approvals
+3. IF users run `/kiro:spec-design` without approved requirements THEN the agent SHALL show "Have you reviewed requirements.md? [y/N]" prompt
+4. WHEN workflow states change THEN spec.json files SHALL be updated with current phase and timestamps
+5. WHILE enforcing gates THE system SHALL provide clear status reporting through `/kiro:spec-status` command
+
+### Requirement 5: File System Operations
+**User Story:** As a user, I want the SDD agent to manage project files correctly, so that my specs are organized consistently and safely.
+
+#### Acceptance Criteria
+1. WHEN the agent writes files THEN it SHALL create proper directory structures (.kiro/specs/{feature}/, .kiro/steering/)
+2. WHEN generating content THEN the agent SHALL use fs_read to check existing files before overwriting
+3. IF directory permissions are insufficient THEN the agent SHALL provide clear error messages with suggested solutions
+4. WHEN creating templates THEN the agent SHALL generate professional markdown with consistent formatting and structure
+5. WHERE file conflicts exist THE agent SHALL prompt users for resolution rather than silently overwriting
+
+### Requirement 6: Zero Dependencies Approach
+**User Story:** As a system administrator, I want the SDD package to have no external dependencies, so that installation is fast, secure, and doesn't introduce supply chain risks.
+
+#### Acceptance Criteria
+1. WHEN users install via NPX THEN the system SHALL download only a single installer file with embedded agent configuration
+2. WHEN the installer runs THEN it SHALL use only Node.js built-in modules (fs, path, os, child_process)
+3. IF the installer requires external tools THEN it SHALL only depend on Amazon Q CLI being available in PATH
+4. WHEN packaging for NPM THEN the package SHALL contain only: install.js, package.json, README.md, and LICENSE files
+5. WHILE maintaining functionality THE package SHALL remain under 20KB total size
+
+### Requirement 7: Documentation and User Experience
+**User Story:** As a new user, I want clear documentation and helpful error messages, so that I can successfully install and use SDD features without confusion.
+
+#### Acceptance Criteria
+1. WHEN users run the installer THEN they SHALL receive clear feedback about installation status and next steps
+2. WHEN installation completes THEN users SHALL see instructions for starting their first spec with examples
+3. IF errors occur during installation THEN the system SHALL provide actionable error messages with suggested fixes
+4. WHEN users need help THEN `npx amazonq-sdd help` SHALL display comprehensive usage information
+5. WHILE being standalone THE package SHALL include links to full documentation and support resources
+
+### Requirement 8: Cross-Platform Compatibility
+**User Story:** As a developer on any operating system, I want the SDD package to work consistently, so that my team can use the same tools regardless of platform.
+
+#### Acceptance Criteria
+1. WHEN users install on macOS, Windows, or Linux THEN the installer SHALL work identically on all platforms
+2. WHEN determining Amazon Q CLI paths THEN the system SHALL correctly locate agents directory across different operating systems
+3. IF platform-specific issues arise THEN the installer SHALL provide platform-appropriate error messages and solutions
+4. WHEN creating file paths THEN the system SHALL use Node.js path utilities for cross-platform compatibility
+5. WHILE maintaining consistency THE system SHALL respect platform-specific conventions (e.g., path separators, home directories)
+
+## Success Metrics
+- Installation success rate >99% across supported platforms
+- Time from `npx amazonq-sdd` to first working `/kiro:spec-init` command <30 seconds
+- Package size <20KB total
+- Zero external dependencies maintained
+- User satisfaction scores >4.5/5 for setup experience
+- Complete feature parity with original shell script implementation
