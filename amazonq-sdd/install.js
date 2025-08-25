@@ -375,6 +375,742 @@ Standard status response with appropriate icons:
 
 This template is embedded in the SDD Custom Agent configuration and executed when users type \`/kiro:spec-status\` in Amazon Q CLI chat with \`--agent sdd\`.`,
 
+  'commands/kiro/spec-requirements.md': `---
+description: Generate detailed requirements document for a feature via Amazon Q CLI Custom Agent
+allowed-tools: fs_read, fs_write
+model: amazon-q-developer
+agent: sdd
+---
+
+# Amazon Q CLI Custom Agent: Requirements Generation
+
+This template defines the \`/kiro:spec-requirements\` command behavior for the SDD Custom Agent in Amazon Q CLI.
+
+## Agent Command Recognition
+
+The SDD Custom Agent should recognize and execute this pattern:
+\`\`\`
+/kiro:spec-requirements <feature-name>
+\`\`\`
+
+## Implementation Logic
+
+When a user types \`/kiro:spec-requirements feature-name\` in \`q chat --agent sdd\`:
+
+### 1. Validate Feature Exists
+- Check that \`.kiro/specs/{feature-name}/\` directory exists
+- Verify spec.json file is present
+- Read current project description from requirements.md
+
+### 2. Read Project Context
+- Load existing requirements.md for user's project description
+- Read \`.kiro/steering/\` files if they exist for project context
+- Check current phase in spec.json
+
+### 3. Generate Comprehensive Requirements
+Create detailed requirements document with:
+
+#### Structure Template:
+\`\`\`markdown
+# Requirements Document
+
+## Introduction
+{AI-generated introduction based on project description}
+
+## Requirements
+
+### Requirement 1: {Functional Area}
+**User Story:** As a {user type}, I want {functionality}, so that {benefit}.
+
+#### Acceptance Criteria
+1. WHEN {condition} THEN the system SHALL {behavior}
+2. IF {condition} THEN the system SHALL {alternate behavior} 
+3. WHERE {constraint} THE system SHALL {constrained behavior}
+4. WHILE {ongoing condition} THE system SHALL {continuous behavior}
+
+### Requirement 2: {Another Functional Area}
+[... continue pattern ...]
+
+## Non-Functional Requirements
+
+### Performance Requirements
+- Response time requirements
+- Throughput requirements
+- Resource utilization limits
+
+### Security Requirements  
+- Authentication and authorization
+- Data protection requirements
+- Security compliance needs
+
+### Usability Requirements
+- User experience expectations
+- Accessibility requirements
+- User interface guidelines
+
+## Success Metrics
+- Key performance indicators
+- Measurable success criteria
+- Testing and validation approach
+\`\`\`
+
+### 4. Update Workflow State
+Update spec.json:
+\`\`\`json
+{
+  "phase": "requirements-generated",
+  "updated_at": "current_timestamp",
+  "approvals": {
+    "requirements": {
+      "generated": true,
+      "approved": false
+    }
+  }
+}
+\`\`\`
+
+## Agent Response Format
+
+After successful generation:
+
+\`\`\`
+✅ **Requirements Generated Successfully**
+
+📁 **Feature**: {feature-name}
+📝 **Generated**: Comprehensive requirements document
+📂 **Updated**: .kiro/specs/{feature-name}/requirements.md
+
+**What Was Generated:**
+- {X} functional requirements with user stories
+- {Y} acceptance criteria
+- Non-functional requirements (performance, security, usability)
+- Success metrics and validation approach
+
+**⚠️ Review Required:**
+Please review the requirements.md file carefully before proceeding.
+
+**Next Step:**
+After reviewing, use \`/kiro:spec-design {feature-name}\` to generate technical design.
+
+**Workflow:**
+1. ✅ spec-init
+2. ✅ spec-requirements ← You are here  
+3. ⏳ spec-design (requires requirements approval)
+4. ⏳ spec-tasks  
+5. ⏳ spec-impl
+\`\`\`
+
+## Approval Gate
+
+The agent should enforce that design cannot proceed until requirements are approved:
+- Check spec.json approval status before allowing spec-design
+- Prompt user to review requirements.md before proceeding
+
+## Error Handling
+
+- If feature doesn't exist: "Feature '{feature-name}' not found. Use \`/kiro:spec-init\` to create it first."
+- If already generated: "Requirements already generated. Use \`/kiro:spec-status {feature-name}\` to check status."
+- If no project description: "No project description found. Please check requirements.md file."
+
+## Integration Notes
+
+This template is embedded in the SDD Custom Agent configuration and executed when users type \`/kiro:spec-requirements\` in Amazon Q CLI chat with \`--agent sdd\`.`,
+
+  'commands/kiro/spec-design.md': `---
+description: Generate technical design document via Amazon Q CLI Custom Agent
+allowed-tools: fs_read, fs_write
+model: amazon-q-developer
+agent: sdd
+---
+
+# Amazon Q CLI Custom Agent: Technical Design
+
+This template defines the \`/kiro:spec-design\` command behavior for the SDD Custom Agent in Amazon Q CLI.
+
+## Agent Command Recognition
+
+The SDD Custom Agent should recognize and execute this pattern:
+\`\`\`
+/kiro:spec-design <feature-name>
+\`\`\`
+
+## Implementation Logic
+
+When a user types \`/kiro:spec-design feature-name\` in \`q chat --agent sdd\`:
+
+### 1. Validate Prerequisites
+- Check that \`.kiro/specs/{feature-name}/\` directory exists
+- Verify requirements.md exists and is complete
+- Check spec.json approval status for requirements
+
+### 2. Interactive Approval Check
+If requirements not marked as approved in spec.json:
+\`\`\`
+🔍 **Requirements Review Check**
+
+Have you reviewed and approved the requirements.md file? [y/N]
+
+**Why this matters:**
+- Design decisions should be based on approved requirements
+- Changes to requirements after design may require redesign
+- This ensures proper workflow progression
+
+**To review:** Open .kiro/specs/{feature-name}/requirements.md
+
+Type 'y' to confirm you've reviewed requirements, or 'N' to cancel.
+\`\`\`
+
+### 3. Generate Technical Design
+Create comprehensive design document with:
+
+#### Structure Template:
+\`\`\`markdown
+# Technical Design
+
+## Overview
+{AI-generated overview based on requirements}
+
+## Requirements Mapping
+{Map each requirement to design components}
+
+## Architecture
+{High-level architecture diagram and description}
+
+## Components and Interfaces
+{Detailed component design}
+
+## Data Models
+{Database schemas, data structures}
+
+## API Specifications
+{REST endpoints, GraphQL schemas, etc.}
+
+## Security Considerations
+{Security implementation details}
+
+## Performance & Scalability
+{Performance targets and scaling approach}
+
+## Testing Strategy
+{Unit, integration, e2e test approach}
+\`\`\`
+
+### 4. Update Workflow State
+Update spec.json after successful generation:
+\`\`\`json
+{
+  "phase": "design-generated",
+  "updated_at": "current_timestamp",
+  "approvals": {
+    "requirements": {
+      "generated": true,
+      "approved": true
+    },
+    "design": {
+      "generated": true,
+      "approved": false
+    }
+  }
+}
+\`\`\`
+
+## Agent Response Format
+
+After successful generation:
+
+\`\`\`
+✅ **Technical Design Generated Successfully**
+
+📁 **Feature**: {feature-name}
+📝 **Generated**: Comprehensive technical design
+📂 **Updated**: .kiro/specs/{feature-name}/design.md
+
+**Design Components:**
+- Architecture overview and component breakdown
+- Data models and API specifications
+- Security and performance considerations
+- Testing strategy and approach
+
+**⚠️ Review Required:**
+Please review the design.md file carefully before proceeding.
+
+**Next Step:**
+After reviewing, use \`/kiro:spec-tasks {feature-name}\` to generate implementation tasks.
+
+**Workflow:**
+1. ✅ spec-init
+2. ✅ spec-requirements (approved)
+3. ✅ spec-design ← You are here
+4. ⏳ spec-tasks (requires design approval)
+5. ⏳ spec-impl
+\`\`\`
+
+## Error Handling
+
+- If feature doesn't exist: "Feature '{feature-name}' not found. Use \`/kiro:spec-init\` to create it first."
+- If requirements not approved: Show interactive approval check
+- If design already exists: "Design already generated. Use \`/kiro:spec-status {feature-name}\` to check status."
+
+## Integration Notes
+
+This template is embedded in the SDD Custom Agent configuration and executed when users type \`/kiro:spec-design\` in Amazon Q CLI chat with \`--agent sdd\`.`,
+
+  'commands/kiro/spec-tasks.md': `---
+description: Generate implementation task breakdown via Amazon Q CLI Custom Agent
+allowed-tools: fs_read, fs_write
+model: amazon-q-developer
+agent: sdd
+---
+
+# Amazon Q CLI Custom Agent: Task Generation
+
+This template defines the \`/kiro:spec-tasks\` command behavior for the SDD Custom Agent in Amazon Q CLI.
+
+## Agent Command Recognition
+
+The SDD Custom Agent should recognize and execute this pattern:
+\`\`\`
+/kiro:spec-tasks <feature-name>
+\`\`\`
+
+## Implementation Logic
+
+When a user types \`/kiro:spec-tasks feature-name\` in \`q chat --agent sdd\`:
+
+### 1. Validate Prerequisites
+- Check that \`.kiro/specs/{feature-name}/\` directory exists
+- Verify design.md exists and is complete
+- Check spec.json approval status for both requirements and design
+
+### 2. Interactive Approval Check
+If design not marked as approved:
+\`\`\`
+🔍 **Design Review Check**
+
+Have you reviewed and approved both requirements.md AND design.md? [y/N]
+
+**Required approvals:**
+- ✅ Requirements reviewed and approved
+- ⏳ Design reviewed and approved ← Missing
+
+**Why this matters:**
+- Tasks should implement approved design components
+- Changes to design after task breakdown may require re-planning
+- Ensures proper workflow progression
+
+**To review:** 
+- Requirements: .kiro/specs/{feature-name}/requirements.md
+- Design: .kiro/specs/{feature-name}/design.md
+
+Type 'y' to confirm you've reviewed both, or 'N' to cancel.
+\`\`\`
+
+### 3. Generate Task Breakdown
+Create detailed implementation plan with:
+
+#### Structure Template:
+\`\`\`markdown
+# Implementation Plan
+
+## Foundation Tasks
+
+- [ ] 1. {Foundation task}
+  - {Sub-task description}
+  - {Another sub-task}
+  - _Requirements: {Reference to requirements}_
+
+## Core Implementation
+
+- [ ] 2. {Core feature task}
+  - {Implementation details}
+  - {Testing requirements}
+  - _Requirements: {Requirement mapping}_
+
+## Integration & Testing
+
+- [ ] 3. {Integration task}
+  - {Integration points}
+  - {Testing approach}
+  - _Requirements: {Coverage mapping}_
+
+## Deployment & Documentation
+
+- [ ] 4. {Deployment task}
+  - {Deployment steps}
+  - {Documentation needs}
+  - _Requirements: {Final validations}_
+\`\`\`
+
+### 4. Update Workflow State
+Update spec.json:
+\`\`\`json
+{
+  "phase": "tasks-generated",
+  "updated_at": "current_timestamp",
+  "approvals": {
+    "requirements": {
+      "generated": true,
+      "approved": true
+    },
+    "design": {
+      "generated": true,
+      "approved": true
+    },
+    "tasks": {
+      "generated": true,
+      "approved": false
+    }
+  },
+  "ready_for_implementation": true
+}
+\`\`\`
+
+## Agent Response Format
+
+\`\`\`
+✅ **Implementation Tasks Generated Successfully**
+
+📁 **Feature**: {feature-name}
+📝 **Generated**: Detailed task breakdown
+📂 **Updated**: .kiro/specs/{feature-name}/tasks.md
+
+**Task Summary:**
+- {X} foundation and setup tasks
+- {Y} core implementation tasks
+- {Z} integration and testing tasks
+- All tasks mapped to requirements and design components
+
+**⚠️ Review Required:**
+Please review the tasks.md file before starting implementation.
+
+**Next Step:**
+Use \`/kiro:spec-impl {feature-name}\` to get implementation guidance.
+
+**Workflow:**
+1. ✅ spec-init
+2. ✅ spec-requirements (approved)
+3. ✅ spec-design (approved)
+4. ✅ spec-tasks ← You are here
+5. ⏳ spec-impl (ready to start!)
+\`\`\`
+
+## Error Handling
+
+- If feature doesn't exist: "Feature '{feature-name}' not found."
+- If design not approved: Show interactive approval check
+- If tasks already exist: "Tasks already generated. Use \`/kiro:spec-status {feature-name}\` to check status."
+
+## Integration Notes
+
+This template is embedded in the SDD Custom Agent configuration and executed when users type \`/kiro:spec-tasks\` in Amazon Q CLI chat with \`--agent sdd\`.`,
+
+  'commands/kiro/spec-impl.md': `---
+description: Provide implementation guidance via Amazon Q CLI Custom Agent
+allowed-tools: fs_read, fs_write
+model: amazon-q-developer
+agent: sdd
+---
+
+# Amazon Q CLI Custom Agent: Implementation Guidance
+
+This template defines the \`/kiro:spec-impl\` command behavior for the SDD Custom Agent in Amazon Q CLI.
+
+## Agent Command Recognition
+
+The SDD Custom Agent should recognize and execute these patterns:
+\`\`\`
+/kiro:spec-impl <feature-name>
+/kiro:spec-impl <feature-name> <task-numbers>
+\`\`\`
+
+## Implementation Logic
+
+When a user types \`/kiro:spec-impl feature-name [task-numbers]\` in \`q chat --agent sdd\`:
+
+### 1. Validate Prerequisites
+- Check that \`.kiro/specs/{feature-name}/\` directory exists
+- Verify tasks.md exists and contains task breakdown
+- Check spec.json shows "ready_for_implementation": true
+
+### 2. Load Implementation Context
+- Read requirements.md for functional context
+- Read design.md for technical architecture
+- Read tasks.md for implementation plan
+- Check steering files for project guidelines
+
+### 3. Provide Implementation Guidance
+
+If no specific tasks specified:
+\`\`\`
+📋 **Implementation Guidance for {feature-name}**
+
+**Available Tasks:**
+1. {Task 1 summary}
+2. {Task 2 summary}  
+3. {Task 3 summary}
+...
+
+**Recommended Starting Point:**
+Task 1: {First task description}
+
+**How to proceed:**
+- Use \`/kiro:spec-impl {feature-name} 1\` for specific task guidance
+- Use \`/kiro:spec-impl {feature-name} 1,3,5\` for multiple tasks
+- Use \`/kiro:spec-status {feature-name}\` to track progress
+
+**Implementation Context:**
+- Architecture: {Brief architecture summary}
+- Key Requirements: {Top 3 requirements}
+- Technical Stack: {From design document}
+\`\`\`
+
+If specific tasks specified:
+\`\`\`
+🛠️ **Implementation Guidance: Tasks {task-numbers}**
+
+**Task {N}: {Task Title}**
+
+**Context from Requirements:**
+{Relevant requirements that this task addresses}
+
+**Context from Design:**  
+{Relevant design components and architecture}
+
+**Implementation Approach:**
+1. {Step-by-step implementation guidance}
+2. {Code examples or pseudocode if helpful}
+3. {Integration points and dependencies}
+
+**Testing Approach:**
+- {Unit testing guidance}
+- {Integration testing notes}
+- {Acceptance criteria validation}
+
+**Completion Criteria:**
+- [ ] {Specific deliverable 1}
+- [ ] {Specific deliverable 2}
+- [ ] {Testing completed}
+- [ ] {Documentation updated}
+
+**Next Steps:**
+After completing this task, proceed to Task {N+1}: {Next task title}
+\`\`\`
+
+### 4. Track Progress (Optional)
+Update spec.json to track implementation progress:
+\`\`\`json
+{
+  "implementation": {
+    "status": "in-progress",
+    "started_at": "current_timestamp",
+    "completed_tasks": [1, 3],
+    "current_task": 4
+  }
+}
+\`\`\`
+
+## Agent Response Format
+
+\`\`\`
+🛠️ **Implementation Ready**
+
+📁 **Feature**: {feature-name}
+📋 **Total Tasks**: {X}
+🎯 **Focus**: {Specific tasks or general overview}
+
+**Implementation Context Loaded:**
+- ✅ Requirements: {X} functional requirements
+- ✅ Design: {Y} components and {Z} APIs
+- ✅ Tasks: {W} implementation tasks
+
+**Ready to Code!**
+Follow the implementation guidance above and reference the specification documents as needed.
+
+**Status Tracking:**
+Use \`/kiro:spec-status {feature-name}\` to update progress and track completion.
+\`\`\`
+
+## Error Handling
+
+- If feature doesn't exist: "Feature '{feature-name}' not found."
+- If not ready for implementation: "Feature not ready. Complete tasks generation first with \`/kiro:spec-tasks {feature-name}\`"
+- If invalid task numbers: "Invalid task numbers. Use \`/kiro:spec-status {feature-name}\` to see available tasks."
+
+## Integration Notes
+
+This template is embedded in the SDD Custom Agent configuration and executed when users type \`/kiro:spec-impl\` in Amazon Q CLI chat with \`--agent sdd\`.`,
+
+  'commands/kiro/steering-custom.md': `---
+description: Create custom steering documents via Amazon Q CLI Custom Agent
+allowed-tools: fs_read, fs_write
+model: amazon-q-developer
+agent: sdd
+---
+
+# Amazon Q CLI Custom Agent: Custom Steering
+
+This template defines the \`/kiro:steering-custom\` command behavior for the SDD Custom Agent in Amazon Q CLI.
+
+## Agent Command Recognition
+
+The SDD Custom Agent should recognize and execute this pattern:
+\`\`\`
+/kiro:steering-custom <name>
+\`\`\`
+
+## Implementation Logic
+
+When a user types \`/kiro:steering-custom name\` in \`q chat --agent sdd\`:
+
+### 1. Validate Input
+- Check that name parameter is provided
+- Sanitize name (convert to kebab-case, remove special characters)
+- Ensure name doesn't conflict with core steering files (product, tech, structure)
+
+### 2. Create Custom Steering Document
+Generate specialized steering document based on the name:
+
+#### Common Custom Steering Types:
+- **security**: Security guidelines and practices
+- **performance**: Performance standards and optimization
+- **testing**: Testing strategies and quality assurance  
+- **deployment**: Deployment and DevOps practices
+- **accessibility**: Accessibility standards and guidelines
+- **api**: API design and documentation standards
+- **database**: Database design and data modeling
+- **monitoring**: Observability and monitoring practices
+
+#### Structure Template:
+\`\`\`markdown
+# {Title} Steering Document
+
+## Overview
+{Purpose and scope of this steering document}
+
+## Guidelines
+
+### Guideline 1: {Area}
+**Principle**: {Core principle}
+**Implementation**: {How to apply this}
+**Examples**: {Concrete examples}
+**Validation**: {How to verify compliance}
+
+### Guideline 2: {Another Area}
+[... continue pattern ...]
+
+## Standards and Requirements
+
+### Standard 1: {Requirement Area}
+- **Must Have**: {Non-negotiable requirements}
+- **Should Have**: {Recommended practices}
+- **Could Have**: {Optional enhancements}
+
+## Tools and Resources
+
+### Recommended Tools
+- **{Tool Category}**: {Tool name} - {Purpose}
+- **{Another Category}**: {Tool name} - {Purpose}
+
+### Documentation and References
+- {Reference 1}: {URL or location}
+- {Reference 2}: {URL or location}
+
+## Integration with SDD Workflow
+
+### Requirements Phase
+{How this steering applies to requirements generation}
+
+### Design Phase  
+{How this steering influences design decisions}
+
+### Implementation Phase
+{How this steering guides implementation}
+
+## Compliance and Validation
+
+### Checklist
+- [ ] {Compliance item 1}
+- [ ] {Compliance item 2}
+- [ ] {Compliance item 3}
+
+### Review Process
+{How to review compliance with these guidelines}
+\`\`\`
+
+### 3. Write Custom Steering File
+- Create \`.kiro/steering/{name}.md\` file
+- Write the generated content
+- Update AMAZONQ.md to reference the new steering file (if present)
+
+### 4. Integration Options
+Provide options for how this custom steering should be used:
+- **Always**: Include in every SDD workflow interaction
+- **Conditional**: Include only for specific file patterns or contexts
+- **Manual**: Reference manually with @{name}.md syntax
+
+## Agent Response Format
+
+\`\`\`
+✅ **Custom Steering Document Created**
+
+📂 **Created**: .kiro/steering/{name}.md
+🎯 **Type**: {Detected/inferred steering type}
+📋 **Content**: {X} guidelines and standards
+
+**What This Provides:**
+- Specialized {area} guidance for your project
+- Standards and requirements specific to {domain}
+- Integration points with SDD workflow phases
+- Compliance checklist and validation approach
+
+**Integration Options:**
+1. **Always Active**: Include in all SDD interactions
+   - Add to AMAZONQ.md active steering list
+   - Will influence all requirements, design, and implementation
+
+2. **Conditional**: Activate for specific contexts
+   - Triggered by file patterns (e.g., *.test.js for testing steering)
+   - Applied to relevant workflow phases only
+
+3. **Manual Reference**: Use when needed
+   - Reference with @{name}.md in SDD commands
+   - On-demand guidance for specific situations
+
+**Next Steps:**
+- Review and customize the steering document
+- Decide on integration approach (always/conditional/manual)
+- Use in your next SDD workflow with existing features
+
+**Usage Examples:**
+- \`/kiro:spec-requirements feature-name\` (if always active)
+- \`/kiro:spec-design feature-name @{name}\` (manual reference)
+\`\`\`
+
+## Error Handling
+
+- If no name provided: "Please specify a name for the custom steering document. Example: \`/kiro:steering-custom security\`"
+- If invalid name: "Invalid name '{name}'. Use alphanumeric characters and hyphens only."
+- If file already exists: "Steering document '{name}.md' already exists. Use a different name or edit the existing file."
+- If directory creation fails: "Could not create .kiro/steering/ directory. Check permissions."
+
+## Common Custom Steering Templates
+
+### Security Steering
+Focus on: Authentication, authorization, data protection, security testing, compliance
+
+### Performance Steering  
+Focus on: Response time targets, scalability requirements, optimization strategies, monitoring
+
+### Testing Steering
+Focus on: Test coverage requirements, testing strategies, quality gates, automation
+
+### API Steering
+Focus on: REST/GraphQL standards, documentation, versioning, error handling
+
+## Integration Notes
+
+This template is embedded in the SDD Custom Agent configuration and executed when users type \`/kiro:steering-custom\` in Amazon Q CLI chat with \`--agent sdd\`.`,
+
   'commands/kiro/steering.md': `---
 description: Create/update project steering documents via Amazon Q CLI Custom Agent
 allowed-tools: fs_read, fs_write
