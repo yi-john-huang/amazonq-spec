@@ -128,8 +128,8 @@ npx amazonq-sdd
 # Start using the agent
 q chat --agent sdd
 
-# Try your first command
-/kiro:spec-init "user authentication system"
+# Try your first command  
+"Initialize a new specification for user authentication system"
 \`\`\`
 
 ## Agent Configuration
@@ -142,24 +142,26 @@ The SDD Custom Agent is configured with:
 
 ## Available Commands
 
-| Command | Description | Prerequisites |
-|---------|-------------|---------------|
-| \`/kiro:spec-init <description>\` | Initialize new feature specification | None |
-| \`/kiro:spec-requirements <feature>\` | Generate requirements document | Initialized spec |
-| \`/kiro:spec-design <feature>\` | Create technical design | Approved requirements |
-| \`/kiro:spec-tasks <feature>\` | Break down implementation tasks | Approved design |
-| \`/kiro:spec-impl <feature> [tasks]\` | Get implementation guidance | Generated tasks |
-| \`/kiro:spec-status <feature>\` | Check workflow progress | Any phase |
-| \`/kiro:steering\` | Set up project context | None |
-| \`/kiro:steering-custom <name>\` | Create custom guidelines | None |
+The SDD agent recognizes natural language requests for these SDD workflow actions:
+
+| Intent | Example Usage | Description |
+|--------|---------------|-------------|
+| **Spec Initialization** | "Initialize a new specification for [description]" | Creates new feature specification directory and files |
+| **Requirements Generation** | "Generate requirements for [feature-name]" | Creates detailed requirements document |
+| **Design Creation** | "Create technical design for [feature-name]" | Generates technical design document |
+| **Task Breakdown** | "Break down tasks for [feature-name]" | Creates implementation task list |
+| **Implementation Guidance** | "Help me implement [feature-name]" | Provides implementation guidance |
+| **Status Check** | "Show status of [feature-name]" | Displays workflow progress |
+| **Project Steering** | "Set up project steering documents" | Creates project context and guidelines |
+| **Custom Steering** | "Create custom steering for [area]" | Generates specialized steering documents |
 
 ## Workflow Phases
 
-1. **Initialization** → \`/kiro:spec-init\`
-2. **Requirements** → \`/kiro:spec-requirements\` + review
-3. **Design** → \`/kiro:spec-design\` + review  
-4. **Tasks** → \`/kiro:spec-tasks\` + review
-5. **Implementation** → \`/kiro:spec-impl\`
+1. **Initialization** → "Initialize a new specification for [description]"
+2. **Requirements** → "Generate requirements for [feature-name]" + review
+3. **Design** → "Create technical design for [feature-name]" + review  
+4. **Tasks** → "Break down tasks for [feature-name]" + review
+5. **Implementation** → "Help me implement [feature-name]"
 
 ## File Structure
 
@@ -203,12 +205,49 @@ This Custom Agent integrates with Amazon Q CLI's native capabilities:
 - Respects Amazon Q CLI's security and sandboxing model
 - Works within Amazon Q CLI's chat interface
 
+## Usage Examples
+
+### Getting Started
+\`\`\`bash
+# 1. Start a chat with the SDD agent
+q chat --agent sdd
+
+# 2. Initialize your first specification (use natural language)
+"Initialize a new specification for user authentication system"
+
+# 3. Generate requirements  
+"Generate requirements for user-authentication-system"
+
+# 4. After reviewing, create design
+"Create technical design for user-authentication-system"
+
+# 5. Generate implementation tasks
+"Break down tasks for user-authentication-system"
+\`\`\`
+
+### Working with Features
+\`\`\`bash
+# Check status of specifications
+"Show status of user-authentication-system"
+
+# Get implementation help
+"Help me implement user-authentication-system"
+
+# Create project-wide guidelines
+"Set up project steering documents"
+
+# Create specialized steering
+"Create custom steering for security"
+\`\`\`
+
+**Important**: Use natural language in the chat - don't type literal \`/kiro:\` commands. The agent recognizes your intent and translates it to the appropriate SDD workflow actions.
+
 ## Customization
 
 To modify the agent behavior:
-1. Edit the command templates in \`commands/kiro/\`
-2. Update the agent configuration in \`amazonq-sdd/install.js\`
-3. Republish the NPM package
+1. Edit the command templates in \`.amazonq/commands/kiro/\`
+2. The agent will reference your local templates for behavior
+3. Templates define exactly how the agent should respond to each command type
 
 ## Support
 
@@ -229,10 +268,13 @@ This template defines the \`/kiro:spec-init\` command behavior for the SDD Custo
 
 ## Agent Command Recognition
 
-The SDD Custom Agent should recognize and execute this pattern:
-\`\`\`
-/kiro:spec-init <description>
-\`\`\`
+The SDD Custom Agent should recognize natural language requests that match these intents:
+- "Initialize a new specification for [description]"
+- "Create a new spec for [description]" 
+- "Start a new feature specification: [description]"
+- Any similar phrasing indicating intent to initialize a new SDD specification
+
+The agent internally maps these to the \`/kiro:spec-init\` pattern but users should use natural language.
 
 ## Implementation Logic
 
@@ -1231,17 +1273,17 @@ function installAgent() {
     console.log('\n🎉 Installation Complete!\n');
     console.log('🚀 **Quick Start:**');
     console.log('  q chat --agent sdd');
-    console.log('  /kiro:spec-init "your feature description"');
+    console.log('  "Initialize a new specification for your feature description"');
     console.log('');
-    console.log('📖 **Available Commands:**');
-    console.log('  /kiro:spec-init <description>     - Initialize new feature specification');
-    console.log('  /kiro:spec-requirements <feature> - Generate requirements document');
-    console.log('  /kiro:spec-design <feature>       - Create technical design');
-    console.log('  /kiro:spec-tasks <feature>        - Break down implementation tasks');
-    console.log('  /kiro:spec-impl <feature> [tasks] - Get implementation guidance');
-    console.log('  /kiro:spec-status <feature>       - Check workflow progress');
-    console.log('  /kiro:steering                    - Set up project context');
-    console.log('  /kiro:steering-custom <name>      - Create custom guidelines');
+    console.log('📖 **Available Natural Language Commands:**');
+    console.log('  "Initialize a specification for..."     - Start new feature specification');
+    console.log('  "Generate requirements for [feature]"   - Generate requirements document');
+    console.log('  "Create technical design for [feature]" - Create technical design');
+    console.log('  "Break down tasks for [feature]"        - Break down implementation tasks');
+    console.log('  "Help me implement [feature]"           - Get implementation guidance');
+    console.log('  "Show status of [feature]"              - Check workflow progress');
+    console.log('  "Set up project steering documents"     - Set up project context');
+    console.log('  "Create custom steering for [area]"     - Create custom guidelines');
     console.log('');
     console.log('📁 **What was installed:**');
     console.log('  Custom Agent: ~/.aws/amazonq/cli-agents/sdd.json');
@@ -1383,7 +1425,7 @@ Commands:
 Quick Start:
   npx amazonq-sdd install
   q chat --agent sdd
-  /kiro:spec-init "your feature"
+  "Initialize a specification for your feature"
 
 What Gets Installed:
   • Custom Agent configuration (~/.aws/amazonq/cli-agents/sdd.json)

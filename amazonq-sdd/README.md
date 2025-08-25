@@ -16,7 +16,7 @@ npx amazonq-sdd
 q chat --agent sdd
 
 # Try your first command
-/kiro:spec-init "user authentication system"
+"Initialize a new specification for user authentication system"
 ```
 
 That's it! No configuration, no setup scripts, no complexity.
@@ -33,16 +33,16 @@ When you run `npx amazonq-sdd`, you get:
 
 ### 8 Powerful Commands
 
-| Command | What it does |
-|---------|--------------|
-| `/kiro:spec-init <description>` | Start a new feature specification |
-| `/kiro:spec-requirements <feature>` | Generate requirements document |
-| `/kiro:spec-design <feature>` | Create technical design |
-| `/kiro:spec-tasks <feature>` | Break down implementation tasks |
-| `/kiro:spec-impl <feature> [tasks]` | Get implementation guidance |
-| `/kiro:spec-status <feature>` | Check workflow progress |
-| `/kiro:steering` | Set up project context |
-| `/kiro:steering-custom <name>` | Create custom guidelines |
+| Intent | Natural Language Example | What it does |
+|--------|--------------------------|--------------|
+| **Spec Init** | "Initialize a new specification for [description]" | Start a new feature specification |
+| **Requirements** | "Generate requirements for [feature]" | Generate requirements document |
+| **Design** | "Create technical design for [feature]" | Create technical design |
+| **Tasks** | "Break down tasks for [feature]" | Break down implementation tasks |
+| **Implementation** | "Help me implement [feature]" | Get implementation guidance |
+| **Status** | "Show status of [feature]" | Check workflow progress |
+| **Steering** | "Set up project steering documents" | Set up project context |
+| **Custom Steering** | "Create custom steering for [area]" | Create custom guidelines |
 
 ### Installation Structure
 
@@ -85,22 +85,24 @@ Edit `.amazonq/commands/kiro/*.md` files to customize:
 # 1. Start Amazon Q with SDD agent
 q chat --agent sdd
 
-# 2. Initialize a new feature
-/kiro:spec-init "OAuth 2.0 authentication"
+# 2. Initialize a new feature (use natural language)
+"Initialize a new specification for OAuth 2.0 authentication"
 # Creates: .kiro/specs/oauth-2-0-authentication/
 
 # 3. Generate requirements
-/kiro:spec-requirements oauth-2-0-authentication
+"Generate requirements for oauth-2-0-authentication"
 
 # 4. Create technical design (after reviewing requirements)
-/kiro:spec-design oauth-2-0-authentication
+"Create technical design for oauth-2-0-authentication"
 
 # 5. Break down tasks (after reviewing design)
-/kiro:spec-tasks oauth-2-0-authentication
+"Break down tasks for oauth-2-0-authentication"
 
 # 6. Check status anytime
-/kiro:spec-status oauth-2-0-authentication
+"Show status of oauth-2-0-authentication"
 ```
+
+**💡 Important**: Use natural language in the chat session. The agent recognizes your intent and executes the appropriate SDD workflow actions. Don't type literal `/kiro:` commands - they're internal patterns the agent uses to understand your requests.
 
 ## 🔧 NPX Commands
 
@@ -140,9 +142,10 @@ npx amazonq-sdd install
 ```
 
 ### "Commands not recognized"
-- Use exact `/kiro:` prefix (with colon)
-- Check spelling of command names
+- Use natural language descriptions instead of literal `/kiro:` commands
+- Start your requests with phrases like "Initialize a specification for..." or "Generate requirements for..."
 - Ensure you started with `q chat --agent sdd`
+- Remember: the agent understands intent, not exact command syntax
 
 ## 🎯 Why amazonq-sdd?
 
