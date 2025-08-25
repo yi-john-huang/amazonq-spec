@@ -1,0 +1,149 @@
+# Implementation Guidance
+
+I need guidance for implementing a specific task or component from my feature specification. Please provide detailed implementation assistance.
+
+## Feature Information
+- **Feature Name**: {{FEATURE_NAME}}
+- **Project Name**: {{PROJECT_NAME}}
+- **Current Task**: {{CURRENT_TASK}}
+- **Implementation Phase**: {{IMPLEMENTATION_PHASE}}
+
+## Task Details
+- **Task ID**: {{TASK_ID}}
+- **Task Description**: {{TASK_DESCRIPTION}}
+- **Acceptance Criteria**: {{ACCEPTANCE_CRITERIA}}
+- **Dependencies**: {{TASK_DEPENDENCIES}}
+
+## Context
+- **Specification Path**: {{SPEC_PATH}}
+- **Design Path**: {{DESIGN_PATH}}
+- **Tasks Path**: {{TASKS_PATH}}
+- **Current Progress**: {{CURRENT_PROGRESS}}
+
+## Technical Context
+- **Technology Stack**: {{TECHNOLOGY_STACK}}
+- **Architecture**: {{ARCHITECTURE_TYPE}}
+- **Code Style**: {{CODE_STYLE}}
+- **Testing Framework**: {{TESTING_FRAMEWORK}}
+
+## Implementation Request
+
+{{#if SPECIFIC_COMPONENT}}
+I need help implementing the **{{SPECIFIC_COMPONENT}}** component. Based on the design document, this component should:
+{{COMPONENT_REQUIREMENTS}}
+{{else}}
+I need implementation guidance for the current task. Please provide:
+{{/if}}
+
+### 1. Implementation Strategy
+- Step-by-step approach to complete this task
+- Best practices for this type of implementation
+- Common pitfalls to avoid
+- Integration considerations with existing code
+
+### 2. Code Structure
+- Recommended file/module organization
+- Class and method structure
+- Interface definitions
+- Data flow patterns
+
+### 3. Implementation Details
+- Detailed code examples for key components
+- Error handling approaches
+- Configuration management
+- Logging and monitoring points
+
+### 4. Testing Strategy
+- Unit test structure and key test cases
+- Integration test considerations
+- Mock/stub requirements
+- Test data setup
+
+### 5. Quality Checks
+- Code review checklist for this component
+- Performance considerations
+- Security considerations
+- Maintainability guidelines
+
+## Expected Output
+
+Please provide implementation guidance in this format:
+
+```markdown
+# Implementation Guide: [Component/Task Name]
+
+## Overview
+[Brief description of what will be implemented]
+
+## Implementation Approach
+
+### Step 1: [Step Title]
+[Detailed description and code examples]
+
+### Step 2: [Step Title]
+[Detailed description and code examples]
+
+## Code Examples
+
+### Core Implementation
+```[language]
+// Example implementation
+[Code example]
+```
+
+### Error Handling
+```[language]
+// Error handling example
+[Code example]  
+```
+
+### Testing
+```[language]
+// Test example
+[Code example]
+```
+
+## Integration Points
+- [How this connects to other components]
+- [API contracts to maintain]
+- [Data flow considerations]
+
+## Quality Checklist
+- [ ] Follows project coding standards
+- [ ] Includes comprehensive error handling
+- [ ] Has appropriate logging
+- [ ] Includes unit tests
+- [ ] Documentation is updated
+```
+
+## Specific Concerns
+{{#if IMPLEMENTATION_CHALLENGES}}
+I'm particularly concerned about:
+{{IMPLEMENTATION_CHALLENGES}}
+
+Please provide specific guidance on these challenges.
+{{/if}}
+
+{{#if EXISTING_CODE}}
+I have existing code that may be relevant:
+```{{CODE_LANGUAGE}}
+{{EXISTING_CODE}}
+```
+
+Please consider this context when providing implementation guidance.
+{{/if}}
+
+## Success Criteria
+
+The implementation will be considered complete when:
+- All acceptance criteria from the task are met
+- Code passes all existing tests
+- New functionality has appropriate test coverage
+- Code follows project standards and patterns
+- Documentation is updated appropriately
+
+Please provide practical, actionable guidance that I can follow to implement this task successfully.
+
+---
+
+*This prompt is part of the Kiro-style Spec-Driven Development workflow.*

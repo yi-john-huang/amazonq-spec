@@ -1,0 +1,521 @@
+/**
+ * Template Validator
+ * 
+ * Specialized validation for Handlebars templates and template-related content
+ */
+
+import { ValidationResult, ValidationError, ValidationWarning } from '../types';
+import { Logger } from '../utils/logger';
+
+export interface TemplateValidationOptions {
+  /** Required template variables */
+  requiredVariables?: string[];
+  /** Allowed template variables */
+  allowedVariables?: string[];
+  /** Check for unused variables */
+  checkUnusedVariables?: boolean;
+  /** Validate helper usage */
+  validateHelpers?: boolean;
+  /** Template type for context-specific validation */
+  templateType?: 'config' | 'prompt' | 'script' | 'generic';
+}
+
+export interface TemplateAnalysis {
+  /** All variables found in template */
+  variables: string[];
+  /** Helpers used in template */
+  helpers: string[];
+  /** Partials referenced */
+  partials: string[];
+  /** Template complexity score (1-10) */
+  complexity: number;
+  /** Line count */
+  lineCount: number;
+  /** Character count */
+  characterCount: number;
+}
+
+/**
+ * Comprehensive template validation and analysis
+ */
+export class TemplateValidator {
+  constructor(private logger: Logger) {
+    this.logger.debug('TemplateValidator initialized');
+  }
+
+  /**
+   * Validate template content
+   */
+  public validateTemplate(
+    content: string,
+    options: TemplateValidationOptions = {}
+  ): ValidationResult {
+    const errors: ValidationError[] = [];
+    const warnings: ValidationWarning[] = [];
+
+    try {
+      // Basic syntax validation
+      this.validateBasicSyntax(content, errors, warnings);
+
+      // Variable validation
+      this.validateVariables(content, options, errors, warnings);
+
+      // Helper validation
+      if (options.validateHelpers) {
+        this.validateHelpers(content, errors, warnings);
+      }
+
+      // Template-specific validation
+      if (options.templateType) {
+        this.validateTemplateType(content, options.templateType, errors, warnings);
+      }
+
+      // Structure validation
+      this.validateStructure(content, errors, warnings);
+
+      return {
+        valid: errors.length === 0,
+        errors,
+        warnings,
+        entityType: 'template',
+        metadata: this.analyzeTemplate(content)
+      };
+
+    } catch (error) {
+      return {
+        valid: false,
+        errors: [{
+          code: 'TEMPLATE_VALIDATION_ERROR',
+          message: `Template validation failed: ${error instanceof Error ? error.message : String(error)}`,
+          field: 'template_validation'
+        }],
+        warnings: [],
+        entityType: 'template'
+      };
+    }
+  }
+
+  /**
+   * Analyze template structure and complexity
+   */
+  public analyzeTemplate(content: string): TemplateAnalysis {
+    const variables = this.extractVariables(content);
+    const helpers = this.extractHelpers(content);
+    const partials = this.extractPartials(content);
+    
+    return {
+      variables,
+      helpers,
+      partials,
+      complexity: this.calculateComplexity(content, variables, helpers),
+      lineCount: content.split('\n').length,
+      characterCount: content.length
+    };
+  }
+
+  /**
+   * Extract all variables from template
+   */
+  public extractVariables(content: string): string[] {
+    const variablePattern = /\{\{\s*([^}#\/\s][^}]*?)\s*\}\}/g;
+    const variables = new Set<string>();
+    let match;
+
+    while ((match = variablePattern.exec(content)) !== null) {
+      const variable = match[1].trim();
+      // Skip helpers and comments
+      if (!variable.startsWith('#') && !variable.startsWith('!') && !variable.startsWith('/')) {
+        variables.add(variable);
+      }
+    }
+
+    return Array.from(variables);
+  }
+
+  /**
+   * Extract helper usage from template
+   */
+  public extractHelpers(content: string): string[] {
+    const helperPattern = /\{\{\s*#(\w+)[^}]*\}\}/g;
+    const helpers = new Set<string>();
+    let match;
+
+    while ((match = helperPattern.exec(content)) !== null) {
+      helpers.add(match[1]);
+    }
+
+    return Array.from(helpers);
+  }
+
+  /**
+   * Extract partial references from template
+   */
+  public extractPartials(content: string): string[] {
+    const partialPattern = /\{\{\s*>\s*([\w-]+)[^}]*\}\}/g;
+    const partials = new Set<string>();
+    let match;
+
+    while ((match = partialPattern.exec(content)) !== null) {
+      partials.add(match[1]);
+    }
+
+    return Array.from(partials);
+  }
+
+  /**
+   * Validate basic Handlebars syntax
+   */
+  private validateBasicSyntax(
+    content: string,
+    errors: ValidationError[],
+    warnings: ValidationWarning[]
+  ): void {
+    // Check for unmatched braces
+    const openBraces = (content.match(/\{\{/g) || []).length;
+    const closeBraces = (content.match(/\}\}/g) || []).length;
+
+    if (openBraces !== closeBraces) {
+      errors.push({
+        code: 'UNMATCHED_BRACES',
+        message: `Unmatched Handlebars braces: ${openBraces} opening, ${closeBraces} closing`,
+        field: 'syntax',
+        actualValue: `${openBraces}:${closeBraces}`,
+        expectedValue: 'equal counts'
+      });
+    }
+
+    // Check for triple braces (unescaped output)
+    const tripleOpenBraces = (content.match(/\{\{\{/g) || []).length;
+    const tripleCloseBraces = (content.match(/\}\}\}/g) || []).length;
+
+    if (tripleOpenBraces !== tripleCloseBraces) {
+      errors.push({
+        code: 'UNMATCHED_TRIPLE_BRACES',
+        message: `Unmatched triple braces: ${tripleOpenBraces} opening, ${tripleCloseBraces} closing`,
+        field: 'syntax',
+        actualValue: `${tripleOpenBraces}:${tripleCloseBraces}`
+      });
+    }
+
+    // Check for malformed expressions
+    const malformedExpressions = content.match(/\{\{[^}]*\{|\}[^}]*\}\}/g);
+    if (malformedExpressions) {
+      malformedExpressions.forEach(expr => {
+        errors.push({
+          code: 'MALFORMED_EXPRESSION',
+          message: `Malformed Handlebars expression: ${expr}`,
+          field: 'syntax',
+          actualValue: expr
+        });
+      });
+    }
+
+    // Check for unclosed blocks
+    const openBlocks = (content.match(/\{\{\s*#\w+/g) || []).length;
+    const closeBlocks = (content.match(/\{\{\s*\/\w+/g) || []).length;
+
+    if (openBlocks !== closeBlocks) {
+      warnings.push({
+        code: 'UNMATCHED_BLOCKS',
+        message: `Potential unmatched blocks: ${openBlocks} opening, ${closeBlocks} closing`,
+        field: 'block_structure',
+        suggestion: 'Verify all block helpers are properly closed'
+      });
+    }
+  }
+
+  /**
+   * Validate template variables
+   */
+  private validateVariables(
+    content: string,
+    options: TemplateValidationOptions,
+    errors: ValidationError[],
+    warnings: ValidationWarning[]
+  ): void {
+    const variables = this.extractVariables(content);
+
+    // Check for required variables
+    if (options.requiredVariables) {
+      for (const required of options.requiredVariables) {
+        if (!variables.includes(required)) {
+          errors.push({
+            code: 'MISSING_REQUIRED_VARIABLE',
+            message: `Required variable not found: ${required}`,
+            field: 'required_variables',
+            expectedValue: required,
+            suggestion: `Add {{${required}}} to the template`
+          });
+        }
+      }
+    }
+
+    // Check for disallowed variables
+    if (options.allowedVariables) {
+      for (const variable of variables) {
+        if (!options.allowedVariables.includes(variable) && !variable.includes('.')) {
+          warnings.push({
+            code: 'UNDECLARED_VARIABLE',
+            message: `Variable not in allowed list: ${variable}`,
+            field: 'variable_usage',
+            actualValue: variable,
+            suggestion: 'Verify this variable is properly defined in context'
+          });
+        }
+      }
+    }
+
+    // Check for suspicious variable patterns
+    for (const variable of variables) {
+      if (variable.includes(' ') && !variable.includes('.')) {
+        warnings.push({
+          code: 'VARIABLE_NAME_WITH_SPACES',
+          message: `Variable name contains spaces: ${variable}`,
+          field: 'variable_naming',
+          actualValue: variable,
+          suggestion: 'Use underscores or camelCase for variable names'
+        });
+      }
+
+      if (variable.length > 50) {
+        warnings.push({
+          code: 'VERY_LONG_VARIABLE_NAME',
+          message: `Very long variable name: ${variable.substring(0, 50)}...`,
+          field: 'variable_naming',
+          suggestion: 'Consider using shorter, more descriptive names'
+        });
+      }
+    }
+  }
+
+  /**
+   * Validate Handlebars helpers
+   */
+  private validateHelpers(
+    content: string,
+    errors: ValidationError[],
+    warnings: ValidationWarning[]
+  ): void {
+    const helpers = this.extractHelpers(content);
+    const builtInHelpers = ['if', 'unless', 'each', 'with', 'lookup', 'log'];
+
+    for (const helper of helpers) {
+      if (!builtInHelpers.includes(helper)) {
+        warnings.push({
+          code: 'CUSTOM_HELPER_USAGE',
+          message: `Custom helper used: ${helper}`,
+          field: 'helper_usage',
+          actualValue: helper,
+          suggestion: 'Ensure this helper is registered and available at runtime'
+        });
+      }
+
+      // Check for common helper mistakes - corrected logic
+      if (helper === 'if') {
+        const ifPattern = new RegExp(`\\{\\{\\s*#${helper}\\b[^}]*\\}\\}`, 'g');
+        const endIfPattern = new RegExp(`\\{\\{\\s*/${helper}\\s*\\}\\}`, 'g');
+        const openCount = (content.match(ifPattern) || []).length;
+        const closeCount = (content.match(endIfPattern) || []).length;
+        
+        if (openCount > closeCount) {
+          errors.push({
+            code: 'UNCLOSED_IF_BLOCK',
+            message: 'If block is not properly closed',
+            field: 'block_structure',
+            suggestion: `Add {{/${helper}}} to close the block`
+          });
+        }
+      }
+    }
+  }
+
+  /**
+   * Validate specific template types
+   */
+  private validateTemplateType(
+    content: string,
+    templateType: string,
+    errors: ValidationError[],
+    warnings: ValidationWarning[]
+  ): void {
+    switch (templateType) {
+      case 'config':
+        this.validateConfigTemplate(content, errors, warnings);
+        break;
+      case 'prompt':
+        this.validatePromptTemplate(content, errors, warnings);
+        break;
+      case 'script':
+        this.validateScriptTemplate(content, errors, warnings);
+        break;
+    }
+  }
+
+  /**
+   * Validate configuration template
+   */
+  private validateConfigTemplate(
+    content: string,
+    _errors: ValidationError[],
+    warnings: ValidationWarning[]
+  ): void {
+    const requiredSections = ['# ', '## '];
+    const hasMarkdownStructure = requiredSections.some(section => content.includes(section));
+
+    if (!hasMarkdownStructure) {
+      warnings.push({
+        code: 'MISSING_MARKDOWN_STRUCTURE',
+        message: 'Configuration template should use Markdown structure',
+        field: 'template_structure',
+        suggestion: 'Add proper Markdown headings (# and ##)'
+      });
+    }
+
+    // Check for common config variables
+    const configVars = ['projectName', 'timestamp', 'version'];
+    const variables = this.extractVariables(content);
+    
+    for (const configVar of configVars) {
+      if (!variables.includes(configVar)) {
+        warnings.push({
+          code: 'MISSING_COMMON_CONFIG_VAR',
+          message: `Common config variable not found: ${configVar}`,
+          field: 'config_variables',
+          suggestion: `Consider adding {{${configVar}}} if applicable`
+        });
+      }
+    }
+  }
+
+  /**
+   * Validate prompt template
+   */
+  private validatePromptTemplate(
+    content: string,
+    _errors: ValidationError[],
+    warnings: ValidationWarning[]
+  ): void {
+    // Check for prompt structure
+    const hasStructureMarkers = content.includes('===') || content.includes('##');
+    
+    if (!hasStructureMarkers) {
+      warnings.push({
+        code: 'MISSING_PROMPT_STRUCTURE',
+        message: 'Prompt template lacks clear structure markers',
+        field: 'prompt_structure',
+        suggestion: 'Add section dividers with === or ## markers'
+      });
+    }
+
+    // Check for reasonable length bounds
+    if (content.length > 5000) {
+      warnings.push({
+        code: 'PROMPT_TEMPLATE_TOO_LONG',
+        message: `Prompt template is quite long (${content.length} characters)`,
+        field: 'template_length',
+        suggestion: 'Consider breaking into smaller, focused prompts'
+      });
+    }
+  }
+
+  /**
+   * Validate script template
+   */
+  private validateScriptTemplate(
+    content: string,
+    _errors: ValidationError[],
+    warnings: ValidationWarning[]
+  ): void {
+    // Check for shebang line
+    if (!content.startsWith('#!') && !content.includes('{{shebang}}')) {
+      warnings.push({
+        code: 'MISSING_SHEBANG',
+        message: 'Script template should include a shebang line',
+        field: 'script_structure',
+        suggestion: 'Add #!/bin/bash or similar shebang line'
+      });
+    }
+
+    // Check for executable permission indication
+    if (!content.includes('chmod') && !content.includes('executable')) {
+      warnings.push({
+        code: 'NO_EXECUTABLE_INDICATION',
+        message: 'Script template should indicate executable permissions',
+        field: 'script_permissions',
+        suggestion: 'Add chmod +x instruction or note about executable permissions'
+      });
+    }
+  }
+
+  /**
+   * Validate overall template structure
+   */
+  private validateStructure(
+    content: string,
+    errors: ValidationError[],
+    warnings: ValidationWarning[]
+  ): void {
+    // Check for reasonable file size
+    const sizeKB = content.length / 1024;
+    
+    if (sizeKB > 100) {
+      warnings.push({
+        code: 'LARGE_TEMPLATE',
+        message: `Template is quite large (${sizeKB.toFixed(1)}KB)`,
+        field: 'template_size',
+        suggestion: 'Consider breaking into smaller templates or using partials'
+      });
+    }
+
+    // Check for encoding issues
+    if (content.includes('\uFFFD')) {
+      errors.push({
+        code: 'ENCODING_ISSUES',
+        message: 'Template contains invalid UTF-8 characters',
+        field: 'encoding',
+        suggestion: 'Ensure template is saved as UTF-8'
+      });
+    }
+
+    // Check for mixed line endings
+    const hasUnixEndings = content.includes('\n');
+    const hasWindowsEndings = content.includes('\r\n');
+    
+    if (hasUnixEndings && hasWindowsEndings) {
+      warnings.push({
+        code: 'MIXED_LINE_ENDINGS',
+        message: 'Template contains mixed line ending types',
+        field: 'line_endings',
+        suggestion: 'Use consistent line endings (preferably Unix \\n)'
+      });
+    }
+  }
+
+  /**
+   * Calculate template complexity score
+   */
+  private calculateComplexity(content: string, variables: string[], helpers: string[]): number {
+    let complexity = 1; // Base complexity
+
+    // Add complexity for variables
+    complexity += variables.length * 0.5;
+
+    // Add complexity for helpers
+    complexity += helpers.length * 1.5;
+
+    // Add complexity for nested structures
+    const nestedBlocks = (content.match(/\{\{\s*#\w+[\s\S]*?\{\{\s*#\w+/g) || []).length;
+    complexity += nestedBlocks * 2;
+
+    // Add complexity for conditionals
+    const conditionals = (content.match(/\{\{\s*#if/g) || []).length;
+    complexity += conditionals * 1.5;
+
+    // Add complexity for loops
+    const loops = (content.match(/\{\{\s*#each/g) || []).length;
+    complexity += loops * 2;
+
+    // Cap at 10
+    return Math.min(Math.round(complexity), 10);
+  }
+}

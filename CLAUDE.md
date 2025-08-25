@@ -17,9 +17,10 @@ Kiro-style Spec Driven Development implementation using claude code slash comman
 ### Active Specifications
 - Check `.kiro/specs/` for active specifications
 - Use `/kiro:spec-status [feature-name]` to check progress
+- `amazonq-cli-sdd-commands`: Amazon Q CLI integration with spec-driven development commands
 
 ## Development Guidelines
-- Think in English, but generate responses in Japanese (思考は英語、回答の生成は日本語で行うように)
+- Think in English, generate responses in English
 
 ## Workflow
 
@@ -32,7 +33,7 @@ Kiro-style Spec Driven Development implementation using claude code slash comman
 ### Phase 1: Specification Creation
 1. `/kiro:spec-init [detailed description]` - Initialize spec with detailed project description
 2. `/kiro:spec-requirements [feature]` - Generate requirements document
-3. `/kiro:spec-design [feature]` - Interactive: "requirements.mdをレビューしましたか？ [y/N]"
+3. `/kiro:spec-design [feature]` - Interactive: "Have you reviewed requirements.md? [y/N]"
 4. `/kiro:spec-tasks [feature]` - Interactive: Confirms both requirements and design review
 
 ### Phase 2: Progress Tracking

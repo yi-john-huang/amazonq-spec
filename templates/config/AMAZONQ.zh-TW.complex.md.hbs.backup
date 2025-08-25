@@ -1,0 +1,148 @@
+# {{projectName}} - Amazon Q CLI 配置
+
+*於 {{timestamp}} 由 amazonq-sdd 套件 v{{version}} 生成*
+
+## 專案內容
+
+此專案使用 Amazon Q CLI 進行規格驅動開發 (SDD) 工作流程，遵循 Kiro 風格的系統化功能開發方法。
+
+**專案詳細資訊:**
+- **名稱**: {{projectName}}
+- **技術堆疊**: {{technologyStack}}
+- **架構**: {{architectureType}}
+- **Amazon Q CLI 路徑**: {{amazonQCLIPath}}
+- **Kiro 目錄**: {{kiroDirectory}}
+- **語言**: {{languageName}}
+- **平台**: {{platform}}
+
+{{#if PROJECT_DESCRIPTION}}
+**專案描述:**
+{{projectDescription}}
+{{/if}}
+
+## SDD 工作流程
+
+此專案遵循 Kiro 風格的規格驅動開發方法，包含以下階段：
+
+### 階段 0: 導向（可選）
+建立專案範圍的內容和指導文件：
+- **`/kiro:steering`** - 建立/更新核心導向文件（product.md、tech.md、structure.md）
+- **`/kiro:steering-custom`** - 為專門情境建立領域特定導向
+
+**注意**: 對於新功能或小型新增，導向是可選的。您可以直接從 spec-init 開始進行大多數開發工作。
+
+### 階段 1: 規格建立
+遵循審批工作流程的系統化功能開發：
+
+1. **`/kiro:spec-init [詳細描述]`** - 使用詳細專案描述初始化規格
+   - 建立初始功能規格結構
+   - 確立功能範圍和初始分析
+   - 在 `{{kiroDirectory}}/specs/[功能名稱]/` 設置目錄結構
+
+2. **`/kiro:spec-requirements [功能]`** - 生成全面的需求文件
+   - 建立功能和非功能需求
+   - 定義驗收標準和業務規則
+   - 確立技術約束和驗證規則
+
+3. **`/kiro:spec-design [功能]`** - 建立技術設計文件
+   - **互動式檢查點**: "您是否已檢閱 requirements.md？ [y/N]"
+   - 僅在需求批准後進行
+   - 生成架構、組件設計和實作方法
+
+4. **`/kiro:spec-tasks [功能]`** - 生成實作任務分解
+   - **互動式檢查點**: 確認需求和設計兩者的審查
+   - 建立具有驗收標準的可執行開發任務
+   - 將任務組織成邏輯實作階段
+
+### 階段 2: 實作和追蹤
+支援開發執行和進度監控：
+
+- **`/kiro:spec-impl [功能]`** - 獲取特定任務的實作指導
+- **`/kiro:spec-status [功能]`** - 檢查目前進度並識別下一步
+
+## 可用指令
+
+{{#if AVAILABLE_COMMANDS}}
+此專案配置了以下 SDD 指令：
+
+{{#each AVAILABLE_COMMANDS}}
+### {{name}}
+**描述**: {{description}}
+{{#if USAGE}}**用法**: {{usage}}{{/if}}
+{{#if EXAMPLES}}
+**範例**:
+{{#each EXAMPLES}}
+- `{{this}}`
+{{/each}}
+{{/if}}
+
+{{/each}}
+{{else}}
+### 核心 SDD 指令
+
+- **kiro:spec-init** - 初始化功能規格
+- **kiro:spec-requirements** - 生成需求文件  
+- **kiro:spec-design** - 建立設計文件
+- **kiro:spec-tasks** - 生成任務分解
+- **kiro:spec-impl** - 實作指導
+- **kiro:spec-status** - 檢查規格狀態
+- **kiro:steering** - 建立導向文件
+- **kiro:steering-custom** - 建立自訂導向
+{{/if}}
+
+## 目錄結構
+
+您的專案遵循此 SDD 目錄組織：
+
+```
+{{kiroDirectory}}/
+├── specs/                    # 功能規格
+│   ├── [功能名稱]/           # 個別功能目錄
+│   │   ├── specification.md  # 初始功能規格
+│   │   ├── requirements.md   # 詳細需求
+│   │   ├── design.md         # 技術設計
+│   │   ├── tasks.md          # 實作任務
+│   │   └── progress.md       # 開發進度
+│   └── ...
+├── steering/                 # 專案導向文件
+│   ├── product.md           # 業務內容
+│   ├── tech.md              # 技術標準
+│   ├── structure.md         # 專案組織
+│   └── [自訂].md            # 領域特定導向
+└── templates/               # 自訂範本（可選）
+    ├── prompts/             # 自訂提示範本
+    └── config/              # 配置範本
+```
+
+## 開發指導原則
+
+{{#if LOCALIZATION}}
+{{localization.developmentGuidelines}}
+{{else}}
+- **用英語思考，生成英語回應**
+- **遵循 3 階段審批工作流程**: 需求 → 設計 → 任務 → 實作
+- **每個階段都需要人工審查** 才能進行下一步
+- **更新任務狀態** 使用 `/kiro:spec-status` 處理功能時
+- **保持導向文件為最新** 重大變更後
+- **使用審批關卡** 在整個開發過程中確保品質和一致性
+{{/if}}
+
+### 品質標準
+
+- **需求必須具體、可測量和可測試**
+- **設計必須全面解決所有需求**
+- **任務必須具有明確驗收標準的可執行性**
+- **實作必須遵循既定模式和標準**
+- **所有階段必須保持可追溯性和一致性**
+
+## Amazon Q CLI 整合
+
+- **二進位位置**: `{{amazonQCLIPath}}`
+- **聊天介面**: 指令使用具有結構化提示的 Amazon Q 聊天功能
+- **檔案式提示**: 範本生成內容豐富的提示以獲得最佳 AI 回應
+- **互動式工作流程**: 內建審批關卡確保品質控制
+
+---
+
+**生成者**: amazonq-sdd 套件 v{{version}}  
+**最後更新**: {{timestamp}}

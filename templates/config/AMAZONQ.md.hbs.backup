@@ -1,0 +1,261 @@
+# {{projectName}} - Amazon Q CLI Configuration
+
+*Generated on {{timestamp}} by amazonq-sdd package v{{version}}*
+
+## Project Context
+
+This project uses Amazon Q CLI for Spec-Driven Development (SDD) workflow, following the Kiro-style methodology for systematic feature development.
+
+**Project Details:**
+- **Name**: {{projectName}}
+- **Technology Stack**: {{technologyStack}}
+- **Architecture**: {{architectureType}}
+- **Amazon Q CLI Path**: {{amazonQCLIPath}}
+- **Kiro Directory**: {{kiroDirectory}}
+- **Language**: {{languageName}}
+- **Platform**: {{platform}}
+
+{{#if projectDescription}}
+**Project Description:**
+{{projectDescription}}
+{{/if}}
+
+## SDD Workflow
+
+This project follows the Kiro-style Spec-Driven Development approach with these phases:
+
+### Phase 0: Steering (Optional)
+Create project-wide context and guidance documents:
+- **`/kiro:steering`** - Create/update core steering documents (product.md, tech.md, structure.md)
+- **`/kiro:steering-custom`** - Create domain-specific steering for specialized contexts
+
+**Note**: Steering is optional for new features or small additions. You can proceed directly to spec-init for most development work.
+
+### Phase 1: Specification Creation
+Systematic feature development following approval workflows:
+
+1. **`/kiro:spec-init [detailed description]`** - Initialize spec with detailed project description
+   - Creates initial feature specification structure
+   - Establishes feature scope and initial analysis
+   - Sets up directory structure in `{{kiroDirectory}}/specs/[feature-name]/`
+
+2. **`/kiro:spec-requirements [feature]`** - Generate comprehensive requirements document
+   - Creates functional and non-functional requirements
+   - Defines acceptance criteria and business rules
+   - Establishes technical constraints and validation rules
+
+3. **`/kiro:spec-design [feature]`** - Create technical design document
+   - **Interactive Checkpoint**: "Have you reviewed requirements.md? [y/N]"
+   - Only proceeds after requirements approval
+   - Generates architecture, component design, and implementation approach
+
+4. **`/kiro:spec-tasks [feature]`** - Generate implementation task breakdown
+   - **Interactive Checkpoint**: Confirms both requirements AND design review
+   - Creates actionable development tasks with acceptance criteria
+   - Organizes tasks into logical implementation phases
+
+### Phase 2: Implementation & Tracking
+Support for development execution and progress monitoring:
+
+- **`/kiro:spec-impl [feature]`** - Get implementation guidance for specific tasks
+- **`/kiro:spec-status [feature]`** - Check current progress and identify next steps
+
+## Available Commands
+
+{{#if availableCommands}}
+The following SDD commands are configured for this project:
+
+{{#each availableCommands}}
+### {{name}}
+**Description**: {{description}}
+{{#if usage}}**Usage**: {{usage}}{{/if}}
+{{#if examples}}
+**Examples**:
+{{#each examples}}
+- `{{this}}`
+{{/each}}
+{{/if}}
+
+{{/each}}
+{{else}}
+### Core SDD Commands
+
+- **kiro:spec-init** - Initialize feature specification
+- **kiro:spec-requirements** - Generate requirements document  
+- **kiro:spec-design** - Create design document
+- **kiro:spec-tasks** - Generate task breakdown
+- **kiro:spec-impl** - Implementation guidance
+- **kiro:spec-status** - Check specification status
+- **kiro:steering** - Create steering documents
+- **kiro:steering-custom** - Create custom steering
+{{/if}}
+
+## Directory Structure
+
+Your project follows this SDD directory organization:
+
+```
+{{kiroDirectory}}/
+├── specs/                    # Feature specifications
+│   ├── [feature-name]/       # Individual feature directories
+│   │   ├── specification.md  # Initial feature spec
+│   │   ├── requirements.md   # Detailed requirements
+│   │   ├── design.md         # Technical design
+│   │   ├── tasks.md          # Implementation tasks
+│   │   └── progress.md       # Development progress
+│   └── ...
+├── steering/                 # Project steering documents
+│   ├── product.md           # Business context
+│   ├── tech.md              # Technical standards
+│   ├── structure.md         # Project organization
+│   └── [custom].md          # Domain-specific steering
+└── templates/               # Custom templates (optional)
+    ├── prompts/             # Custom prompt templates
+    └── config/              # Configuration templates
+```
+
+{{#if CUSTOM_DIRECTORY_STRUCTURE}}
+### Custom Directory Structure
+{{CUSTOM_DIRECTORY_STRUCTURE}}
+{{/if}}
+
+## Development Guidelines
+
+{{#if LOCALIZATION}}
+{{LOCALIZATION.DEVELOPMENT_GUIDELINES}}
+{{else}}
+- **Think in English, generate responses in English**
+- **Follow the 3-phase approval workflow**: Requirements → Design → Tasks → Implementation
+- **Each phase requires human review** before proceeding to the next
+- **Update task status** when working on features using `/kiro:spec-status`
+- **Keep steering documents current** after significant changes
+- **Use approval gates** to ensure quality and alignment throughout development
+{{/if}}
+
+### Quality Standards
+
+- **Requirements must be specific, measurable, and testable**
+- **Design must address all requirements comprehensively**
+- **Tasks must be actionable with clear acceptance criteria**
+- **Implementation must follow established patterns and standards**
+- **All phases must maintain traceability and consistency**
+
+### Workflow Rules
+
+1. **Consider steering**: Run `/kiro:steering` before major development (optional for new features)
+2. **Follow approval workflow**: Each phase requires human review before advancing
+3. **No skipping phases**: Design requires approved requirements; Tasks require approved design  
+4. **Maintain traceability**: Ensure alignment between requirements, design, and tasks
+5. **Track progress actively**: Use `/kiro:spec-status` to monitor development state
+
+## Integration Details
+
+### Amazon Q CLI Integration
+- **Binary Location**: `{{AMAZON_Q_CLI_PATH}}`
+- **Chat Interface**: Commands use Amazon Q's chat functionality with structured prompts
+- **File-Based Prompts**: Templates generate context-rich prompts for optimal AI responses
+- **Interactive Workflows**: Built-in approval gates ensure quality control
+
+{{#if INTEGRATION_SETTINGS}}
+### Custom Integration Settings
+{{#each INTEGRATION_SETTINGS}}
+- **{{@key}}**: {{this}}
+{{/each}}
+{{/if}}
+
+### Template System
+- **Prompt Templates**: Located in `templates/prompts/` for customization
+- **Script Templates**: Platform-specific shell scripts in `templates/scripts/`
+- **Configuration Templates**: Located in `templates/config/`
+- **Variable Substitution**: Dynamic content based on project context
+
+## Localization
+
+{{#if LOCALIZATION}}
+This project supports multiple languages:
+
+- **Primary Language**: {{LANGUAGE_NAME}}
+- **Available Languages**: {{#each SUPPORTED_LANGUAGES}}{{this}}{{#unless @last}}, {{/unless}}{{/each}}
+- **Configuration Files**: 
+  {{#each LOCALIZED_CONFIGS}}
+  - `{{this}}` ({{LANGUAGE_MAPPING.[this]}})
+  {{/each}}
+
+### Localized Messages
+{{LOCALIZATION.MESSAGES.USAGE_INSTRUCTIONS}}
+{{else}}
+- **Language**: English (default)
+- **Error Messages**: English
+- **Command Descriptions**: English
+- **Help Text**: English
+{{/if}}
+
+## Configuration Management
+
+### Installation Information
+- **Installed Version**: {{VERSION}}
+- **Installation Date**: {{TIMESTAMP}}
+- **Installation Method**: {{INSTALLATION_METHOD}}
+{{#if INSTALLATION_OPTIONS}}
+- **Options Used**: {{INSTALLATION_OPTIONS}}
+{{/if}}
+
+### Update Mechanism
+To update this configuration or add new features:
+
+1. **Update Steering**: Run `/kiro:steering` to refresh project context
+2. **Add Custom Templates**: Modify templates in `templates/` directory
+3. **Extend Commands**: Add custom commands through configuration
+4. **Update Localization**: Modify language files for international support
+
+### Validation
+This configuration has been validated for:
+- ✅ Amazon Q CLI compatibility (version {{AMAZON_Q_VERSION_REQUIREMENT}})
+- ✅ Template syntax and variable substitution
+- ✅ Directory structure and permissions
+- ✅ Cross-platform compatibility ({{PLATFORM}})
+- ✅ Localization support ({{LANGUAGE_NAME}})
+
+{{#if CUSTOM_VALIDATION}}
+### Custom Validation Rules
+{{#each CUSTOM_VALIDATION}}
+- {{RULE}}: {{STATUS}}
+{{/each}}
+{{/if}}
+
+## Support & Documentation
+
+### Getting Help
+- **Command Help**: Add `--help` to any command for detailed usage
+- **Status Checking**: Use `/kiro:spec-status [feature]` to understand current state
+- **Workflow Guidance**: Follow interactive prompts for approval gates
+- **Error Resolution**: Check Amazon Q CLI installation and configuration
+
+### Best Practices
+1. **Start with steering** for new projects or major feature additions
+2. **Use descriptive names** for features (e.g., "user-authentication", not "auth")
+3. **Review each phase thoroughly** before approving progression
+4. **Maintain consistent naming** across all specification documents
+5. **Update task status regularly** to track development progress
+
+### Troubleshooting
+{{#if COMMON_ISSUES}}
+**Common Issues:**
+{{#each COMMON_ISSUES}}
+- **{{ISSUE}}**: {{RESOLUTION}}
+{{/each}}
+{{else}}
+**Common Issues:**
+- **Amazon Q CLI not found**: Verify installation and path configuration
+- **Template processing errors**: Check variable syntax and template file permissions
+- **Approval gate blocking**: Ensure previous phase documents are complete and reviewed
+- **Directory permissions**: Verify write access to `{{KIRO_DIRECTORY}}` directory
+{{/if}}
+
+---
+
+**Generated by**: amazonq-sdd package v{{VERSION}}  
+**Configuration Template**: AMAZONQ.md.hbs  
+**Last Updated**: {{TIMESTAMP}}  
+
+For more information about Spec-Driven Development, visit the project documentation.

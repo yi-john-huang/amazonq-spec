@@ -1,0 +1,194 @@
+# Create Project Steering Documents
+
+I need to create or update project-wide steering documents that will guide AI development work. These documents provide context and rules that apply across all features and tasks in the project.
+
+## Project Information
+- **Project Name**: {{PROJECT_NAME}}
+- **Project Path**: {{PROJECT_PATH}}
+- **Steering Directory**: {{STEERING_DIRECTORY}}
+
+## Project Context
+- **Technology Stack**: {{TECHNOLOGY_STACK}}
+- **Architecture**: {{ARCHITECTURE_TYPE}}
+- **Team Size**: {{TEAM_SIZE}}
+- **Development Stage**: {{DEVELOPMENT_STAGE}}
+
+## Current Codebase Analysis
+{{#if CODEBASE_SUMMARY}}
+**Existing Codebase**:
+{{CODEBASE_SUMMARY}}
+{{/if}}
+
+{{#if CODE_PATTERNS}}
+**Current Code Patterns**:
+{{CODE_PATTERNS}}
+{{/if}}
+
+{{#if EXISTING_ARCHITECTURE}}
+**Architecture Details**:
+{{EXISTING_ARCHITECTURE}}
+{{/if}}
+
+## Request
+
+Please create comprehensive steering documents that will guide AI development work on this project. The steering documents should include:
+
+### 1. Product Context (product.md)
+Create a product context document covering:
+- **Business Objectives**: What this project aims to achieve
+- **Target Users**: Who will use this system and how
+- **Key Features**: Core functionality and capabilities
+- **Success Metrics**: How we measure success
+- **Business Constraints**: Budget, timeline, regulatory requirements
+- **Competitive Landscape**: How this fits in the market
+
+### 2. Technical Context (tech.md)  
+Create a technical context document covering:
+- **Architecture Overview**: High-level system architecture
+- **Technology Stack**: Chosen technologies and rationale
+- **Development Standards**: Coding standards, patterns, conventions
+- **Performance Requirements**: Speed, scalability, reliability targets
+- **Security Requirements**: Authentication, authorization, data protection
+- **Integration Points**: External systems and APIs
+- **Deployment Strategy**: How code gets from development to production
+
+### 3. Project Structure (structure.md)
+Create a project structure document covering:
+- **Directory Organization**: How code and files are organized
+- **Naming Conventions**: File, class, method naming standards
+- **Code Organization Patterns**: How to structure new code
+- **Configuration Management**: How settings and configs are handled
+- **Documentation Standards**: Where and how to document code
+- **Testing Structure**: How tests are organized and written
+
+## Expected Output Format
+
+Please create three separate markdown documents:
+
+```markdown
+# product.md
+
+## Business Context
+[Project mission and business goals]
+
+## Target Users
+[Who uses this system and how]
+
+## Core Features  
+[Key functionality and capabilities]
+
+## Success Criteria
+[How we measure project success]
+
+## Constraints
+[Business, regulatory, timeline constraints]
+```
+
+```markdown
+# tech.md
+
+## Architecture
+[System architecture and design principles]
+
+## Technology Stack
+[Technologies used and justification]
+
+## Development Standards
+[Coding standards and best practices]
+
+## Performance & Security
+[Non-functional requirements]
+
+## Integration
+[External systems and dependencies]
+```
+
+```markdown  
+# structure.md
+
+## Project Organization
+[Directory structure and file organization]
+
+## Naming Conventions
+[Standards for naming files, classes, methods]
+
+## Code Patterns
+[Common patterns and structures to follow]
+
+## Configuration
+[How to manage settings and configuration]
+
+## Testing & Documentation
+[Standards for tests and documentation]
+```
+
+## Specific Requirements
+
+### Include Always-Active Rules
+Each steering document should include rules that:
+- Apply to ALL development work on this project
+- Guide decision-making for any new feature or change
+- Provide context that AI assistants need to work effectively
+- Are specific enough to be actionable
+
+### Address Project-Specific Concerns
+{{#if PROJECT_CHALLENGES}}
+**Project Challenges to Address**:
+{{PROJECT_CHALLENGES}}
+
+Please ensure the steering documents provide guidance for these specific challenges.
+{{/if}}
+
+{{#if QUALITY_REQUIREMENTS}}
+**Quality Requirements**:
+{{QUALITY_REQUIREMENTS}}
+
+Please incorporate these quality standards into the technical steering.
+{{/if}}
+
+{{#if TEAM_WORKFLOW}}
+**Team Workflow**:
+{{TEAM_WORKFLOW}}
+
+Please reflect our development workflow in the steering documents.
+{{/if}}
+
+## Context for AI Development
+
+The steering documents should help AI assistants by:
+- Providing project background they need to make good decisions
+- Establishing patterns to follow when writing new code
+- Setting quality and style expectations
+- Explaining business context that affects technical decisions
+- Defining what "good" looks like for this project
+
+## Update Guidelines
+
+{{#if EXISTING_STEERING}}
+**Updating Existing Steering**: This project already has steering documents. Please:
+- Review and update existing content rather than replacing it
+- Maintain consistency with established patterns
+- Note any significant changes or new requirements
+- Preserve historical context while adding new insights
+{{else}}
+**Creating New Steering**: This is a fresh start for steering documents. Please:
+- Establish clear, comprehensive guidance from the beginning
+- Create templates that can evolve as the project grows
+- Focus on the most important patterns and principles
+- Leave room for future refinement and updates
+{{/if}}
+
+## Success Criteria
+
+The steering documents will be successful if:
+- AI assistants can use them to make better development decisions
+- New team members can understand project context quickly
+- Development work becomes more consistent and predictable
+- Code quality and architectural integrity improve over time
+- Business objectives are clearly connected to technical decisions
+
+Please create steering documents that capture the essential context and rules for effective AI-assisted development on this project.
+
+---
+
+*This prompt is part of the Kiro-style Spec-Driven Development workflow.*

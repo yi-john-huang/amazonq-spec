@@ -1,0 +1,147 @@
+# Generate Implementation Tasks
+
+I need to break down a feature design into concrete, actionable implementation tasks. Please help me create a comprehensive task breakdown structure.
+
+## Feature Information
+- **Feature Name**: {{FEATURE_NAME}}
+- **Project Name**: {{PROJECT_NAME}}
+- **Specification Path**: {{SPEC_PATH}}
+- **Requirements Path**: {{REQUIREMENTS_PATH}}
+- **Design Path**: {{DESIGN_PATH}}
+
+## Prerequisites Check
+{{#if DESIGN_APPROVED}}
+✅ Design document has been reviewed and approved.
+{{else}}
+⚠️  **IMPORTANT**: Please confirm that you have reviewed and approved both the requirements AND design documents before proceeding with task breakdown.
+
+**Have you reviewed and approved the design document?** [y/N]
+
+If not, please review:
+1. Requirements: `{{REQUIREMENTS_PATH}}`
+2. Design: `{{DESIGN_PATH}}`
+
+Ensure both documents are correct before continuing with implementation planning.
+{{/if}}
+
+## Design Summary
+{{DESIGN_SUMMARY}}
+
+## Implementation Context
+- **Development Environment**: {{DEV_ENVIRONMENT}}
+- **Team Size**: {{TEAM_SIZE}}
+- **Timeline**: {{TIMELINE}}
+- **Complexity**: {{COMPLEXITY_LEVEL}}
+
+## Request
+
+Please create a comprehensive task breakdown that includes:
+
+### 1. Development Tasks
+Break down the implementation into specific, actionable tasks that:
+- Are small enough to be completed in 1-3 days
+- Have clear acceptance criteria
+- Include proper dependencies between tasks
+- Account for all components identified in the design
+
+### 2. Testing Tasks
+Include comprehensive testing tasks:
+- Unit tests for each component
+- Integration tests for component interactions
+- End-to-end tests for user workflows
+- Performance testing (if applicable)
+- Security testing (if applicable)
+
+### 3. Documentation Tasks
+Include necessary documentation:
+- Code documentation and comments
+- API documentation updates
+- User documentation (if applicable)
+- Deployment documentation
+
+### 4. DevOps Tasks
+Include infrastructure and deployment tasks:
+- Database migrations (if applicable)
+- Configuration updates
+- Deployment scripts
+- Monitoring and logging setup
+
+### 5. Quality Assurance Tasks
+Include QA and review tasks:
+- Code review checkpoints
+- Design review sessions
+- Security review (if applicable)
+- Performance review
+
+## Expected Output Format
+
+Please structure the task breakdown as follows:
+```markdown
+# Implementation Tasks: [Feature Name]
+
+## Task Categories
+
+### Core Development
+- [ ] **DEV-001**: [Task Title]
+  - **Description**: [Clear task description]
+  - **Acceptance Criteria**: 
+    - [ ] Criterion 1
+    - [ ] Criterion 2
+  - **Dependencies**: [List any prerequisite tasks]
+  - **Estimated Effort**: [Time estimate]
+  - **Assigned Phase**: [Implementation phase]
+
+### Testing & Quality
+- [ ] **TEST-001**: [Task Title]
+  - **Description**: [Test scope and approach]
+  - **Test Cases**: [Key scenarios to cover]
+  - **Dependencies**: [Related development tasks]
+  - **Estimated Effort**: [Time estimate]
+
+### Documentation
+- [ ] **DOC-001**: [Task Title]
+  - **Description**: [Documentation scope]
+  - **Deliverables**: [Expected output]
+  - **Dependencies**: [Related tasks]
+  - **Estimated Effort**: [Time estimate]
+
+### Infrastructure & Deployment
+- [ ] **INFRA-001**: [Task Title]
+  - **Description**: [Infrastructure change]
+  - **Requirements**: [Technical requirements]
+  - **Dependencies**: [Related tasks]
+  - **Estimated Effort**: [Time estimate]
+```
+
+## Task Requirements
+
+Each task should be:
+- **Atomic**: Focused on a single, specific deliverable
+- **Testable**: Include clear success criteria
+- **Estimable**: Small enough to provide accurate time estimates
+- **Independent**: Minimize dependencies where possible
+- **Valuable**: Contribute meaningful progress toward the feature
+
+## Implementation Phases
+
+Please organize tasks into logical phases:
+1. **Foundation Phase**: Core infrastructure and base components
+2. **Core Development Phase**: Main feature implementation
+3. **Integration Phase**: Component integration and API wiring
+4. **Testing Phase**: Comprehensive testing and bug fixes
+5. **Documentation Phase**: Documentation and deployment preparation
+6. **Launch Phase**: Final deployment and monitoring setup
+
+## Risk Identification
+
+Please identify potential risks and include mitigation tasks:
+- Technical risks (complexity, dependencies)
+- Resource risks (time, team capacity)
+- Integration risks (external dependencies)
+- Quality risks (testing coverage, performance)
+
+After task approval, implementation can begin using `/kiro:spec-status {{FEATURE_NAME}}` to track progress.
+
+---
+
+*This prompt is part of the Kiro-style Spec-Driven Development workflow.*

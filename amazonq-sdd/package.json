@@ -1,0 +1,41 @@
+{
+  "name": "amazonq-sdd",
+  "version": "1.0.3",
+  "description": "SDD Custom Agent installer for Amazon Q CLI - Native /kiro: command support",
+  "main": "install.js",
+  "bin": {
+    "amazonq-sdd": "./install.js"
+  },
+  "scripts": {
+    "test": "node install.js status && node install.js --help"
+  },
+  "keywords": [
+    "amazon-q",
+    "cli",
+    "custom-agent",
+    "spec-driven-development",
+    "sdd",
+    "kiro",
+    "workflow",
+    "ai-assistant"
+  ],
+  "author": "Amazon Q SDD Contributors",
+  "license": "MIT",
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "files": [
+    "install.js",
+    "README.md",
+    "LICENSE"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gotalab/amazonq-spec.git",
+    "directory": "amazonq-sdd"
+  },
+  "bugs": {
+    "url": "https://github.com/gotalab/amazonq-spec/issues"
+  },
+  "homepage": "https://github.com/gotalab/amazonq-spec/tree/main/amazonq-sdd#readme"
+}

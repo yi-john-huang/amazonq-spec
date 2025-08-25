@@ -1,0 +1,726 @@
+/**
+ * Script Validator
+ * 
+ * Specialized validation for shell scripts and executable content
+ */
+
+import { ValidationResult, ValidationError, ValidationWarning } from '../types';
+import { Logger } from '../utils/logger';
+
+export interface ScriptValidationOptions {
+  /** Target platform for validation */
+  platform?: 'unix' | 'windows' | 'cross-platform';
+  /** Shell type */
+  shellType?: 'bash' | 'zsh' | 'sh' | 'powershell' | 'cmd';
+  /** Check for security issues */
+  checkSecurity?: boolean;
+  /** Validate executable permissions */
+  checkPermissions?: boolean;
+  /** Check for cross-platform compatibility */
+  checkCompatibility?: boolean;
+  /** Validate error handling */
+  checkErrorHandling?: boolean;
+}
+
+export interface ScriptAnalysis {
+  /** Detected shell type */
+  detectedShell: string;
+  /** Commands used in script */
+  commands: string[];
+  /** Variables defined/used */
+  variables: string[];
+  /** Functions defined */
+  functions: string[];
+  /** Complexity score (1-10) */
+  complexity: number;
+  /** Security risk level (low/medium/high) */
+  securityRisk: 'low' | 'medium' | 'high';
+  /** Cross-platform compatibility */
+  crossPlatformCompatible: boolean;
+  /** Line count */
+  lineCount: number;
+}
+
+/**
+ * Validates shell scripts and executable content across platforms
+ */
+export class ScriptValidator {
+  constructor(private logger: Logger) {
+    this.logger.debug('ScriptValidator initialized');
+  }
+
+  /**
+   * Validate script content
+   */
+  public validateScript(
+    content: string,
+    options: ScriptValidationOptions = {}
+  ): ValidationResult {
+    const errors: ValidationError[] = [];
+    const warnings: ValidationWarning[] = [];
+
+    try {
+      // Basic script structure validation
+      this.validateBasicStructure(content, errors, warnings);
+
+      // Platform-specific validation
+      if (options.platform) {
+        this.validatePlatformSpecific(content, options.platform, errors, warnings);
+      }
+
+      // Shell-specific validation
+      if (options.shellType) {
+        this.validateShellSpecific(content, options.shellType, errors, warnings);
+      }
+
+      // Security validation
+      if (options.checkSecurity) {
+        this.validateSecurity(content, errors, warnings);
+      }
+
+      // Error handling validation
+      if (options.checkErrorHandling) {
+        this.validateErrorHandling(content, errors, warnings);
+      }
+
+      // Cross-platform compatibility
+      if (options.checkCompatibility) {
+        this.validateCrossPlatformCompatibility(content, errors, warnings);
+      }
+
+      // General best practices
+      this.validateBestPractices(content, errors, warnings);
+
+      return {
+        valid: errors.length === 0,
+        errors,
+        warnings,
+        entityType: 'script',
+        metadata: this.analyzeScript(content)
+      };
+
+    } catch (error) {
+      return {
+        valid: false,
+        errors: [{
+          code: 'SCRIPT_VALIDATION_ERROR',
+          message: `Script validation failed: ${error instanceof Error ? error.message : String(error)}`,
+          field: 'script_validation'
+        }],
+        warnings: [],
+        entityType: 'script'
+      };
+    }
+  }
+
+  /**
+   * Analyze script structure and complexity
+   */
+  public analyzeScript(content: string): ScriptAnalysis {
+    const detectedShell = this.detectShellType(content);
+    const commands = this.extractCommands(content);
+    const variables = this.extractVariables(content);
+    const functions = this.extractFunctions(content);
+    const complexity = this.calculateComplexity(content, commands, functions);
+    const securityRisk = this.assessSecurityRisk(content);
+    const crossPlatformCompatible = this.checkCrossPlatformCompatibility(content);
+
+    return {
+      detectedShell,
+      commands,
+      variables,
+      functions,
+      complexity,
+      securityRisk,
+      crossPlatformCompatible,
+      lineCount: content.split('\n').length
+    };
+  }
+
+  /**
+   * Extract commands from script
+   */
+  public extractCommands(content: string): string[] {
+    const commands = new Set<string>();
+    const lines = content.split('\n');
+
+    for (const line of lines) {
+      const trimmed = line.trim();
+      
+      // Skip comments and empty lines
+      if (trimmed.startsWith('#') || !trimmed) continue;
+
+      // Extract command (first word after variable assignments)
+      const match = trimmed.match(/^(?:[A-Z_][A-Z0-9_]*=\S*\s+)*([a-zA-Z_][a-zA-Z0-9_.-]*)/);
+      if (match) {
+        commands.add(match[1]);
+      }
+    }
+
+    return Array.from(commands);
+  }
+
+  /**
+   * Extract variables from script
+   */
+  public extractVariables(content: string): string[] {
+    const variables = new Set<string>();
+    
+    // Variable definitions (VAR=value)
+    const definitionPattern = /([A-Z_][A-Z0-9_]*)=/g;
+    let match;
+    while ((match = definitionPattern.exec(content)) !== null) {
+      variables.add(match[1]);
+    }
+
+    // Variable usage ($VAR, ${VAR})
+    const usagePattern = /\$\{?([A-Z_][A-Z0-9_]*)\}?/g;
+    while ((match = usagePattern.exec(content)) !== null) {
+      variables.add(match[1]);
+    }
+
+    return Array.from(variables);
+  }
+
+  /**
+   * Extract functions from script
+   */
+  public extractFunctions(content: string): string[] {
+    const functions = new Set<string>();
+    
+    // Bash function definitions
+    const patterns = [
+      /function\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*\(\)/g,
+      /([a-zA-Z_][a-zA-Z0-9_]*)\s*\(\)\s*\{/g
+    ];
+
+    for (const pattern of patterns) {
+      let match;
+      while ((match = pattern.exec(content)) !== null) {
+        functions.add(match[1]);
+      }
+    }
+
+    return Array.from(functions);
+  }
+
+  /**
+   * Validate basic script structure
+   */
+  private validateBasicStructure(
+    content: string,
+    errors: ValidationError[],
+    warnings: ValidationWarning[]
+  ): void {
+    // Check for shebang
+    if (!content.startsWith('#!')) {
+      warnings.push({
+        code: 'MISSING_SHEBANG',
+        message: 'Script should start with a shebang line (#!/bin/bash, etc.)',
+        field: 'script_structure',
+        suggestion: 'Add appropriate shebang line at the beginning'
+      });
+    }
+
+    // Check for minimum content
+    if (content.trim().length < 20) {
+      warnings.push({
+        code: 'SCRIPT_TOO_SHORT',
+        message: 'Script seems too short to be meaningful',
+        field: 'script_content',
+        suggestion: 'Ensure script contains actual commands or logic'
+      });
+    }
+
+    // Check for syntax errors (basic)
+    this.checkBasicSyntax(content, errors, warnings);
+  }
+
+  /**
+   * Validate platform-specific requirements
+   */
+  private validatePlatformSpecific(
+    content: string,
+    platform: string,
+    errors: ValidationError[],
+    warnings: ValidationWarning[]
+  ): void {
+    switch (platform) {
+      case 'unix':
+        this.validateUnixScript(content, errors, warnings);
+        break;
+      case 'windows':
+        this.validateWindowsScript(content, errors, warnings);
+        break;
+      case 'cross-platform':
+        this.validateCrossPlatformScript(content, errors, warnings);
+        break;
+    }
+  }
+
+  /**
+   * Validate shell-specific syntax
+   */
+  private validateShellSpecific(
+    content: string,
+    shellType: string,
+    errors: ValidationError[],
+    warnings: ValidationWarning[]
+  ): void {
+    const shebang = content.split('\n')[0];
+
+    switch (shellType) {
+      case 'bash':
+        if (!shebang.includes('bash')) {
+          warnings.push({
+            code: 'SHELL_SHEBANG_MISMATCH',
+            message: 'Script specified as bash but shebang suggests different shell',
+            field: 'shell_compatibility',
+            suggestion: 'Use #!/bin/bash shebang for bash scripts'
+          });
+        }
+        this.validateBashSyntax(content, errors, warnings);
+        break;
+      
+      case 'powershell':
+        this.validatePowerShellSyntax(content, errors, warnings);
+        break;
+    }
+  }
+
+  /**
+   * Validate security aspects
+   */
+  private validateSecurity(
+    content: string,
+    errors: ValidationError[],
+    warnings: ValidationWarning[]
+  ): void {
+    // Check for dangerous patterns
+    const dangerousPatterns = [
+      { pattern: /rm\s+-rf\s+\//, message: 'Dangerous recursive delete of root directory' },
+      { pattern: /sudo\s+rm/, message: 'Using sudo with rm can be dangerous' },
+      { pattern: /\|\s*sh/, message: 'Piping to shell can be a security risk' },
+      { pattern: /curl.*\|\s*bash/, message: 'Piping curl output to bash is dangerous' },
+      { pattern: /eval\s*\$/, message: 'Using eval with variables can be dangerous' }
+    ];
+
+    for (const { pattern, message } of dangerousPatterns) {
+      if (pattern.test(content)) {
+        warnings.push({
+          code: 'SECURITY_RISK',
+          message,
+          field: 'security',
+          suggestion: 'Review and validate this potentially dangerous operation'
+        });
+      }
+    }
+
+    // Check for hardcoded credentials
+    const credentialPatterns = [
+      /password\s*=\s*['"][^'"]+['"]/i,
+      /api_?key\s*=\s*['"][^'"]+['"]/i,
+      /secret\s*=\s*['"][^'"]+['"]/i,
+      /token\s*=\s*['"][^'"]+['"]/i
+    ];
+
+    for (const pattern of credentialPatterns) {
+      if (pattern.test(content)) {
+        errors.push({
+          code: 'HARDCODED_CREDENTIALS',
+          message: 'Hardcoded credentials found in script',
+          field: 'security',
+          suggestion: 'Use environment variables or secure credential storage'
+        });
+      }
+    }
+  }
+
+  /**
+   * Validate error handling
+   */
+  private validateErrorHandling(
+    content: string,
+    errors: ValidationError[],
+    warnings: ValidationWarning[]
+  ): void {
+    const hasSetE = content.includes('set -e') || content.includes('set -euo pipefail');
+    const hasErrorHandling = /if\s+\[.*\].*then|&&|\|\|/.test(content);
+    const hasTrap = content.includes('trap ');
+    
+    if (hasTrap && !hasSetE) {
+      warnings.push({
+        code: 'TRAP_WITHOUT_SETE',
+        message: 'Script uses trap but lacks set -e for proper error propagation',
+        field: 'errorHandling',
+        suggestion: 'Add set -e or set -euo pipefail at the beginning of the script'
+      });
+    }
+
+    if (!hasSetE && !hasErrorHandling) {
+      warnings.push({
+        code: 'NO_ERROR_HANDLING',
+        message: 'Script lacks error handling mechanisms',
+        field: 'error_handling',
+        suggestion: 'Add error handling with set -e, conditionals, or trap statements'
+      });
+    }
+
+    // Check for exit codes
+    if (!content.includes('exit ')) {
+      warnings.push({
+        code: 'NO_EXIT_CODES',
+        message: 'Script should use explicit exit codes',
+        field: 'error_handling',
+        suggestion: 'Add appropriate exit statements with status codes'
+      });
+    }
+  }
+
+  /**
+   * Validate cross-platform compatibility
+   */
+  private validateCrossPlatformCompatibility(
+    content: string,
+    errors: ValidationError[],
+    warnings: ValidationWarning[]
+  ): void {
+    // Check for platform-specific paths
+    if (content.includes('\\') && content.includes('/')) {
+      warnings.push({
+        code: 'MIXED_PATH_SEPARATORS',
+        message: 'Script uses mixed path separators (/ and \\)',
+        field: 'cross_platform',
+        suggestion: 'Use consistent path separators or platform detection'
+      });
+    }
+
+    // Check for Unix-specific commands in Windows context
+    const unixCommands = ['ls', 'grep', 'awk', 'sed', 'find', 'which'];
+    const windowsIndicators = ['powershell', '.ps1', 'cmd.exe'];
+    
+    const hasUnixCommands = unixCommands.some(cmd => 
+      new RegExp(`\\b${cmd}\\b`).test(content)
+    );
+    const hasWindowsIndicators = windowsIndicators.some(indicator => 
+      content.toLowerCase().includes(indicator)
+    );
+
+    if (hasUnixCommands && hasWindowsIndicators) {
+      warnings.push({
+        code: 'MIXED_PLATFORM_COMMANDS',
+        message: 'Script mixes Unix and Windows commands',
+        field: 'cross_platform',
+        suggestion: 'Separate platform-specific logic or use cross-platform alternatives'
+      });
+    }
+  }
+
+  /**
+   * Validate best practices
+   */
+  private validateBestPractices(
+    content: string,
+    errors: ValidationError[],
+    warnings: ValidationWarning[]
+  ): void {
+    // Check for unquoted variables
+    const unquotedVars = content.match(/\$[A-Z_][A-Z0-9_]*(?!["}])/g);
+    if (unquotedVars && unquotedVars.length > 0) {
+      warnings.push({
+        code: 'UNQUOTED_VARIABLES',
+        message: `Found ${unquotedVars.length} potentially unquoted variables`,
+        field: 'best_practices',
+        suggestion: 'Quote variables to prevent word splitting: "$VAR" instead of $VAR'
+      });
+    }
+
+    // Check for function documentation
+    const functions = this.extractFunctions(content);
+    if (functions.length > 0) {
+      const hasFunctionComments = functions.some(func => {
+        const funcRegex = new RegExp(`#.*${func}|${func}.*#`, 'i');
+        return funcRegex.test(content);
+      });
+
+      if (!hasFunctionComments) {
+        warnings.push({
+          code: 'UNDOCUMENTED_FUNCTIONS',
+          message: 'Functions should be documented with comments',
+          field: 'documentation',
+          suggestion: 'Add comments explaining function purpose and parameters'
+        });
+      }
+    }
+
+    // Check for magic numbers
+    const magicNumbers = content.match(/(?<![A-Za-z0-9_])[0-9]{3,}(?![A-Za-z0-9_])/g);
+    if (magicNumbers && magicNumbers.length > 2) {
+      warnings.push({
+        code: 'MAGIC_NUMBERS',
+        message: 'Consider using named constants for numeric values',
+        field: 'maintainability',
+        suggestion: 'Define constants for repeated numeric values'
+      });
+    }
+  }
+
+  /**
+   * Check basic syntax errors
+   */
+  private checkBasicSyntax(
+    content: string,
+    errors: ValidationError[],
+    warnings: ValidationWarning[]
+  ): void {
+    // Check for unmatched quotes
+    const singleQuotes = (content.match(/'/g) || []).length;
+    const doubleQuotes = (content.match(/"/g) || []).length;
+
+    if (singleQuotes % 2 !== 0) {
+      errors.push({
+        code: 'UNMATCHED_QUOTES',
+        message: 'Unmatched single quotes in script',
+        field: 'syntax'
+      });
+    }
+
+    if (doubleQuotes % 2 !== 0) {
+      errors.push({
+        code: 'UNMATCHED_QUOTES',
+        message: 'Unmatched double quotes in script',
+        field: 'syntax'
+      });
+    }
+
+    // Check for unmatched brackets/braces
+    const openBrackets = (content.match(/\[/g) || []).length;
+    const closeBrackets = (content.match(/\]/g) || []).length;
+    const openBraces = (content.match(/\{/g) || []).length;
+    const closeBraces = (content.match(/\}/g) || []).length;
+
+    if (openBrackets !== closeBrackets) {
+      errors.push({
+        code: 'UNMATCHED_BRACKETS',
+        message: 'Unmatched square brackets in script',
+        field: 'syntax'
+      });
+    }
+
+    if (openBraces !== closeBraces) {
+      errors.push({
+        code: 'UNMATCHED_BRACES',
+        message: 'Unmatched curly braces in script',
+        field: 'syntax'
+      });
+    }
+  }
+
+  /**
+   * Validate Unix-specific script
+   */
+  private validateUnixScript(
+    content: string,
+    errors: ValidationError[],
+    warnings: ValidationWarning[]
+  ): void {
+    // Check for Windows-specific commands
+    const windowsCommands = ['dir', 'type', 'copy', 'del', 'move'];
+    for (const cmd of windowsCommands) {
+      if (new RegExp(`\\b${cmd}\\b`, 'i').test(content)) {
+        warnings.push({
+          code: 'WINDOWS_COMMAND_IN_UNIX',
+          message: `Windows command '${cmd}' found in Unix script`,
+          field: 'platform_compatibility',
+          suggestion: 'Use Unix equivalent commands'
+        });
+      }
+    }
+
+    // Check for executable permissions note
+    if (!content.includes('chmod +x') && !content.includes('executable')) {
+      warnings.push({
+        code: 'NO_EXECUTABLE_PERMISSION_NOTE',
+        message: 'Unix script should mention executable permissions',
+        field: 'unix_requirements',
+        suggestion: 'Add note about making script executable with chmod +x'
+      });
+    }
+  }
+
+  /**
+   * Validate Windows-specific script
+   */
+  private validateWindowsScript(
+    content: string,
+    errors: ValidationError[],
+    warnings: ValidationWarning[]
+  ): void {
+    // Check for Unix-specific commands
+    const unixCommands = ['ls', 'grep', 'find', 'which', 'cat'];
+    for (const cmd of unixCommands) {
+      if (new RegExp(`\\b${cmd}\\b`).test(content)) {
+        warnings.push({
+          code: 'UNIX_COMMAND_IN_WINDOWS',
+          message: `Unix command '${cmd}' found in Windows script`,
+          field: 'platform_compatibility',
+          suggestion: 'Use Windows equivalent commands or PowerShell alternatives'
+        });
+      }
+    }
+  }
+
+  /**
+   * Validate cross-platform script
+   */
+  private validateCrossPlatformScript(
+    content: string,
+    errors: ValidationError[],
+    warnings: ValidationWarning[]
+  ): void {
+    // Should have platform detection
+    const hasPlatformDetection = content.includes('uname') || 
+                                content.includes('$OSTYPE') || 
+                                content.includes('$OS');
+
+    if (!hasPlatformDetection) {
+      warnings.push({
+        code: 'NO_PLATFORM_DETECTION',
+        message: 'Cross-platform script should include platform detection',
+        field: 'cross_platform',
+        suggestion: 'Add platform detection using uname, $OSTYPE, or similar'
+      });
+    }
+  }
+
+  /**
+   * Validate Bash-specific syntax
+   */
+  private validateBashSyntax(
+    content: string,
+    errors: ValidationError[],
+    _warnings: ValidationWarning[]
+  ): void {
+    // Check for Bash arrays syntax errors
+    const arrayPattern = /([A-Z_][A-Z0-9_]*)\[.*\]/g;
+    let match;
+    while ((match = arrayPattern.exec(content)) !== null) {
+      if (!content.includes(`declare -a ${match[1]}`) && !content.includes(`${match[1]}=(`)) {
+        // This is a complex check, skip detailed validation for now
+      }
+    }
+  }
+
+  /**
+   * Validate PowerShell syntax
+   */
+  private validatePowerShellSyntax(
+    content: string,
+    errors: ValidationError[],
+    warnings: ValidationWarning[]
+  ): void {
+    // Check for execution policy issues
+    if (content.includes('Set-ExecutionPolicy')) {
+      warnings.push({
+        code: 'EXECUTION_POLICY_CHANGE',
+        message: 'Script changes execution policy - may require admin privileges',
+        field: 'powershell_security',
+        suggestion: 'Document execution policy requirements'
+      });
+    }
+
+    // Check for proper PowerShell cmdlet usage
+    if (!content.match(/[A-Z][a-z]+-[A-Z][a-z]+/)) {
+      warnings.push({
+        code: 'NO_POWERSHELL_CMDLETS',
+        message: 'PowerShell script should use proper cmdlet naming convention',
+        field: 'powershell_conventions',
+        suggestion: 'Use Verb-Noun cmdlet naming pattern'
+      });
+    }
+  }
+
+  /**
+   * Detect shell type from content
+   */
+  private detectShellType(content: string): string {
+    const firstLine = content.split('\n')[0];
+    
+    if (firstLine.includes('bash')) return 'bash';
+    if (firstLine.includes('zsh')) return 'zsh';
+    if (firstLine.includes('sh')) return 'sh';
+    if (firstLine.includes('powershell') || content.includes('Set-') || content.includes('Get-')) return 'powershell';
+    if (content.includes('@echo off') || content.includes('cmd')) return 'cmd';
+    
+    return 'unknown';
+  }
+
+  /**
+   * Calculate script complexity
+   */
+  private calculateComplexity(content: string, commands: string[], functions: string[]): number {
+    let complexity = 1;
+
+    // Base complexity from length
+    complexity += Math.min(content.length / 1000, 3);
+
+    // Complexity from commands
+    complexity += commands.length * 0.1;
+
+    // Complexity from functions
+    complexity += functions.length * 0.5;
+
+    // Complexity from control structures
+    const controlStructures = (content.match(/if\s|while\s|for\s|case\s/g) || []).length;
+    complexity += controlStructures * 0.3;
+
+    // Complexity from pipes and redirects
+    const pipesAndRedirects = (content.match(/\||>>?|<<<?/g) || []).length;
+    complexity += pipesAndRedirects * 0.2;
+
+    return Math.min(Math.round(complexity), 10);
+  }
+
+  /**
+   * Assess security risk level
+   */
+  private assessSecurityRisk(content: string): 'low' | 'medium' | 'high' {
+    let riskScore = 0;
+
+    // High risk patterns
+    if (/rm\s+-rf|sudo\s+rm|\|\s*sh|curl.*\|\s*bash/.test(content)) {
+      riskScore += 3;
+    }
+
+    // Medium risk patterns
+    if (/eval\s|exec\s|\$\(/g.test(content)) {
+      riskScore += 2;
+    }
+
+    // Credential patterns
+    if (/password|api_?key|secret|token/i.test(content)) {
+      riskScore += 2;
+    }
+
+    // Network operations
+    if (/wget|curl|nc\s|telnet/.test(content)) {
+      riskScore += 1;
+    }
+
+    if (riskScore >= 4) return 'high';
+    if (riskScore >= 2) return 'medium';
+    return 'low';
+  }
+
+  /**
+   * Check cross-platform compatibility
+   */
+  private checkCrossPlatformCompatibility(content: string): boolean {
+    const unixSpecific = /\bls\b|\bgrep\b|\bawk\b|\bsed\b|\bfind\b|\bwhich\b/.test(content);
+    const windowsSpecific = /\bdir\b|\btype\b|\bcopy\b|\bdel\b|\bmove\b/.test(content);
+    const pathSeparators = content.includes('\\') && content.includes('/');
+
+    // Not compatible if it has platform-specific elements
+    return !(unixSpecific || windowsSpecific || pathSeparators);
+  }
+}

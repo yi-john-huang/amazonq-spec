@@ -1,0 +1,102 @@
+name: Merge Develop to Main
+
+on:
+  workflow_dispatch:
+  schedule:
+    # Optional: Run weekly on Fridays at 5 PM UTC
+    - cron: '0 17 * * 5'
+
+jobs:
+  merge-develop-to-main:
+    runs-on: ubuntu-latest
+    
+    permissions:
+      contents: write
+      pull-requests: write
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+        token: ${{ secrets.GITHUB_TOKEN }}
+    
+    - name: Configure Git
+      run: |
+        git config --local user.email "github-actions[bot]@users.noreply.github.com"
+        git config --local user.name "github-actions[bot]"
+    
+    - name: Check if develop has changes
+      id: check_changes
+      run: |
+        git fetch origin develop
+        git fetch origin main
+        
+        # Check if develop is ahead of main
+        COMMITS_AHEAD=$(git rev-list --count origin/main..origin/develop)
+        echo "Commits ahead: $COMMITS_AHEAD"
+        echo "COMMITS_AHEAD=$COMMITS_AHEAD" >> $GITHUB_OUTPUT
+        
+        if [ "$COMMITS_AHEAD" -eq "0" ]; then
+          echo "No changes to merge"
+          echo "HAS_CHANGES=false" >> $GITHUB_OUTPUT
+        else
+          echo "Found $COMMITS_AHEAD commits to merge"
+          echo "HAS_CHANGES=true" >> $GITHUB_OUTPUT
+        fi
+    
+    - name: Create Pull Request
+      if: steps.check_changes.outputs.HAS_CHANGES == 'true'
+      id: create_pr
+      uses: actions/github-script@v6
+      with:
+        script: |
+          const { data: prs } = await github.rest.pulls.list({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            head: `${context.repo.owner}:develop`,
+            base: 'main',
+            state: 'open'
+          });
+          
+          if (prs.length > 0) {
+            console.log('PR already exists:', prs[0].html_url);
+            return prs[0].number;
+          }
+          
+          const { data: pr } = await github.rest.pulls.create({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            title: 'chore: merge develop to main',
+            body: `## Automated Merge
+            
+            This PR automatically merges develop branch into main.
+            
+            ### Changes included:
+            - ${{ steps.check_changes.outputs.COMMITS_AHEAD }} commits from develop
+            
+            ### Next steps:
+            1. Review the changes
+            2. Merge this PR to trigger auto-tagging
+            3. New version will be automatically released to npm
+            
+            ---
+            *This PR was automatically created by GitHub Actions*`,
+            head: 'develop',
+            base: 'main'
+          });
+          
+          console.log('Created PR:', pr.html_url);
+          return pr.number;
+    
+    - name: Auto-merge PR (optional)
+      if: steps.check_changes.outputs.HAS_CHANGES == 'true'
+      continue-on-error: true
+      run: |
+        # Uncomment the following lines to enable auto-merge
+        # You need to enable auto-merge in repository settings first
+        
+        # gh pr merge --auto --merge "${{ steps.create_pr.outputs.result }}"
+        
+        echo "PR created. Manual review required before merge."
+        echo "After merge, auto-tag workflow will create a new version tag."

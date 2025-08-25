@@ -1,0 +1,147 @@
+# Create Feature Design Document
+
+I need to create a detailed design document for a feature that already has approved requirements. Please help me design the technical implementation approach.
+
+## Feature Information
+- **Feature Name**: {{FEATURE_NAME}}
+- **Project Name**: {{PROJECT_NAME}}
+- **Specification Path**: {{SPEC_PATH}}
+- **Requirements Path**: {{REQUIREMENTS_PATH}}
+
+## Prerequisites Check
+{{#if REQUIREMENTS_APPROVED}}
+✅ Requirements have been reviewed and approved.
+{{else}}
+⚠️  **IMPORTANT**: Please confirm that you have reviewed and approved the requirements document before proceeding with design. 
+
+**Have you reviewed and approved the requirements document?** [y/N]
+
+If not, please review `{{REQUIREMENTS_PATH}}` and ensure all requirements are correct before continuing.
+{{/if}}
+
+## Requirements Summary
+{{REQUIREMENTS_SUMMARY}}
+
+## Project Context
+- **Architecture**: {{ARCHITECTURE_TYPE}}
+- **Technology Stack**: {{TECHNOLOGY_STACK}}
+- **Existing Codebase**: {{CODEBASE_STRUCTURE}}
+- **Integration Points**: {{INTEGRATION_POINTS}}
+
+## Design Constraints
+{{#if DESIGN_CONSTRAINTS}}
+{{DESIGN_CONSTRAINTS}}
+{{else}}
+- Follow existing project architecture patterns
+- Maintain consistency with current codebase style
+- Ensure backward compatibility
+- Optimize for maintainability and testability
+{{/if}}
+
+## Request
+
+Please create a comprehensive design document that addresses:
+
+### 1. Architecture Design
+- High-level component architecture
+- Data flow diagrams
+- Integration patterns
+- Separation of concerns
+
+### 2. Component Design
+- Core classes/modules and their responsibilities
+- Interface definitions
+- Data structures and models
+- API contracts (internal and external)
+
+### 3. Database Design (if applicable)
+- Entity relationship diagrams
+- Table schemas
+- Index strategies
+- Migration considerations
+
+### 4. User Interface Design (if applicable)
+- Wireframes or component mockups
+- User interaction flows
+- State management approach
+- Responsive design considerations
+
+### 5. Security Design
+- Authentication/authorization approach
+- Data protection strategies
+- Input validation design
+- Security boundaries
+
+### 6. Performance Design
+- Scalability strategies
+- Caching approaches
+- Optimization techniques
+- Performance monitoring points
+
+### 7. Error Handling Design
+- Error categorization
+- Error recovery strategies
+- Logging and monitoring approach
+- User-facing error messages
+
+### 8. Testing Strategy
+- Unit testing approach
+- Integration testing strategy
+- End-to-end testing considerations
+- Test data management
+
+## Expected Output Format
+
+Please structure the design document as follows:
+```markdown
+# Design: [Feature Name]
+
+## Architecture Overview
+[High-level architecture description with diagrams]
+
+## Component Design
+### [Component Name]
+**Purpose**: [What this component does]
+**Responsibilities**: 
+- Responsibility 1
+- Responsibility 2
+
+**Interfaces**:
+```typescript
+interface ComponentInterface {
+  method(): ReturnType;
+}
+```
+
+## Data Design
+### Data Models
+[Entity definitions and relationships]
+
+### API Contracts
+[Request/response specifications]
+
+## Implementation Approach
+### Development Phases
+1. **Phase 1**: [Description]
+2. **Phase 2**: [Description]
+
+### Risk Mitigation
+- **Risk**: [Description]
+  **Mitigation**: [Approach]
+```
+
+## Design Principles
+
+Please ensure the design follows these principles:
+- **Modularity**: Components should have clear boundaries and responsibilities
+- **Testability**: Design should facilitate easy unit and integration testing
+- **Maintainability**: Code should be easy to understand, modify, and extend
+- **Scalability**: Architecture should handle growth in usage and complexity
+- **Security**: Security considerations should be built into the design
+- **Performance**: Efficient algorithms and data structures should be chosen
+
+After design approval, the next step will be task breakdown using `/kiro:spec-tasks {{FEATURE_NAME}}`.
+
+---
+
+*This prompt is part of the Kiro-style Spec-Driven Development workflow.*

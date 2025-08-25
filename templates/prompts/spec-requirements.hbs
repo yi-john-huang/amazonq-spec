@@ -1,0 +1,107 @@
+# Generate Feature Requirements
+
+I need to create detailed requirements for a feature specification. Please help me generate comprehensive functional and non-functional requirements.
+
+## Feature Information
+- **Feature Name**: {{FEATURE_NAME}}
+- **Project Name**: {{PROJECT_NAME}}
+- **Specification Path**: {{SPEC_PATH}}
+
+## Context
+{{#if EXISTING_SPEC}}
+I have an existing specification document that includes the feature overview and initial analysis. Please build upon this foundation to create detailed requirements.
+{{else}}
+This is a requirements-first approach. Please create requirements based on the feature description provided.
+{{/if}}
+
+## Feature Details
+{{FEATURE_DETAILS}}
+
+## Current Understanding
+{{#if CURRENT_ANALYSIS}}
+Based on the current specification analysis:
+{{CURRENT_ANALYSIS}}
+{{/if}}
+
+## Request
+
+Please generate a comprehensive requirements document that includes:
+
+### 1. Functional Requirements
+- Core functionality that the feature must provide
+- User interactions and workflows
+- Data handling and processing requirements
+- Integration points with existing systems
+- Input/output specifications
+
+### 2. Non-Functional Requirements
+- Performance requirements (response times, throughput)
+- Security requirements
+- Scalability considerations
+- Usability requirements
+- Compatibility requirements
+- Reliability and availability requirements
+
+### 3. Business Rules
+- Validation rules
+- Business logic constraints
+- Workflow rules
+- Data integrity requirements
+
+### 4. Technical Constraints
+- Technology stack limitations
+- Platform requirements
+- Third-party dependencies
+- Architecture constraints
+
+### 5. Acceptance Criteria
+- Clear, testable criteria for each requirement
+- Success metrics
+- Edge cases and error conditions
+
+## Expected Output Format
+
+Please structure the requirements document as follows:
+```markdown
+# Requirements: [Feature Name]
+
+## Overview
+[Brief summary of what will be built]
+
+## Functional Requirements
+### FR-001: [Requirement Title]
+**Description**: [Clear description]
+**Priority**: High/Medium/Low
+**Acceptance Criteria**:
+- [ ] Criterion 1
+- [ ] Criterion 2
+
+## Non-Functional Requirements
+### NFR-001: [Requirement Title]
+**Description**: [Clear description]
+**Metric**: [Measurable criteria]
+**Priority**: High/Medium/Low
+
+## Business Rules
+### BR-001: [Rule Title]
+**Description**: [Rule description]
+**Impact**: [What happens if violated]
+
+## Technical Constraints
+### TC-001: [Constraint Title]
+**Description**: [Constraint description]
+**Rationale**: [Why this constraint exists]
+```
+
+Please ensure all requirements are:
+- **Specific**: Clear and unambiguous
+- **Measurable**: Include quantifiable criteria where possible
+- **Achievable**: Technically feasible within project constraints
+- **Relevant**: Aligned with business objectives
+- **Time-bound**: Include any temporal constraints
+
+After generating requirements, the next step will be design using `/kiro:spec-design {{FEATURE_NAME}}`.
+
+---
+
+*This prompt is part of the Kiro-style Spec-Driven Development workflow.*

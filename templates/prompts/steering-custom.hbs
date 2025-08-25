@@ -1,0 +1,216 @@
+# Create Custom Steering Document
+
+I need to create a custom steering document for a specific context, pattern, or domain within my project. This will provide specialized guidance for particular types of development work.
+
+## Custom Steering Context
+- **Steering Name**: {{STEERING_NAME}}
+- **Project Name**: {{PROJECT_NAME}}
+- **Steering Directory**: {{STEERING_DIRECTORY}}
+- **Specific Context**: {{SPECIFIC_CONTEXT}}
+
+## Steering Purpose
+**Why this custom steering is needed**:
+{{STEERING_PURPOSE}}
+
+**What specific problems it solves**:
+{{PROBLEMS_SOLVED}}
+
+## Scope Definition
+- **Applies to**: {{APPLIES_TO}}
+- **Does NOT apply to**: {{DOES_NOT_APPLY_TO}}
+- **Activation Pattern**: {{ACTIVATION_PATTERN}}
+
+## Context Details
+{{#if DOMAIN_SPECIFIC}}
+**Domain-Specific Context**:
+{{DOMAIN_SPECIFIC}}
+{{/if}}
+
+{{#if TECHNICAL_PATTERN}}
+**Technical Pattern Context**:  
+{{TECHNICAL_PATTERN}}
+{{/if}}
+
+{{#if WORKFLOW_CONTEXT}}
+**Workflow-Specific Context**:
+{{WORKFLOW_CONTEXT}}
+{{/if}}
+
+{{#if INTEGRATION_CONTEXT}}
+**Integration Context**:
+{{INTEGRATION_CONTEXT}}
+{{/if}}
+
+## Request
+
+Please create a custom steering document that provides specialized guidance for this specific context. The document should include:
+
+### 1. Context Definition
+Clearly define when and where this steering applies:
+- **Trigger Conditions**: When should this steering be used?
+- **Scope Boundaries**: What is included and excluded?
+- **Relationship to Core Steering**: How does this relate to main project steering?
+- **Priority Level**: How important is this guidance relative to other steering?
+
+### 2. Specific Guidelines
+Provide detailed guidance for this context:
+- **Decision Framework**: How to make decisions in this domain
+- **Best Practices**: Proven approaches that work well
+- **Common Patterns**: Recommended code/design patterns
+- **Anti-Patterns**: What to avoid and why
+- **Quality Standards**: Success criteria specific to this context
+
+### 3. Implementation Details
+Include practical implementation guidance:
+- **Code Examples**: Sample implementations showing best practices
+- **Configuration**: Required or recommended settings
+- **Dependencies**: Libraries, tools, or systems involved
+- **Testing Approach**: How to validate work in this domain
+- **Documentation**: What needs to be documented and how
+
+### 4. Integration Guidelines
+Explain how this fits with the broader project:
+- **Interface Standards**: How this context connects to other parts
+- **Data Flow**: How information moves in and out
+- **Error Handling**: How errors are managed in this context
+- **Monitoring**: How to observe and debug this functionality
+- **Performance**: Specific performance considerations
+
+## Expected Output Format
+
+Please create the custom steering document in this format:
+
+```markdown
+# {{STEERING_NAME}}.md
+
+## Overview
+[What this steering document covers and why it exists]
+
+## Applicability
+- **When to Use**: [Trigger conditions and scenarios]
+- **Scope**: [What is included and excluded]  
+- **Activation**: [How AI assistants should recognize when to apply this]
+
+## Context & Background
+[Domain/technical/business context that matters for this area]
+
+## Guidelines & Principles
+
+### Decision Framework
+[How to make decisions in this context]
+
+### Best Practices
+- [Specific practice 1 with explanation]
+- [Specific practice 2 with explanation]
+- [Specific practice 3 with explanation]
+
+### Patterns to Follow
+```[language]
+// Example of recommended pattern
+[code example]
+```
+
+### Anti-Patterns to Avoid
+- **Don't**: [What not to do]
+  **Why**: [Reason to avoid]
+  **Instead**: [Better approach]
+
+## Implementation Standards
+
+### Code Organization
+[How to structure code in this context]
+
+### Configuration
+[Settings and configuration approach]
+
+### Testing
+[How to test this type of functionality]
+
+### Documentation  
+[What to document and how]
+
+## Integration Points
+[How this connects to other project components]
+
+## Quality Criteria
+[How to know if work in this area is good]
+
+## Examples
+[Concrete examples of good implementations]
+
+## Troubleshooting
+[Common issues and solutions]
+```
+
+## Custom Steering Types
+
+{{#if STEERING_TYPE}}
+**Steering Type**: {{STEERING_TYPE}}
+
+{{#eq STEERING_TYPE "database"}}
+Focus on database design, queries, migrations, and data management patterns.
+{{/eq}}
+
+{{#eq STEERING_TYPE "api"}}
+Focus on API design, documentation, versioning, and client interaction patterns.
+{{/eq}}
+
+{{#eq STEERING_TYPE "ui"}}
+Focus on user interface design, component patterns, styling, and user experience guidelines.
+{{/eq}}
+
+{{#eq STEERING_TYPE "testing"}}
+Focus on testing strategies, test organization, mocking patterns, and quality assurance.
+{{/eq}}
+
+{{#eq STEERING_TYPE "security"}}
+Focus on security requirements, authentication, authorization, and data protection.
+{{/eq}}
+
+{{#eq STEERING_TYPE "performance"}}
+Focus on performance optimization, monitoring, profiling, and scalability patterns.
+{{/eq}}
+
+{{#eq STEERING_TYPE "deployment"}}
+Focus on deployment processes, infrastructure, monitoring, and operational concerns.
+{{/eq}}
+
+{{#eq STEERING_TYPE "integration"}}
+Focus on third-party integrations, external APIs, data exchange, and interoperability.
+{{/eq}}
+
+{{#eq STEERING_TYPE "domain"}}
+Focus on specific business domain logic, terminology, and domain-driven design patterns.
+{{/eq}}
+
+{{#eq STEERING_TYPE "workflow"}}
+Focus on development workflow, code review, branching strategies, and team collaboration.
+{{/eq}}
+
+{{/if}}
+
+## Validation Criteria
+
+The custom steering document should:
+- Provide clear, actionable guidance for the specific context
+- Include concrete examples that illustrate the principles
+- Explain the "why" behind recommendations, not just the "what"
+- Be specific enough to guide decision-making
+- Complement (not conflict with) existing project steering
+- Be easily discoverable when the context applies
+
+## Success Metrics
+
+This custom steering will be successful if:
+- AI assistants apply the right patterns in the specific context
+- Code quality in this area improves measurably
+- Development speed in this domain increases
+- Fewer bugs and issues occur in this area
+- Team members can onboard to this context more quickly
+- Decision-making becomes more consistent and predictable
+
+Please create a comprehensive custom steering document that provides the specialized guidance needed for this specific context.
+
+---
+
+*This prompt is part of the Kiro-style Spec-Driven Development workflow.*
