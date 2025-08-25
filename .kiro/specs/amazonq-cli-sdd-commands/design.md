@@ -1,273 +1,281 @@
 # Technical Design
 
 ## Overview
-This design implements a standalone `amazonq-sdd` NPM package that provides spec-driven development capabilities for Amazon Q CLI users. Since Amazon Q CLI doesn't support slash commands like Claude Code, the solution uses a hybrid approach combining shell script wrappers, structured prompt templates, and configuration management to deliver equivalent SDD functionality.
+This design implements a standalone `amazonq-sdd` NPM package that provides spec-driven development capabilities for Amazon Q CLI users through Custom Agents. The solution uses Amazon Q CLI's 2025 Custom Agent system to deliver native `/kiro:` command support within `q chat --agent sdd` sessions.
 
-The architecture bridges the gap between Amazon Q CLI's chat-based interface and the systematic SDD workflow, enabling users to execute commands like `kiro-spec-init` that integrate seamlessly with Amazon Q CLI's natural language processing capabilities.
+The architecture combines a single-file NPX installer with embedded Custom Agent configuration and local templates, enabling users to execute commands like `/kiro:spec-init` directly within Amazon Q CLI chat sessions with full workflow state management and template customization capabilities.
 
 ## Requirements Mapping
 
 ### Design Component Traceability
 Each design component addresses specific requirements:
-- **NPM Package Architecture** → 2.1, 2.3, 2.5: Standalone package with installation and functionality
-- **Shell Script Wrapper System** → 1.1, 1.3, 1.4: 8 SDD commands adapted for Amazon Q CLI format
-- **Prompt Template Engine** → 1.2, 1.5, 4.1: Amazon Q CLI-compatible command formatting
-- **Configuration Management** → 5.1, 5.2, 5.3: AMAZONQ.md and localization support
-- **Directory Structure Manager** → 3.1, 4.3: Logical organization and .kiro/ structure
-- **Validation System** → 6.1, 6.2, 6.3: Template validation and error handling
-- **Installation CLI** → 7.1, 7.3, 7.4: Seamless user experience
+- **NPX Installer Architecture** → 2.1, 2.3, 2.5: Single-file installer with embedded configurations
+- **Custom Agent Configuration** → 1.1, 1.3, 1.4: Native `/kiro:` command recognition in Amazon Q CLI
+- **Local Template System** → 1.2, 1.5, 4.1: Customizable command behavior templates
+- **Documentation Generation** → 5.1, 5.2, 5.3: AMAZONQ.md and usage guides
+- **Directory Structure Manager** → 3.1, 4.3: .kiro/ and .amazonq/ organization
+- **Agent Prompt Engineering** → 6.1, 6.2, 6.3: Command recognition and execution logic
+- **Zero Dependencies Implementation** → 7.1, 7.3, 7.4: Node.js built-in modules only
 
 ### User Story Coverage
-- **Amazon Q CLI Command Template System**: Shell wrappers + prompt templates provide equivalent functionality
-- **NPM Package Creation**: Standalone package with CLI installation tool
-- **Template Organization**: Clear directory structure with platform-specific variations
-- **Feature Parity**: Same .kiro/ structure and 3-phase approval workflow
-- **Documentation**: AMAZONQ.md with Amazon Q CLI-specific instructions
-- **Testing**: Comprehensive validation system for template generation
-- **User Experience**: Simple installation with clear feedback and error handling
+- **Amazon Q CLI Native Integration**: Custom Agent provides native `/kiro:` command support
+- **NPM Package Creation**: Single NPX installer with embedded configurations and templates
+- **Template Organization**: Local `.amazonq/commands/kiro/` templates for customization
+- **Feature Parity**: Same .kiro/ structure and 3-phase approval workflow as Claude Code
+- **Documentation**: AMAZONQ.md with Amazon Q CLI Custom Agent instructions
+- **Agent Behavior**: Detailed command implementation logic in local templates
+- **User Experience**: One-command installation with immediate functionality
 
 ## Architecture
 
 ```mermaid
 graph TB
-    A[amazonq-sdd CLI] --> B[Installation Manager]
-    A --> C[Template Generator]
-    A --> D[Script Generator]
+    A[npx amazonq-sdd] --> B[install.js]
     
-    B --> E[Directory Structure Setup]
-    B --> F[Configuration Files]
+    B --> C[Custom Agent Installation]
+    B --> D[Local Template Creation]
+    B --> E[Documentation Generation]
     
-    C --> G[Prompt Templates]
-    C --> H[Amazon Q CLI Adapters]
+    C --> F[~/.aws/amazonq/cli-agents/sdd.json]
+    D --> G[.amazonq/commands/kiro/*.md]
+    E --> H[AMAZONQ.md]
     
-    D --> I[Shell Script Wrappers]
-    D --> J[Command Aliases]
+    F --> I[q chat --agent sdd]
+    G --> I
     
-    E --> K[.kiro/ Structure]
-    F --> L[AMAZONQ.md]
-    F --> M[Localization Files]
+    I --> J[/kiro:spec-init recognition]
+    I --> K[Template-guided execution]
+    I --> L[.kiro/ file operations]
     
-    I --> N[Amazon Q CLI Integration]
-    G --> N
-    
-    N --> O[q chat Interface]
-    O --> P[SDD Workflow Execution]
+    J --> M[SDD Workflow]
+    K --> M
+    L --> M
 ```
 
 ### Technology Stack
-Based on research findings and requirements analysis:
+Based on final implementation and requirements analysis:
 
-- **Package Manager**: NPM for distribution and installation
-- **CLI Framework**: Node.js with Commander.js for CLI interface
-- **Template Engine**: Handlebars.js for dynamic template generation
-- **Shell Integration**: Cross-platform shell script generation (bash/zsh/powershell)
-- **Configuration**: JSON/YAML for package configuration, Markdown for documentation
-- **Testing**: Jest for unit testing + shell script validation
-- **Distribution**: NPM registry with semantic versioning
+- **Package Manager**: NPM for distribution and NPX for installation
+- **Runtime**: Node.js built-in modules only (fs, path, os, child_process)
+- **Agent System**: Amazon Q CLI Custom Agents (JSON configuration)
+- **Template Format**: Markdown templates with agent implementation instructions
+- **Configuration**: Embedded JSON configuration and template strings
+- **File Operations**: Direct fs operations with fs_read/fs_write tools
+- **Distribution**: NPM registry with single-file installer approach
 
 ### Architecture Decision Rationale
 
-- **Why Shell Script Wrappers**: Amazon Q CLI lacks plugin system, so wrapper scripts provide command-line integration while maintaining familiar command names
-- **Why Prompt Templates**: Amazon Q CLI excels at natural language processing, so structured prompts leverage its strengths while maintaining SDD workflow integrity
-- **Why Node.js CLI**: NPM distribution model matches cc-sdd, provides cross-platform compatibility, and enables rapid development
-- **Why Handlebars Templates**: Mature templating system with logic support, enables dynamic content generation based on user preferences and platform detection
-- **Why Cross-platform Shell Scripts**: Ensures compatibility across macOS, Windows, and Linux environments
+- **Why Custom Agents**: Amazon Q CLI's 2025 Custom Agent system provides native slash command support within chat sessions
+- **Why Local Templates**: Users can customize agent behavior by editing local templates, providing flexibility while maintaining structure
+- **Why Single-File Installer**: Zero external dependencies approach with all configurations embedded in install.js
+- **Why Embedded Configurations**: Eliminates supply chain risks and ensures consistent installation across environments
+- **Why Node.js Built-ins Only**: Maximum compatibility and security with no external package dependencies
 
 ## Components and Interfaces
 
 ### Backend Services & Method Signatures
 
-```typescript
-class InstallationManager {
-  install(options: InstallOptions): Promise<InstallResult>       // Main installation entry point
-  detectAmazonQCLI(): Promise<boolean>                          // Check if Amazon Q CLI is installed
-  createDirectoryStructure(path: string): Promise<void>         // Create .kiro/ directories
-  generateConfigFiles(config: Config): Promise<void>           // Create AMAZONQ.md and localization
-}
+```javascript
+// Single install.js file with embedded configurations
 
-class TemplateGenerator {
-  generatePromptTemplates(commands: Command[]): Promise<Template[]>  // Create Q CLI-compatible prompts
-  adaptForAmazonQCLI(template: Template): Template                   // Convert from cc-sdd format
-  validateTemplate(template: Template): ValidationResult             // Ensure Amazon Q CLI compatibility
-}
+const SDD_AGENT_CONFIG = {
+  $schema: "https://raw.githubusercontent.com/aws/amazon-q-developer-cli/refs/heads/main/schemas/agent-v1.json",
+  name: "sdd",
+  description: "Spec-Driven Development agent with /kiro: command support",
+  tools: ["fs_read", "fs_write"],
+  toolsSettings: {
+    fs_write: {
+      allowedPaths: [".kiro/**", "*.md", ".amazonq/**"]
+    }
+  },
+  prompt: "Embedded agent prompt with /kiro: command recognition..."
+};
 
-class ScriptGenerator {
-  generateWrapperScripts(commands: Command[]): Promise<Script[]>   // Create shell script wrappers
-  createCommandAliases(platform: Platform): Promise<Alias[]>      // Generate platform-specific aliases
-  validateScripts(scripts: Script[]): Promise<ValidationResult[]> // Test script execution
-}
+const TEMPLATES = {
+  'spec-init.md': 'Template content for /kiro:spec-init command...',
+  'spec-requirements.md': 'Template content for /kiro:spec-requirements...',
+  // ... all 8 command templates
+};
 
-class ConfigurationManager {
-  generateAmazonQConfig(options: ConfigOptions): Promise<Config>   // Create AMAZONQ.md
-  handleLocalization(lang: Language): Promise<LocalizedConfig>     // Generate localized documentation
-  validateConfiguration(config: Config): ValidationResult         // Ensure config correctness
+function install() {
+  // Create Custom Agent configuration
+  // Create local templates
+  // Generate AMAZONQ.md documentation
 }
 ```
 
-### Frontend Components
-Since this is a CLI tool, components refer to command-line interfaces:
+### Command Components
+Native Amazon Q CLI slash commands provided by the Custom Agent:
 
-| Component | Responsibility | Options/Arguments |
-|-----------|---------------|-------------------|
-| `amazonq-sdd` | Main CLI entry point | `--lang`, `--os`, `--dry-run`, `--help` |
-| `kiro-spec-init` | Wrapper for spec initialization | `<description>` |
-| `kiro-spec-requirements` | Requirements generation wrapper | `<feature-name>` |
-| `kiro-spec-design` | Design generation wrapper | `<feature-name>`, `-y` |
-| `kiro-spec-tasks` | Task generation wrapper | `<feature-name>`, `-y` |
-| `kiro-spec-impl` | Implementation wrapper | `<feature-name>`, `<task-ids>` |
-| `kiro-spec-status` | Status checking wrapper | `<feature-name>` |
-| `kiro-steering` | Steering management wrapper | None |
-| `kiro-steering-custom` | Custom steering wrapper | `<filename>` |
+| Command | Responsibility | Usage Pattern |
+|---------|---------------|---------------|
+| `/kiro:spec-init` | Initialize new specification | `/kiro:spec-init "feature description"` |
+| `/kiro:spec-requirements` | Generate requirements document | `/kiro:spec-requirements feature-name` |
+| `/kiro:spec-design` | Create design document | `/kiro:spec-design feature-name` |
+| `/kiro:spec-tasks` | Generate task breakdown | `/kiro:spec-tasks feature-name` |
+| `/kiro:spec-impl` | Implementation guidance | `/kiro:spec-impl feature-name [tasks]` |
+| `/kiro:spec-status` | Check workflow status | `/kiro:spec-status feature-name` |
+| `/kiro:steering` | Project steering setup | `/kiro:steering` |
+| `/kiro:steering-custom` | Custom steering documents | `/kiro:steering-custom name` |
 
-### API Endpoints
-The package provides a programmatic API for integration:
+### NPX Commands
+The package provides simple CLI commands for management:
 
-| Method | Interface | Purpose | Parameters | Return Type |
-|--------|-----------|---------|------------|-------------|
-| install | CLI | Install amazonq-sdd templates | InstallOptions | Promise<InstallResult> |
-| generate | CLI | Generate specific command templates | GenerateOptions | Promise<Template[]> |
-| validate | CLI | Validate Amazon Q CLI compatibility | ValidateOptions | Promise<ValidationResult> |
-| configure | CLI | Update configuration files | ConfigOptions | Promise<Config> |
+| Command | Purpose | Usage | Return |
+|---------|---------|-------|-------|
+| install | Install SDD agent and templates | `npx amazonq-sdd install` | Installation status |
+| status | Check installation status | `npx amazonq-sdd status` | Current state |
+| uninstall | Remove agent and templates | `npx amazonq-sdd uninstall` | Cleanup status |
+| help | Show usage information | `npx amazonq-sdd help` | Command reference |
 
 ## Data Models
 
 ### Domain Entities
-1. **Command**: Represents a single SDD command (spec-init, spec-requirements, etc.)
-2. **Template**: Amazon Q CLI-compatible prompt template for a command
-3. **Script**: Shell script wrapper that integrates with Amazon Q CLI
-4. **Config**: Configuration data for AMAZONQ.md and related files
-5. **InstallOptions**: User preferences for installation (language, platform, etc.)
+1. **AgentConfig**: Amazon Q CLI Custom Agent JSON configuration
+2. **CommandTemplate**: Local template defining command behavior and implementation logic
+3. **InstallResult**: Status and results of installation process
+4. **Documentation**: Generated AMAZONQ.md and usage guides
+5. **FileOperations**: fs_read/fs_write operations for .kiro/ structure management
 
 ### Entity Relationships
 ```mermaid
 erDiagram
-    COMMAND ||--|| TEMPLATE : "generates"
-    COMMAND ||--|| SCRIPT : "creates"
-    TEMPLATE ||--o{ PROMPT : "contains"
-    SCRIPT ||--o{ ALIAS : "includes"
-    CONFIG ||--o{ LOCALIZATION : "supports"
-    INSTALLATION ||--|{ COMMAND : "installs"
+    INSTALLER ||--|| AGENT_CONFIG : "creates"
+    INSTALLER ||--|{ COMMAND_TEMPLATE : "generates"
+    INSTALLER ||--|| DOCUMENTATION : "produces"
+    AGENT_CONFIG ||--o{ SLASH_COMMAND : "recognizes"
+    COMMAND_TEMPLATE ||--|| IMPLEMENTATION_LOGIC : "defines"
+    SLASH_COMMAND ||--|| FILE_OPERATION : "executes"
 ```
 
 ### Data Model Definitions
 
-```typescript
-interface Command {
-  name: string;                    // e.g., 'spec-init'
-  description: string;             // Command description
-  arguments: CommandArgument[];    // Expected arguments
-  template: string;               // Prompt template path
-  scriptTemplate: string;        // Shell script template path
-  platforms: Platform[];         // Supported platforms
-}
+```javascript
+// Embedded data structures in install.js
 
-interface Template {
-  id: string;
-  commandName: string;
-  promptText: string;             // Structured prompt for Amazon Q CLI
-  variables: TemplateVariable[];  // Dynamic content placeholders
-  metadata: TemplateMetadata;     // Amazon Q CLI-specific metadata
-}
+const SDD_AGENT_CONFIG = {
+  $schema: "https://raw.githubusercontent.com/aws/amazon-q-developer-cli/refs/heads/main/schemas/agent-v1.json",
+  name: "sdd",
+  description: "Spec-Driven Development agent with /kiro: command support",
+  tools: ["fs_read", "fs_write"],
+  toolsSettings: {
+    fs_write: {
+      allowedPaths: [".kiro/**", "*.md", ".amazonq/**"]
+    }
+  },
+  prompt: "System-level prompt with embedded command recognition logic..."
+};
 
-interface Script {
-  commandName: string;
-  platform: Platform;
-  scriptContent: string;         // Generated shell script content
-  executable: boolean;           // Whether script should be made executable
-  aliasName: string;             // Command alias (e.g., 'kiro-spec-init')
-}
+const TEMPLATES = {
+  'spec-init.md': `---
+description: Initialize new SDD specification
+allowed-tools: fs_read, fs_write
+model: amazon-q-developer
+agent: sdd
+---
 
-interface Config {
-  projectName: string;
-  language: Language;
-  amazonQCLIPath: string;        // Path to Amazon Q CLI binary
-  kiroDirectory: string;         // .kiro/ directory location
-  localization: LocalizedStrings;
-}
+# Implementation logic for /kiro:spec-init command...`,
+  // ... additional templates
+};
 
-interface InstallOptions {
-  language?: Language;           // 'en' | 'ja' | 'zh-TW'
-  platform?: Platform;          // 'mac' | 'windows' | 'linux'
-  kiroDirectory?: string;        // Custom .kiro/ location
-  dryRun?: boolean;             // Preview changes without applying
+const AMAZONQ_MD_TEMPLATE = `# Amazon Q CLI SDD Agent
+
+This project uses the SDD (Spec-Driven Development) Custom Agent...`;
+
+class InstallResult {
+  constructor(success, message, files) {
+    this.success = success;
+    this.message = message;
+    this.installedFiles = files;
+  }
 }
 ```
 
-### Shell Script Integration Model
+### Custom Agent Command Recognition Model
 
-```bash
-#!/bin/bash
-# Generated shell script template for kiro-spec-init
+```markdown
+# Amazon Q CLI Custom Agent: Spec Initialization
 
-AMAZONQ_CLI="${AMAZONQ_CLI_PATH:-q}"
-KIRO_DIR="${KIRO_DIR:-.kiro}"
+The SDD Custom Agent should recognize and execute this pattern:
+```
+/kiro:spec-init <description>
+```
 
-# Structured prompt for Amazon Q CLI
-PROMPT="I want to initialize a new specification for: $*
+## Implementation Logic
 
-Please help me:
-1. Generate a unique feature name from the description
-2. Create the .kiro/specs/{feature-name}/ directory structure
-3. Initialize requirements.md, design.md, tasks.md, and spec.json files
-4. Follow the spec-driven development workflow format
+When a user types `/kiro:spec-init "feature description"` in `q chat --agent sdd`:
 
-Use the project context from AMAZONQ.md if available."
+### 1. Parse Command
+- Extract feature description from user input
+- Generate kebab-case feature name from description
+- Validate description is not empty
 
-# Execute with Amazon Q CLI
-$AMAZONQ_CLI chat "$PROMPT"
+### 2. Create Directory Structure
+- Create `.kiro/specs/{feature-name}/` directory
+- Ensure proper permissions and error handling
+
+### 3. Initialize Files
+- Create `requirements.md` with template structure
+- Create `design.md`, `tasks.md` as empty templates
+- Create `spec.json` with initial phase tracking
+
+### 4. Provide Response
+- Confirm successful initialization
+- Show next steps for the user
+- Reference project steering if available
 ```
 
 ## Error Handling
 
 ### Error Categories and Handling Strategy
 1. **Installation Errors**
-   - Amazon Q CLI not found: Provide installation instructions
-   - Permission errors: Guide user through permission setup
-   - Directory creation failures: Offer alternative locations
+   - Amazon Q CLI not found: Provide installation instructions and links
+   - Permission errors: Guide user through directory permission setup
+   - Agent directory missing: Create ~/.aws/amazonq/cli-agents/ automatically
 
-2. **Template Generation Errors**  
-   - Invalid template syntax: Validation with specific error messages
-   - Amazon Q CLI compatibility issues: Automatic adaptation with warnings
-   - Missing dependencies: Clear dependency installation instructions
+2. **Custom Agent Errors**  
+   - Agent not loading: Provide agent status checking and reinstall instructions
+   - Command not recognized: Show exact /kiro: command syntax with examples
+   - File permission errors: Guide user on proper .kiro/ directory setup
 
-3. **Runtime Errors**
-   - Command execution failures: Fallback to manual prompt guidance
-   - Configuration file corruption: Automatic backup and restoration
-   - Network connectivity issues: Offline mode with cached templates
+3. **Template Errors**
+   - Template file corruption: Recreate templates from embedded sources
+   - Missing template files: Reinstall local templates automatically
+   - Template customization issues: Provide template restoration options
 
-4. **Validation Errors**
-   - Malformed configuration: Step-by-step configuration repair
-   - Incompatible Amazon Q CLI version: Version compatibility matrix
-   - Missing project structure: Automatic structure recreation
+4. **Workflow Errors**
+   - Invalid spec.json: Show validation errors and auto-fix options
+   - Missing workflow phases: Guide user through proper SDD sequence
+   - File operation failures: Provide clear fs_write permission guidance
 
 ## Security Considerations
 
 Security implementation following OWASP practices:
 
-- **Input Validation**: All user inputs sanitized before shell script generation
-- **File System Access**: Restricted to project directory and standard locations
-- **Script Execution**: Generated scripts include safety checks and validation
-- **Configuration Security**: AMAZONQ.md files exclude sensitive data patterns
-- **Dependency Management**: NPM audit integration and secure dependency updates
-- **Shell Injection Prevention**: All dynamic content properly escaped in script generation
+- **File System Restrictions**: Custom Agent fs_write limited to .kiro/**, *.md, .amazonq/** paths only
+- **No Shell Execution**: Agent uses only fs_read/fs_write tools, no shell command execution
+- **Input Validation**: All user inputs validated before file operations
+- **Configuration Security**: Agent configuration contains no secrets or sensitive data
+- **Zero Dependencies**: No external package dependencies eliminates supply chain risks
+- **Amazon Q CLI Security**: Leverages Amazon Q CLI's built-in security model and access controls
 
 ## Performance & Scalability
 
 ### Performance Targets
 | Metric | Target | Measurement |
 |--------|--------|-------------|
-| Installation Time | < 10 seconds | Full template generation |
-| Template Generation | < 2 seconds | Single command template |
-| Script Execution | < 5 seconds | Shell wrapper to Amazon Q CLI |
-| Configuration Validation | < 1 second | Config file checking |
-| Large Project Setup | < 30 seconds | Complete .kiro/ structure |
+| Installation Time | < 10 seconds | Full agent and template setup |
+| Command Recognition | < 1 second | /kiro: command parsing |
+| File Operations | < 3 seconds | .kiro/ structure creation |
+| Agent Loading | < 2 seconds | Custom Agent initialization |
+| Template Processing | < 5 seconds | Complete workflow file generation |
 
 ### Optimization Strategies
-- **Template Caching**: Pre-compiled templates for faster generation
-- **Parallel Processing**: Concurrent template and script generation
-- **Lazy Loading**: Load templates only when needed
-- **File System Optimization**: Minimal file operations during installation
-- **Memory Management**: Streaming for large template processing
+- **Embedded Configuration**: All templates and configs embedded in single installer
+- **Direct File Operations**: Native fs operations without shell overhead
+- **Agent Prompt Optimization**: Efficient command recognition patterns
+- **Local Template Caching**: Templates stored locally for instant access
+- **Minimal Network Dependency**: Only NPX download, everything else is local
 
 ### Scalability Approach
 - **Horizontal Scaling**: Package supports multiple concurrent installations
@@ -280,39 +288,39 @@ Security implementation following OWASP practices:
 ### Risk Matrix
 | Area | Risk | Must | Optional | Ref |
 |---|---|---|---|---|
-| Shell Script Generation | H | Unit, Integration | Cross-platform | 1.1, 6.1 |
-| Amazon Q CLI Integration | H | Contract, E2E | Compatibility | 1.2, 6.2 |
-| Template Validation | M | Unit, Property | Fuzzing | 6.1, 6.3 |
-| Configuration Management | M | Unit, Integration | Localization | 5.1, 5.2 |
-| Installation Process | H | E2E, System | Recovery | 7.1, 7.2 |
+| Custom Agent Installation | H | Unit, Integration | Recovery | 1.1, 6.1 |
+| Command Recognition | H | Contract, E2E | Compatibility | 1.2, 6.2 |
+| Template Generation | M | Unit, Property | Validation | 6.1, 6.3 |
+| File Operations | M | Unit, Integration | Permissions | 5.1, 5.2 |
+| NPX Installation | H | E2E, System | Cross-platform | 7.1, 7.2 |
 
 ### Test Implementation Strategy
 
 #### Unit Tests
-- Template generation logic with various input combinations
-- Configuration parsing and validation
-- Shell script content generation and syntax validation
+- Agent configuration generation and JSON schema validation
+- Template content creation and markdown format validation
+- File operation logic with various path scenarios
 - Error handling for all failure scenarios
-- Cross-platform path handling and script generation
+- Cross-platform directory creation and permissions
 
 #### Integration Tests
-- Amazon Q CLI binary detection and version compatibility
-- Complete installation flow with file system verification
-- Generated shell scripts execution with Amazon Q CLI
-- Configuration file generation and reading
-- Localization file generation for all supported languages
+- Custom Agent installation and Amazon Q CLI recognition
+- Complete NPX installation flow with file system verification
+- Local template creation and customization capabilities
+- AMAZONQ.md generation and content validation
+- Agent command recognition within q chat sessions
 
 #### End-to-End Tests
 - Full `npx amazonq-sdd@latest` installation workflow
-- Generated wrapper scripts functionality with real Amazon Q CLI
-- Complete SDD workflow: spec-init → requirements → design → tasks
-- Cross-platform installation on macOS, Windows, Linux
+- Custom Agent functionality with real Amazon Q CLI sessions
+- Complete SDD workflow: /kiro:spec-init → /kiro:spec-requirements → design → tasks
+- Template customization and agent behavior modification
 
 #### Contract Tests
-- Amazon Q CLI command format compatibility
-- Generated prompt structure validation
-- Shell script syntax validation across platforms
-- Configuration file schema adherence
+- Amazon Q CLI Custom Agent schema compliance
+- /kiro: command recognition pattern validation
+- fs_read/fs_write tool usage within allowed paths
+- Template format and agent instruction compatibility
 
 ### CI Gates
 | Stage | Run | Gate | SLA |
@@ -323,7 +331,8 @@ Security implementation following OWASP practices:
 
 ### Exit Criteria
 - All unit and integration tests passing
-- Cross-platform installation verified
-- Amazon Q CLI integration working end-to-end
-- Template generation producing valid Amazon Q CLI prompts
-- Documentation complete for all supported languages
+- Cross-platform NPX installation verified
+- Custom Agent command recognition working in Amazon Q CLI
+- Local template system functional and customizable
+- Complete SDD workflow validated end-to-end
+- Documentation and usage guides complete

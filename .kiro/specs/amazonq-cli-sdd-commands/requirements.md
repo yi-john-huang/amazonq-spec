@@ -1,9 +1,13 @@
 # Requirements Document
 
 ## Introduction
-This feature creates a production-ready `amazonq-sdd` NPM package that provides native `/kiro:` command support in Amazon Q CLI through Custom Agents. The package enables Amazon Q CLI users to leverage the same systematic spec-driven development workflow that Claude Code users enjoy, but with native integration through Amazon Q CLI's Custom Agent system rather than external shell scripts.
+This feature creates a production-ready `amazonq-sdd` NPM package that provides native `/kiro:` command support in Amazon Q CLI through Custom Agents. The package enables Amazon Q CLI users to leverage the same systematic spec-driven development workflow that Claude Code users enjoy, but with native integration through Amazon Q CLI's Custom Agent system.
 
-The `amazonq-sdd` package delivers a single-command installation (`npx amazonq-sdd`) that configures an SDD Custom Agent in Amazon Q CLI, allowing users to execute commands like `/kiro:spec-init` directly in chat sessions with `q chat --agent sdd`.
+The `amazonq-sdd` package delivers a single-command installation (`npx amazonq-sdd`) that:
+1. Installs an SDD Custom Agent configuration to `~/.aws/amazonq/cli-agents/sdd.json`
+2. Creates local customizable templates in `.amazonq/commands/kiro/`
+3. Generates comprehensive `AMAZONQ.md` documentation
+4. Enables immediate use with `q chat --agent sdd` to execute commands like `/kiro:spec-init`
 
 ## Requirements
 
@@ -11,21 +15,27 @@ The `amazonq-sdd` package delivers a single-command installation (`npx amazonq-s
 **User Story:** As a developer, I want to install SDD functionality for Amazon Q CLI with a single command, so that I can start using spec-driven development workflows immediately without complex setup.
 
 #### Acceptance Criteria
-1. WHEN a user runs `npx amazonq-sdd` THEN the system SHALL download and execute a single installer file (~12KB)
-2. WHEN installation completes THEN the system SHALL write an SDD Custom Agent configuration to `~/.aws/amazonq/cli-agents/sdd.json`
+1. WHEN a user runs `npx amazonq-sdd` THEN the system SHALL download and execute a single installer file (~30KB)
+2. WHEN installation completes THEN the system SHALL:
+   - Write SDD Custom Agent configuration to `~/.aws/amazonq/cli-agents/sdd.json`
+   - Create local templates in `.amazonq/commands/kiro/`
+   - Generate `AMAZONQ.md` documentation file
 3. IF Amazon Q CLI is not detected THEN the system SHALL provide clear instructions for Amazon Q CLI installation
 4. WHEN installation succeeds THEN users SHALL be able to immediately use `q chat --agent sdd` to access SDD commands
-5. WHILE being a standalone package THE installer SHALL include all necessary agent configuration embedded within the installer file
+5. WHILE being a standalone package THE installer SHALL include all necessary configurations and templates embedded within the installer file
 
-### Requirement 2: Custom Agent Configuration
-**User Story:** As an Amazon Q CLI user, I want native `/kiro:` command recognition in chat sessions, so that I can use spec-driven development commands naturally without external tools.
+### Requirement 2: Custom Agent Configuration with Local Templates
+**User Story:** As an Amazon Q CLI user, I want native `/kiro:` command recognition in chat sessions with customizable behavior, so that I can use spec-driven development commands naturally and adapt them to my project needs.
 
 #### Acceptance Criteria
-1. WHEN users type `/kiro:spec-init <description>` in `q chat --agent sdd` THEN the agent SHALL immediately recognize and execute the command
-2. WHEN Custom Agent executes commands THEN it SHALL have access to `fs_read` and `fs_write` tools restricted to `.kiro/**` and `*.md` paths
+1. WHEN users type `/kiro:spec-init <description>` in `q chat --agent sdd` THEN the agent SHALL recognize and execute the command using local template guidance
+2. WHEN Custom Agent executes commands THEN it SHALL:
+   - Have access to `fs_read` and `fs_write` tools restricted to `.kiro/**`, `*.md`, and `.amazonq/**` paths
+   - Reference local templates in `.amazonq/commands/kiro/` for command behavior
+   - Follow the detailed implementation logic defined in each template
 3. IF users type unrecognized `/kiro:` commands THEN the agent SHALL provide helpful suggestions for correct syntax
 4. WHEN the agent processes commands THEN it SHALL maintain workflow state through spec.json files in each feature directory
-5. WHERE Amazon Q CLI provides native slash command support THE agent SHALL leverage those capabilities for optimal user experience
+5. WHERE users need customization THEN they SHALL be able to edit templates in `.amazonq/commands/kiro/` to modify command behavior
 
 ### Requirement 3: Complete SDD Command Suite
 **User Story:** As a developer, I want access to all 8 SDD commands through the Custom Agent, so that I have complete spec-driven development workflow capabilities.
@@ -61,11 +71,11 @@ The `amazonq-sdd` package delivers a single-command installation (`npx amazonq-s
 **User Story:** As a system administrator, I want the SDD package to have no external dependencies, so that installation is fast, secure, and doesn't introduce supply chain risks.
 
 #### Acceptance Criteria
-1. WHEN users install via NPX THEN the system SHALL download only a single installer file with embedded agent configuration
+1. WHEN users install via NPX THEN the system SHALL download only a single installer file with embedded agent configuration and templates
 2. WHEN the installer runs THEN it SHALL use only Node.js built-in modules (fs, path, os, child_process)
 3. IF the installer requires external tools THEN it SHALL only depend on Amazon Q CLI being available in PATH
 4. WHEN packaging for NPM THEN the package SHALL contain only: install.js, package.json, README.md, and LICENSE files
-5. WHILE maintaining functionality THE package SHALL remain under 20KB total size
+5. WHILE maintaining functionality THE package SHALL remain under 35KB total size
 
 ### Requirement 7: Documentation and User Experience
 **User Story:** As a new user, I want clear documentation and helpful error messages, so that I can successfully install and use SDD features without confusion.
@@ -90,7 +100,9 @@ The `amazonq-sdd` package delivers a single-command installation (`npx amazonq-s
 ## Success Metrics
 - Installation success rate >99% across supported platforms
 - Time from `npx amazonq-sdd` to first working `/kiro:spec-init` command <30 seconds
-- Package size <20KB total
+- Package size <35KB total
 - Zero external dependencies maintained
 - User satisfaction scores >4.5/5 for setup experience
-- Complete feature parity with original shell script implementation
+- Complete feature parity with Claude Code SDD implementation
+- Local template customization capability verified
+- Agent behavior matches template specifications
