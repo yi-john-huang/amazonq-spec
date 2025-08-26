@@ -25,80 +25,91 @@ Based on the current specification analysis:
 
 ## Request
 
-Please generate a comprehensive requirements document that includes:
+Please generate a comprehensive requirements document using **EARS (Easy Approach to Requirements Syntax)** format that includes:
 
-### 1. Functional Requirements
-- Core functionality that the feature must provide
-- User interactions and workflows
-- Data handling and processing requirements
-- Integration points with existing systems
-- Input/output specifications
+### 1. Functional Requirements (using EARS keywords)
+- Core functionality using SHALL statements
+- Conditional behavior using IF-THEN statements  
+- Temporal requirements using WHEN clauses
+- Location/scope constraints using WHERE clauses
+- Ongoing behavior using WHILE clauses
 
-### 2. Non-Functional Requirements
-- Performance requirements (response times, throughput)
-- Security requirements
-- Scalability considerations
-- Usability requirements
-- Compatibility requirements
-- Reliability and availability requirements
+### 2. Non-Functional Requirements (using EARS format)
+- Performance requirements with SHALL statements and measurable criteria
+- Security requirements with specific SHALL obligations
+- Scalability requirements with quantified SHALL statements
+- Usability requirements with testable SHALL criteria
+- Compatibility and reliability requirements
 
-### 3. Business Rules
-- Validation rules
-- Business logic constraints
-- Workflow rules
-- Data integrity requirements
+### 3. Constraints (EARS format)
+- Technology stack SHALL requirements
+- Platform SHALL requirements  
+- Third-party dependency SHALL requirements
+- Architecture SHALL constraints
 
-### 4. Technical Constraints
-- Technology stack limitations
-- Platform requirements
-- Third-party dependencies
-- Architecture constraints
-
-### 5. Acceptance Criteria
-- Clear, testable criteria for each requirement
-- Success metrics
-- Edge cases and error conditions
+### 4. Assumptions (EARS format)
+- Environmental assumptions using SHALL statements
+- Data availability assumptions
+- User capability assumptions
+- External system assumptions
 
 ## Expected Output Format
 
-Please structure the requirements document as follows:
+Please structure the requirements document using **EARS format** as follows:
 ```markdown
-# Requirements: [Feature Name]
+# Requirements Document - EARS Format
 
-## Overview
-[Brief summary of what will be built]
+## Introduction
+[Brief summary of what will be built and its purpose]
 
 ## Functional Requirements
-### FR-001: [Requirement Title]
-**Description**: [Clear description]
-**Priority**: High/Medium/Low
-**Acceptance Criteria**:
-- [ ] Criterion 1
-- [ ] Criterion 2
+
+### REQ-001: [Functional Area]
+WHEN [trigger condition], the system SHALL [required behavior].
+
+### REQ-002: [Conditional Requirement]  
+IF [condition] THEN the system SHALL [action], OTHERWISE the system SHALL [alternative].
+
+### REQ-003: [Scope Constraint]
+WHERE [location/scope condition], the system SHALL [scoped behavior].
+
+### REQ-004: [Continuous Requirement]
+WHILE [ongoing condition], the system SHALL [sustained behavior].
 
 ## Non-Functional Requirements
-### NFR-001: [Requirement Title]
-**Description**: [Clear description]
-**Metric**: [Measurable criteria]
-**Priority**: High/Medium/Low
 
-## Business Rules
-### BR-001: [Rule Title]
-**Description**: [Rule description]
-**Impact**: [What happens if violated]
+### REQ-NFR-001: Performance
+The system SHALL [performance requirement with measurable criteria].
 
-## Technical Constraints
-### TC-001: [Constraint Title]
-**Description**: [Constraint description]
-**Rationale**: [Why this constraint exists]
+### REQ-NFR-002: Security  
+The system SHALL [security requirement with specific obligations].
+
+### REQ-NFR-003: Usability
+The system SHALL [usability requirement with testable criteria].
+
+## Constraints
+
+### REQ-CON-001: [Constraint Type]
+The system SHALL [constraint requirement].
+
+### REQ-CON-002: [Technical Limitation]  
+The system SHALL [technical constraint].
+
+## Assumptions
+
+### REQ-ASM-001: [Environmental Assumption]
+[Assumption description] SHALL [expected condition].
+
+### REQ-ASM-002: [Data Assumption]
+[Data/resource] SHALL [availability/accessibility requirement].
 ```
 
-Please ensure all requirements are:
-- **Specific**: Clear and unambiguous
-- **Measurable**: Include quantifiable criteria where possible
+Please ensure all EARS requirements are:
+- **Specific**: Use precise EARS keywords (SHALL, WHEN, IF-THEN, WHERE, WHILE)
+- **Measurable**: Include quantifiable criteria in SHALL statements
 - **Achievable**: Technically feasible within project constraints
 - **Relevant**: Aligned with business objectives
-- **Time-bound**: Include any temporal constraints
+- **Testable**: Each requirement should be verifiable using the EARS structure
 
 After generating requirements, the next step will be design using `/kiro:spec-design {{FEATURE_NAME}}`.
 

@@ -37,9 +37,10 @@ When users type /kiro: commands, immediately recognize and execute them:
   - Generate requirements.md, design.md, tasks.md, spec.json files
   - Set initial workflow state to "requirements-generated"
   
-- \`/kiro:spec-requirements <feature>\` → Generate/update requirements document
-  - Update requirements.md with detailed functional and non-functional requirements
-  - Include user stories, acceptance criteria, and success metrics
+- \`/kiro:spec-requirements <feature>\` → Generate/update requirements document  
+  - Update requirements.md with detailed functional and non-functional requirements in EARS format
+  - Use proper EARS keywords: SHALL, WHEN, IF-THEN, WHERE, WHILE for clear requirement statements
+  - Include constraints and assumptions sections with proper EARS structure
   - Mark requirements phase as generated in spec.json
 
 - \`/kiro:spec-design <feature>\` → Generate technical design document
@@ -449,51 +450,72 @@ When a user types \`/kiro:spec-requirements feature-name\` in \`q chat --agent s
 - Read \`.kiro/steering/\` files if they exist for project context
 - Check current phase in spec.json
 
-### 3. Generate Comprehensive Requirements
-Create detailed requirements document with:
+### 3. Generate Comprehensive Requirements in EARS Format
+Create detailed requirements document using EARS (Easy Approach to Requirements Syntax) with:
 
-#### Structure Template:
+#### Structure Template (EARS Format):
 \`\`\`markdown
-# Requirements Document
+# Requirements Document - EARS Format
 
 ## Introduction
 {AI-generated introduction based on project description}
 
-## Requirements
+## Functional Requirements
 
-### Requirement 1: {Functional Area}
-**User Story:** As a {user type}, I want {functionality}, so that {benefit}.
+### REQ-001: {Functional Area}
+WHEN {trigger condition}, the system SHALL {required behavior}.
 
-#### Acceptance Criteria
-1. WHEN {condition} THEN the system SHALL {behavior}
-2. IF {condition} THEN the system SHALL {alternate behavior} 
-3. WHERE {constraint} THE system SHALL {constrained behavior}
-4. WHILE {ongoing condition} THE system SHALL {continuous behavior}
+### REQ-002: {Another Functional Area}
+IF {conditional state} THEN the system SHALL {consequent action}.
 
-### Requirement 2: {Another Functional Area}
-[... continue pattern ...]
+### REQ-003: {Ongoing Behavior}
+WHILE {continuous condition}, the system SHALL {sustained behavior}.
+
+### REQ-004: {Location/Scope Constraint}
+WHERE {location/scope condition}, the system SHALL {scoped behavior}.
+
+### REQ-005: {Complex Conditional}
+IF {condition} THEN the system SHALL {primary action}, OTHERWISE the system SHALL {alternative action}.
+
+[Continue with REQ-006, REQ-007, etc. using appropriate EARS keywords]
 
 ## Non-Functional Requirements
 
-### Performance Requirements
-- Response time requirements
-- Throughput requirements
-- Resource utilization limits
+### REQ-NFR-001: Performance
+The system SHALL respond to user requests within {X} seconds.
 
-### Security Requirements  
-- Authentication and authorization
-- Data protection requirements
-- Security compliance needs
+### REQ-NFR-002: Throughput  
+The system SHALL support {Y} concurrent users.
 
-### Usability Requirements
-- User experience expectations
-- Accessibility requirements
-- User interface guidelines
+### REQ-NFR-003: Security
+The system SHALL encrypt all data transmission using TLS 1.3 or higher.
+
+### REQ-NFR-004: Availability
+The system SHALL maintain {Z}% uptime during business hours.
+
+### REQ-NFR-005: Usability
+The system SHALL require no more than {N} clicks to complete primary user tasks.
+
+## Constraints
+
+### REQ-CON-001: Technology
+The system SHALL use {specified technology stack}.
+
+### REQ-CON-002: Compliance
+The system SHALL comply with {relevant regulations}.
+
+## Assumptions
+
+### REQ-ASM-001: User Environment
+Users SHALL have {specified environment/access}.
+
+### REQ-ASM-002: Data Availability
+Required data SHALL be accessible via {specified means}.
 
 ## Success Metrics
-- Key performance indicators
-- Measurable success criteria
-- Testing and validation approach
+- Key performance indicators with measurable targets
+- Acceptance criteria for each requirement category  
+- Testing and validation approach with specific metrics
 \`\`\`
 
 ### 4. Update Workflow State
