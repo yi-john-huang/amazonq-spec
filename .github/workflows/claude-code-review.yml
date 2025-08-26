@@ -12,6 +12,8 @@ on:
 
 jobs:
   claude-review:
+    # Temporarily disabled due to NPM registry 403 errors in claude-code-action@beta
+    if: false
     # Optional: Filter by PR author
     # if: |
     #   github.event.pull_request.user.login == 'external-contributor' ||
