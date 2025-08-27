@@ -1,6 +1,6 @@
 {
   "name": "amazonq-sdd",
-  "version": "0.3.0",
+  "version": "1.0.4",
   "description": "Spec-driven development workflow for Amazon Q CLI users",
   "main": "dist/cli.js",
   "bin": {
