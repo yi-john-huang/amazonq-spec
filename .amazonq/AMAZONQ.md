@@ -19,8 +19,9 @@ q chat --agent sdd
 
 The SDD Custom Agent is configured with:
 - **Name**: `sdd`
-- **Tools**: `fs_read`, `fs_write` 
-- **Allowed Paths**: `.kiro/**`, `*.md`
+- **Tools**: `fs_read`, `fs_write`, `shell`, `fs_list`, `fs_delete`, `fs_stat`
+- **Allowed Paths**: Full workspace access (`**/*`)
+- **Languages**: JavaScript, Java, Go, Python support
 - **Command Prefix**: `/kiro:`
 
 ## Available Commands
@@ -72,17 +73,18 @@ Command behavior is defined in:
 
 ## Security Model
 
-The SDD agent operates with restricted file system access:
-- **Read Access**: Any file in project
-- **Write Access**: Only `.kiro/**` and `*.md` files
-- **No Network**: Agent cannot make network requests
-- **No Shell**: Agent cannot execute shell commands
+The SDD agent operates with comprehensive development access:
+- **File Access**: Full workspace read/write/delete access
+- **Shell Access**: Development commands (build, test, lint) for JavaScript, Java, Go, Python
+- **Project Management**: Directory listing, file status checking, spec lifecycle management
+- **No Network**: Agent cannot make network requests for security
 
 ## Integration Notes
 
 This Custom Agent integrates with Amazon Q CLI's native capabilities:
-- Uses Amazon Q CLI's built-in file tools (`fs_read`, `fs_write`)
+- Uses Amazon Q CLI's comprehensive toolset (`fs_read`, `fs_write`, `shell`, `fs_list`, `fs_delete`, `fs_stat`)
 - Leverages Amazon Q CLI's slash command recognition
+- Provides multi-language development support (JavaScript, Java, Go, Python)
 - Respects Amazon Q CLI's security and sandboxing model
 - Works within Amazon Q CLI's chat interface
 

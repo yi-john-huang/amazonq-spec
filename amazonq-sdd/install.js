@@ -2,7 +2,7 @@
 
 /**
  * SDD Custom Agent Installer for Amazon Q CLI
- * Version 1.0.0
+ * Version 1.1.0
  * 
  * Complete installation includes:
  * - Custom Agent configuration (~/.aws/amazonq/cli-agents/sdd.json)
@@ -66,11 +66,38 @@ For each command, follow the EXACT format and behavior defined in the correspond
 - Reference previous specifications when creating related features
 - Maintain consistency with established patterns and technologies
 
+## MULTI-LANGUAGE SUPPORT
+The agent supports comprehensive development workflows for:
+- **JavaScript/TypeScript**: npm, yarn, pnpm, node, bun, deno
+- **Java**: Maven (mvn), Gradle, Ant, java, javac
+- **Go**: go build, go test, go mod, gofmt, golint
+- **Python**: pip, poetry, pipenv, python3
+
+## ENHANCED CAPABILITIES
+With expanded tool access, the agent can:
+- **Execute builds and tests**: Run project-specific build commands and test suites
+- **Manage project structure**: List directories, check file status, clean up outdated specs
+- **Validate implementations**: Execute linters, formatters, and quality checks
+- **Full workspace access**: Read, write, and manage files across the entire project
+
 Always respond helpfully and execute the requested command according to its template.`,
-  "tools": ["fs_read", "fs_write"],
+  "tools": ["fs_read", "fs_write", "shell", "fs_list", "fs_delete", "fs_stat"],
   "toolsSettings": {
     "fs_write": {
-      "allowedPaths": [".kiro/**", "AMAZONQ.md", "*.md"]
+      "allowedPaths": ["**/*"]
+    },
+    "shell": {
+      "allowedCommands": [
+        "npm", "yarn", "pnpm", "node", "npx", "bun", "deno",
+        "java", "javac", "mvn", "gradle", "ant",
+        "go", "gofmt", "golint", "go-outline", "gopls",
+        "python", "python3", "pip", "pip3", "poetry", "pipenv",
+        "git", "make", "cmake", "test", "echo", "cat", "ls", "pwd"
+      ],
+      "allowedPaths": ["**/*"]
+    },
+    "fs_delete": {
+      "allowedPaths": ["**/*"]
     }
   }
 };
@@ -98,8 +125,9 @@ q chat --agent sdd
 
 The SDD Custom Agent is configured with:
 - **Name**: \`sdd\`
-- **Tools**: \`fs_read\`, \`fs_write\` 
-- **Allowed Paths**: \`.kiro/**\`, \`*.md\`
+- **Tools**: \`fs_read\`, \`fs_write\`, \`shell\`, \`fs_list\`, \`fs_delete\`, \`fs_stat\`
+- **Allowed Paths**: Full workspace access (\`**/*\`)
+- **Languages**: JavaScript, Java, Go, Python support
 - **Command Prefix**: \`/kiro:\`
 
 ## Available Commands
@@ -153,17 +181,18 @@ Command behavior is defined in:
 
 ## Security Model
 
-The SDD agent operates with restricted file system access:
-- **Read Access**: Any file in project
-- **Write Access**: Only \`.kiro/**\` and \`*.md\` files
-- **No Network**: Agent cannot make network requests
-- **No Shell**: Agent cannot execute shell commands
+The SDD agent operates with comprehensive development access:
+- **File Access**: Full workspace read/write/delete access
+- **Shell Access**: Development commands (build, test, lint) for JavaScript, Java, Go, Python
+- **Project Management**: Directory listing, file status checking, spec lifecycle management
+- **No Network**: Agent cannot make network requests for security
 
 ## Integration Notes
 
 This Custom Agent integrates with Amazon Q CLI's native capabilities:
-- Uses Amazon Q CLI's built-in file tools (\`fs_read\`, \`fs_write\`)
+- Uses Amazon Q CLI's comprehensive toolset (\`fs_read\`, \`fs_write\`, \`shell\`, \`fs_list\`, \`fs_delete\`, \`fs_stat\`)
 - Leverages Amazon Q CLI's slash command recognition
+- Provides multi-language development support (JavaScript, Java, Go, Python)
 - Respects Amazon Q CLI's security and sandboxing model
 - Works within Amazon Q CLI's chat interface
 
@@ -1391,7 +1420,7 @@ function checkStatus() {
 function showHelp() {
   console.log(`\x1b[1m
 SDD Custom Agent for Amazon Q CLI
-Version 1.0.0
+Version 1.1.0
 
 Native /kiro: command support for spec-driven development workflows
 \x1b[0m
