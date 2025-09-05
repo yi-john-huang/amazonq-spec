@@ -2,7 +2,7 @@
 
 /**
  * SDD Custom Agent Installer for Amazon Q CLI
- * Version 1.1.0
+ * Version 1.2.0
  * 
  * Complete installation includes:
  * - Custom Agent configuration (~/.aws/amazonq/cli-agents/sdd.json)
@@ -74,32 +74,15 @@ The agent supports comprehensive development workflows for:
 - **Python**: pip, poetry, pipenv, python3
 
 ## ENHANCED CAPABILITIES
-With expanded tool access, the agent can:
-- **Execute builds and tests**: Run project-specific build commands and test suites
-- **Manage project structure**: List directories, check file status, clean up outdated specs
-- **Validate implementations**: Execute linters, formatters, and quality checks
-- **Full workspace access**: Read, write, and manage files across the entire project
+With unrestricted tool access, the agent can:
+- **Execute any commands**: Run builds, tests, deployments, and system operations
+- **Full file system access**: Read, write, delete files anywhere accessible
+- **Network operations**: Make HTTP requests and interact with APIs
+- **Complete development workflow**: From specification to deployment and monitoring
 
 Always respond helpfully and execute the requested command according to its template.`,
-  "tools": ["fs_read", "fs_write", "shell", "fs_list", "fs_delete", "fs_stat"],
-  "toolsSettings": {
-    "fs_write": {
-      "allowedPaths": ["**/*"]
-    },
-    "shell": {
-      "allowedCommands": [
-        "npm", "yarn", "pnpm", "node", "npx", "bun", "deno",
-        "java", "javac", "mvn", "gradle", "ant",
-        "go", "gofmt", "golint", "go-outline", "gopls",
-        "python", "python3", "pip", "pip3", "poetry", "pipenv",
-        "git", "make", "cmake", "test", "echo", "cat", "ls", "pwd"
-      ],
-      "allowedPaths": ["**/*"]
-    },
-    "fs_delete": {
-      "allowedPaths": ["**/*"]
-    }
-  }
+  "tools": "*",
+  "toolsSettings": {}
 };
 
 // Template files embedded directly
@@ -125,9 +108,9 @@ q chat --agent sdd
 
 The SDD Custom Agent is configured with:
 - **Name**: \`sdd\`
-- **Tools**: \`fs_read\`, \`fs_write\`, \`shell\`, \`fs_list\`, \`fs_delete\`, \`fs_stat\`
-- **Allowed Paths**: Full workspace access (\`**/*\`)
-- **Languages**: JavaScript, Java, Go, Python support
+- **Tools**: All available tools (\`*\`)
+- **Access Level**: Unrestricted system access
+- **Languages**: JavaScript, Java, Go, Python, and all supported languages
 - **Command Prefix**: \`/kiro:\`
 
 ## Available Commands
@@ -181,19 +164,19 @@ Command behavior is defined in:
 
 ## Security Model
 
-The SDD agent operates with comprehensive development access:
-- **File Access**: Full workspace read/write/delete access
-- **Shell Access**: Development commands (build, test, lint) for JavaScript, Java, Go, Python
-- **Project Management**: Directory listing, file status checking, spec lifecycle management
-- **No Network**: Agent cannot make network requests for security
+The SDD agent operates with unrestricted system access:
+- **File Access**: Full file system read/write/delete access
+- **Command Execution**: Any shell command or system operation
+- **Network Access**: HTTP requests, API interactions, web scraping
+- **Tool Access**: All Amazon Q CLI tools and capabilities without restrictions
 
 ## Integration Notes
 
 This Custom Agent integrates with Amazon Q CLI's native capabilities:
-- Uses Amazon Q CLI's comprehensive toolset (\`fs_read\`, \`fs_write\`, \`shell\`, \`fs_list\`, \`fs_delete\`, \`fs_stat\`)
+- Uses all available Amazon Q CLI tools without restrictions (\`tools: "*"\`)
 - Leverages Amazon Q CLI's slash command recognition
-- Provides multi-language development support (JavaScript, Java, Go, Python)
-- Respects Amazon Q CLI's security and sandboxing model
+- Provides unrestricted development and system operation support
+- Full access to Amazon Q CLI's capabilities
 - Works within Amazon Q CLI's chat interface
 
 ## Usage Examples
@@ -1420,7 +1403,7 @@ function checkStatus() {
 function showHelp() {
   console.log(`\x1b[1m
 SDD Custom Agent for Amazon Q CLI
-Version 1.1.0
+Version 1.2.0
 
 Native /kiro: command support for spec-driven development workflows
 \x1b[0m
