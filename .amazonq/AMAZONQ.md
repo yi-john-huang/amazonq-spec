@@ -49,11 +49,12 @@ The SDD Custom Agent is configured with:
 
 ```
 .kiro/
-├── steering/          # Project guidelines
-│   ├── product.md    # Business context
-│   ├── tech.md       # Technology decisions
-│   └── structure.md  # Code organization
-└── specs/            # Feature specifications
+├── steering/              # Project guidelines
+│   ├── product.md        # Business context
+│   ├── tech.md           # Technology decisions
+│   ├── structure.md      # Code organization
+│   └── linus-review.md   # Linus Torvalds code review philosophy
+└── specs/                # Feature specifications
     └── feature-name/
         ├── requirements.md
         ├── design.md
@@ -87,6 +88,47 @@ This Custom Agent integrates with Amazon Q CLI's native capabilities:
 - Provides unrestricted development and system operation support
 - Full access to Amazon Q CLI's capabilities
 - Works within Amazon Q CLI's chat interface
+
+## Code Review with Linus Torvalds Philosophy
+
+The SDD agent includes Linus Torvalds' legendary code review approach via the `linus-review.md` steering document:
+
+### Key Principles
+- **"Good Taste"**: Eliminate special cases through better design
+- **Data Structure Focus**: "Bad programmers worry about the code. Good programmers worry about data structures."
+- **Simplicity**: Functions must be short, minimal indentation, single purpose
+- **Never Break Userspace**: Maintain backward compatibility at all costs
+- **Pragmatism**: Solve real problems, not theoretical ones
+
+### 5-Layer Analysis Process
+1. **Data Structure Analysis**: Focus on core data relationships
+2. **Special Case Identification**: Eliminate if/else branches through redesign
+3. **Complexity Review**: Reduce concepts and indentation levels
+4. **Breaking Change Analysis**: Ensure backward compatibility
+5. **Practicality Validation**: Verify problems are real and solutions proportionate
+
+### Code Review Output Format
+```
+【Taste Score】
+🟢 Good taste / 🟡 Passable / 🔴 Garbage
+
+【Fatal Issues】
+- [Direct identification of worst problems]
+
+【Improvement Direction】
+"Eliminate this special case"
+"These 10 lines can become 3 lines"  
+"Data structure is wrong, should be..."
+```
+
+### Usage
+The Linus review philosophy is automatically applied during:
+- Requirements validation
+- Technical design review
+- Implementation guidance  
+- Direct code review requests
+
+Simply ask: "Review this code with Linus's standards" or reference `@linus-review.md` in your requests.
 
 ## Customization
 
